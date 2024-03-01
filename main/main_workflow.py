@@ -2,7 +2,7 @@ import os
 import timeit
 import tifffile
 from tqdm import tqdm
-from main_workflow.functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack
+from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack
 
 parent_folder_path = '/Volumes/T7/200DCE_240228_3xGFP-Ect2PH(PBC)_SFC/scope_folders'
 
@@ -26,9 +26,8 @@ with tqdm(total = len(folders)) as pbar:
     for folder in folders:
         print('******'*10)
         try:
+            # set the folder_path and image name
             folder_path = os.path.join(parent_folder_path, folder)
-            
-            # set the image name
             image_name = os.path.join(output_path, f"MAX_{folder}_raw.tif")
 
             if os.path.exists(image_name):
@@ -50,7 +49,6 @@ with tqdm(total = len(folders)) as pbar:
                 hyperstack = create_hyperstack(folder_path)
                 
                 # save the hyperstack
-                
                 tifffile.imsave(
                     image_name, 
                     hyperstack,

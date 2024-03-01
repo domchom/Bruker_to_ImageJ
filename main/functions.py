@@ -49,7 +49,6 @@ def make_log(
     '''
     logPath = os.path.join(directory, f"!image_conversion_log.txt")
     logFile = open(logPath, "w")                                    
-    logFile.write("\n" + now.strftime("%Y-%m-%d %H:%M") + "\n")     
     for key, value in logParams.items():                            
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   

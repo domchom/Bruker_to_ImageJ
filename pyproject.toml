@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "Bruker_to_ImageJ"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+tifffile = "2021.7.2"
+tqdm = "4.65.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

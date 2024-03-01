@@ -1,4 +1,4 @@
-from .functions import *
+from main.functions import *
 
 __all__ = ["get_pixel_size", 
            "get_frame_rate", 
