@@ -15,7 +15,57 @@ def get_pixel_size(xml_file):
         value = float(indexed_value.attrib["value"])
         microns_per_pixel[axis] = value 
 
-    return microns_per_pixel['XAxis'], microns_per_pixel['YAxis']
+    return microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
+
+def extract_metadata(xml_file, log_params):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+    # get the bit depth
+    bit_depth_element = root.find("./PVStateShard/PVStateValue[@key='bitDepth']")
+    if bit_depth_element is not None:
+        bit_depth = bit_depth_element.attrib['value']
+    else:
+        log_params['Issues'] = "Bit Depth not found in the XML."
+
+    # Find the PVStateValue element with key="dwellTime"
+    dwell_time_element = root.find("./PVStateShard/PVStateValue[@key='dwellTime']")
+    if dwell_time_element is not None:
+        dwell_time = dwell_time_element.attrib['value']
+    else:
+       log_params['Issues'] = "Dwell time not found in the XML."
+
+    # Find the PVStateValue element with key="heliosNDFilter"
+    helios_nd_filter_element = root.find("./PVStateShard/PVStateValue[@key='heliosNDFilter']")
+    if helios_nd_filter_element is not None:
+        helios_nd_filter_values = {}
+        for indexed_value in helios_nd_filter_element.findall("./IndexedValue"):
+            index = indexed_value.attrib['index']
+            value = indexed_value.attrib['description']
+            helios_nd_filter_values[index] = value
+    else:
+        log_params['Issues'] = "Helios ND Filter values not found in the XML."
+
+    # Find the PVStateValue element with key="laserPower"
+    laser_power_element = root.find("./PVStateShard/PVStateValue[@key='laserPower']")
+    if laser_power_element is not None:
+        laser_power_values = {}
+        for indexed_value in laser_power_element.findall("./IndexedValue"):
+            index = indexed_value.attrib['index']
+            value = indexed_value.attrib['value']
+            description = indexed_value.attrib['description']
+            laser_power_values[index] = f'value: {value}, description: {description}'
+    else:
+        log_params['Issues'] = "Laser Power values not found in the XML."
+
+    # Find the PVStateValue element with key="objectiveLens"
+    objective_lens_element = root.find("./PVStateShard/PVStateValue[@key='objectiveLens']")
+    if objective_lens_element is not None:
+        objective_lens_description = objective_lens_element.attrib['value']
+    else:
+         log_params['Issues'] = "Objective Lens description not found in the XML."
+
+    return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params
 
 def get_frame_rate(xml_file):
     tree = ET.parse(xml_file)
