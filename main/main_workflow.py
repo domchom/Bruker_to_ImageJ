@@ -5,7 +5,7 @@ import tifffile
 from tqdm import tqdm
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
-parent_folder_path = '/Volumes/T7/201DCE_240229_3xGFP-Ect2PH(PBC)_tagged-Ect2_SFC'
+parent_folder_path = '/Volumes/T7/!Wounds/190DCE_240117_3xGFP-Ect2-PH(PBC)_mCh-Rho-IT_BFP_SFC/scope_folders'
 
 # performance tracker
 start = timeit.default_timer()
@@ -72,8 +72,8 @@ with tqdm(total = len(folders)) as pbar:
                     imagej=True,
                     resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
                     metadata={'axes': 'TCYX',
-                            'finterval': framerate,
-                            'mode': 'composite'}
+                              'finterval': framerate,
+                              'mode': 'composite'}
                     )
 
                 # extract the metadata and save it in the csv file
@@ -81,13 +81,13 @@ with tqdm(total = len(folders)) as pbar:
                 with open(csv_file_path, 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow([folder, 
-                        X_microns_per_pixel, 
-                        Z_microns_per_pixel, 
-                        bit_depth, 
-                        dwell_time,
-                        helios_nd_filter_values, 
-                        laser_power_values, 
-                        objective_lens_description])  
+                                    X_microns_per_pixel, 
+                                    Z_microns_per_pixel, 
+                                    bit_depth, 
+                                    dwell_time,
+                                    helios_nd_filter_values, 
+                                    laser_power_values, 
+                                    objective_lens_description])  
 
                 log_params['Files Processed'].append(folder)
                 print(f"Successfully processed {folder}!")
