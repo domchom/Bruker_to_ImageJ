@@ -3,7 +3,22 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
+# TODO: and the ability to import movies from the lightsheet and FV
+# TODO: add the abiility to create MIPs and save them if no MIPs already exist
+# TODO: add the ability to import single plane images (although this might already work)
+# TODO: add the ability to import single timepoint z stacks (although this might already work)
+
+
 def get_pixel_size(xml_file):
+    """
+    Retrieves the pixel size in microns from an XML file.
+
+    Parameters:
+        xml_file (str): The path to the XML file.
+
+    Returns:
+        tuple: A tuple containing the pixel size in microns for the X, Y, and Z axes respectively.
+    """
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -18,6 +33,21 @@ def get_pixel_size(xml_file):
     return microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
 
 def extract_metadata(xml_file, log_params):
+    """
+    Extracts metadata from an XML file.
+
+    Parameters:
+    - xml_file (str): The path to the XML file.
+    - log_params (dict): A dictionary to store any issues encountered during extraction.
+
+    Returns:
+    - bit_depth (str): The bit depth value extracted from the XML file.
+    - dwell_time (str): The dwell time value extracted from the XML file.
+    - helios_nd_filter_values (dict): A dictionary containing the Helios ND Filter values extracted from the XML file.
+    - laser_power_values (dict): A dictionary containing the Laser Power values extracted from the XML file.
+    - objective_lens_description (str): The objective lens description extracted from the XML file.
+    - log_params (dict): The updated log_params dictionary with any issues encountered during extraction.
+    """
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -68,6 +98,16 @@ def extract_metadata(xml_file, log_params):
     return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params
 
 def get_frame_rate(xml_file):
+    """
+    Calculate the frame rate of a video based on the provided XML file.
+
+    Parameters:
+        xml_file (str): The path to the XML file containing the video metadata.
+
+    Returns:
+        float: The frame rate of the video.
+    """
+
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -91,25 +131,43 @@ def get_frame_rate(xml_file):
     return framerate
 
 def make_log(
-    directory: str, 
+    logPath: str, 
     logParams: dict
 ):
     '''
-    Convert dictionary of parameters to a log file and save it in the directory
+    Creates a log file in the specified directory with the specified parameters.
+
+    Parameters
+    directory : str
+        The directory in which to create the log file.
+    logParams : dict
+        A dictionary containing the parameters to be logged.
     '''
-    logPath = os.path.join(directory, f"!image_conversion_log.txt")
     logFile = open(logPath, "w")                                    
     for key, value in logParams.items():                            
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
 
 def create_hyperstack(folder_path):
+    '''
+    Create a hyperstack from the tiff files in the specified folder.
+
+    Parameters:
+    folder_path : str
+        The folder containing the tiff files to be combined into a hyperstack.
+
+    Returns:
+    numpy.ndarray
+        The hyperstack created from the tiff files in the specified folder.
+    '''
     # convert and save the tiff stack
     all_files = []
     mip_folder_path = os.path.join(folder_path, "MIP")
     if os.path.exists(mip_folder_path) and os.path.isdir(mip_folder_path):
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
         all_files.extend(files_in_mip)
+
+    all_files = sorted(all_files)
 
     channel_files = {}
     for file in all_files:

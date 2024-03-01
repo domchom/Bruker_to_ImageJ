@@ -5,7 +5,7 @@ import tifffile
 from tqdm import tqdm
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
-parent_folder_path = '/Volumes/T7/200DCE_240228_3xGFP-Ect2PH(PBC)_SFC/scope_folders'
+parent_folder_path = '/Volumes/T7/201DCE_240229_3xGFP-Ect2PH(PBC)_tagged-Ect2_SFC'
 
 # performance tracker
 start = timeit.default_timer()
@@ -19,7 +19,7 @@ output_path = os.path.join(parent_folder_path, "!processed_images")
 os.makedirs(output_path, exist_ok=True)
 
 # create the csv file to store the metadata
-csv_file_path = os.path.join(output_path, "metadata.csv")
+csv_file_path = os.path.join(output_path, "!image_metadata.csv")
 with open(csv_file_path, 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['Folder Name', 
@@ -31,7 +31,8 @@ with open(csv_file_path, 'w', newline='') as file:
                      'Laser Power Values', 
                      'Objective Lens Description'])    
 
-# set log file
+# set log file path and parameters
+logPath = os.path.join(output_path, f"!image_conversion_log.txt")
 log_params = {'Files Not Processed': [],
               'Files Processed': [],
               'Issues': []}
@@ -51,7 +52,6 @@ with tqdm(total = len(folders)) as pbar:
                 pass
 
             else:
-
                 # get the xml file
                 xml_file = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]
                 xml_file = os.path.join(folder_path, xml_file[0])
@@ -64,8 +64,6 @@ with tqdm(total = len(folders)) as pbar:
 
                 # create the hyperstack
                 hyperstack = create_hyperstack(folder_path)
-
-                bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params = extract_metadata(xml_file, log_params)
                 
                 # save the hyperstack
                 tifffile.imsave(
@@ -78,7 +76,8 @@ with tqdm(total = len(folders)) as pbar:
                             'mode': 'composite'}
                     )
 
-                # Write the data to the CSV file
+                # extract the metadata and save it in the csv file
+                bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params = extract_metadata(xml_file, log_params)
                 with open(csv_file_path, 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow([folder, 
@@ -102,6 +101,6 @@ with tqdm(total = len(folders)) as pbar:
 end = timeit.default_timer()
 log_params["Time Elapsed"] = f"{end - start:.2f} seconds"
 
-make_log(parent_folder_path, log_params)
+make_log(logPath, log_params)
 
 print("Done!")
