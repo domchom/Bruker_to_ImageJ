@@ -64,7 +64,20 @@ with tqdm(total = len(folders)) as pbar:
 
                 # create the hyperstack
                 hyperstack = create_hyperstack(folder_path)
-                
+
+                print(hyperstack.ndim)
+
+                # check if the hyperstack has a shape of 3 (aka single channel) and save it as a single channel image
+                if hyperstack.ndim == 3:
+                    tifffile.imsave(
+                    image_name, 
+                    hyperstack,
+                    imagej=True,
+                    resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                    metadata={'axes': 'TYX',
+                              'finterval': framerate}
+                    )
+
                 # save the hyperstack
                 tifffile.imsave(
                     image_name, 
