@@ -5,7 +5,7 @@ import tifffile
 from tqdm import tqdm
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
-parent_folder_path = '/Volumes/T7/!Wounds/190DCE_240117_3xGFP-Ect2-PH(PBC)_mCh-Rho-IT_BFP_SFC/scope_folders'
+parent_folder_path = '/Volumes/DOM_FIVE/143DCE_230524_Ect2_1000ng_utr_SFC/scope_folders'
 
 # performance tracker
 start = timeit.default_timer()
@@ -64,9 +64,7 @@ with tqdm(total = len(folders)) as pbar:
 
                 # create the hyperstack
                 hyperstack = create_hyperstack(folder_path)
-
-                print(hyperstack.ndim)
-
+                
                 # check if the hyperstack has a shape of 3 (aka single channel) and save it as a single channel image
                 if hyperstack.ndim == 3:
                     tifffile.imsave(
@@ -78,7 +76,7 @@ with tqdm(total = len(folders)) as pbar:
                               'finterval': framerate}
                     )
 
-                # save the hyperstack
+                # save the hyperstack if it has a shape of 4 (aka multi channel)
                 tifffile.imsave(
                     image_name, 
                     hyperstack,
