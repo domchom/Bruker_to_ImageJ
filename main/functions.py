@@ -3,7 +3,6 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
-# TODO: add a gui to select the parent folder
 # TODO: and the ability to import movies from the lightsheet and FV
 # TODO: add the ability to create MIPs and save them if no MIPs already exist
 # TODO: add the ability to import single plane images (although this might already work)
