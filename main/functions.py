@@ -198,18 +198,9 @@ def create_hyperstack(folder_path):
             channel_files[channel_name] = []
         channel_files[channel_name].append(file)
 
-    # TODO: Figure out to handle single plane time series, and multi plane, single timepoint
-    # They are saved as .ome.tif files, but this does not work for that
-    # multi_plane_multi_timepoint saved as      [T, C, Y, X]
-    # multi_plane_single_timepoint saved as     [T, C, Z, Y, X]
-    # single_plane saved as                     [Z, C, T, Y, X]
-    
-    # must be in                                [T, Z, C, Y, X]
-
-    # Read images for each channel
     channel_images = {}
     for channel_name, files in channel_files.items():
-        channel_images[channel_name] = [tifffile.imread(file) for file in files]
+        channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
 
     # Stack images for each channel
     stacked_images = {}
@@ -218,5 +209,11 @@ def create_hyperstack(folder_path):
 
     # Stack images across channels
     merged_images = np.stack(list(stacked_images.values()), axis=1)
+
+    if image_type == "multi_plane_single_timepoint":
+        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])
+
+    if image_type == "single_plane":
+        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
 
     return merged_images, image_type
