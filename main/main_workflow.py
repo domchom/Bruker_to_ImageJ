@@ -6,14 +6,14 @@ from tqdm import tqdm
 from gui import BaseGUI
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
-parent_folder_path = '/Volumes/DOM_FIVE/143DCE_230524_Ect2_1000ng_utr_SFC/scope_folders'
+parent_folder_path = '/Users/domchom/Desktop/test'
 
 def main():
-    gui = BaseGUI()
-    gui.mainloop()
+    #gui = BaseGUI()
+    #gui.mainloop()
 
     # get standard GUI parameters
-    parent_folder_path = gui.folder_path
+    #parent_folder_path = gui.folder_path
 
     # performance tracker
     start = timeit.default_timer()
@@ -66,35 +66,48 @@ def main():
 
                     # get the pixel size
                     X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel =  get_pixel_size(xml_file)
-
+                    
                     # get the frame rate
                     framerate = get_frame_rate(xml_file)
 
                     # create the hyperstack
-                    hyperstack = create_hyperstack(folder_path)
+                    hyperstack, image_type = create_hyperstack(folder_path)
                     
-                    # check if the hyperstack has a shape of 3 (aka single channel) and save it as a single channel image
-                    if hyperstack.ndim == 3:
-                        tifffile.imsave(
-                        image_name, 
-                        hyperstack,
-                        imagej=True,
-                        resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                        metadata={'axes': 'TYX',
-                                'finterval': framerate}
-                        )
-
-                    # save the hyperstack if it has a shape of 4 (aka multi channel)
-                    tifffile.imsave(
-                        image_name, 
-                        hyperstack,
-                        imagej=True,
-                        resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                        metadata={'axes': 'TCYX',
-                                'finterval': framerate,
-                                'mode': 'composite'}
-                        )
-
+                    print(f'{image_name}: {hyperstack.shape}, {image_type}')
+                    
+                    if image_type == 'multi_plane_multi_timepoint':
+                        tifffile.imwrite(
+                            image_name, 
+                            hyperstack,
+                            imagej=True,
+                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                            metadata={'axes': 'TCYX',
+                                    'finterval': framerate,
+                                    'mode': 'composite'}
+                            )
+                    
+                    if image_type == 'multi_plane_single_timepoint':
+                        tifffile.imwrite(
+                            image_name, 
+                            hyperstack,
+                            imagej=True,
+                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                            metadata={'axes': 'TCZYX',
+                                    'finterval': framerate,
+                                    'mode': 'composite'}
+                            )
+                    
+                    if image_type == 'single_plane':
+                        tifffile.imwrite(
+                            image_name, 
+                            hyperstack,
+                            imagej=True,
+                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                            metadata={'axes': 'ZTCYX',
+                                    'finterval': framerate,
+                                    'mode': 'composite'}
+                            )
+            
                     # extract the metadata and save it in the csv file
                     bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params = extract_metadata(xml_file, log_params)
                     with open(csv_file_path, 'a', newline='') as file:

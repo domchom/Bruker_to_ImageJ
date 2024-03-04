@@ -63,7 +63,7 @@ def extract_metadata(xml_file, log_params):
     if dwell_time_element is not None:
         dwell_time = dwell_time_element.attrib['value']
     else:
-       log_params['Issues'] = "Dwell time not found in the XML."
+        log_params['Issues'] = "Dwell time not found in the XML."
 
     # Find the PVStateValue element with key="heliosNDFilter"
     helios_nd_filter_element = root.find("./PVStateShard/PVStateValue[@key='heliosNDFilter']")
@@ -93,7 +93,7 @@ def extract_metadata(xml_file, log_params):
     if objective_lens_element is not None:
         objective_lens_description = objective_lens_element.attrib['value']
     else:
-         log_params['Issues'] = "Objective Lens description not found in the XML."
+        log_params['Issues'] = "Objective Lens description not found in the XML."
 
     return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params
 
@@ -160,21 +160,51 @@ def create_hyperstack(folder_path):
     numpy.ndarray
         The hyperstack created from the tiff files in the specified folder.
     '''
-    # convert and save the tiff stack
     all_files = []
+    image_type = None
+
+    # Check to see if multiple stacks were acquired
     mip_folder_path = os.path.join(folder_path, "MIP")
     if os.path.exists(mip_folder_path) and os.path.isdir(mip_folder_path):
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
-        all_files.extend(files_in_mip)
+        len(files_in_mip)
+        # If a single timepoint
+        if len(files_in_mip) < 3:
+            for file in os.listdir(folder_path):
+                if file.endswith(".tif"):
+                    file_path = os.path.join(folder_path, file)
+                    all_files.append(file_path)
+                    image_type = "multi_plane_single_timepoint"
+        # If a time series
+        else:
+            all_files.extend(files_in_mip)
+            image_type = "multi_plane_multi_timepoint"
+
+    # For single plane time series
+    else:
+        for file in os.listdir(folder_path):
+            if file.endswith(".tif"):
+                file_path = os.path.join(folder_path, file)
+                all_files.append(file_path)
+                image_type = "single_plane"
 
     all_files = sorted(all_files)
 
+    # Group files by channel
     channel_files = {}
     for file in all_files:
         channel_name = os.path.basename(file).split('_')[-2] 
         if channel_name not in channel_files:
             channel_files[channel_name] = []
         channel_files[channel_name].append(file)
+
+    # TODO: Figure out to handle single plane time series, and multi plane, single timepoint
+    # They are saved as .ome.tif files, but this does not work for that
+    # multi_plane_multi_timepoint saved as      [T, C, Y, X]
+    # multi_plane_single_timepoint saved as     [T, C, Z, Y, X]
+    # single_plane saved as                     [Z, C, T, Y, X]
+    
+    # must be in                                [T, Z, C, Y, X]
 
     # Read images for each channel
     channel_images = {}
@@ -189,4 +219,4 @@ def create_hyperstack(folder_path):
     # Stack images across channels
     merged_images = np.stack(list(stacked_images.values()), axis=1)
 
-    return merged_images
+    return merged_images, image_type
