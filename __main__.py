@@ -2,8 +2,10 @@ import os
 import csv
 import timeit
 import tifffile
-from gui import BaseGUI
-from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
+from functions_gui.gui import BaseGUI
+from functions_gui.functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
+
+# TODO: make it so that the user does not need to install any packages manually
 
 # just for testing. No need to use this if you plan to use the GUI
 parent_folder_path = '/Users/domchom/Desktop/test'
