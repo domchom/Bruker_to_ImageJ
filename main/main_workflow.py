@@ -6,14 +6,15 @@ from tqdm import tqdm
 from gui import BaseGUI
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
+# just for testing. No need to use this if you plan to use the GUI
 parent_folder_path = '/Users/domchom/Desktop/test'
 
 def main():
-    #gui = BaseGUI()
-    #gui.mainloop()
+    gui = BaseGUI()
+    gui.mainloop()
 
-    # get standard GUI parameters
-    #parent_folder_path = gui.folder_path
+    get standard GUI parameters
+    parent_folder_path = gui.folder_path
 
     # performance tracker
     start = timeit.default_timer()
