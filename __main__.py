@@ -116,9 +116,9 @@ def main():
                     writer = csv.writer(file)
                     writer.writerow([folder, 
                                     X_microns_per_pixel, 
-                                    Z_microns_per_pixel, 
+                                    Z_microns_per_pixel,
+                                    framerate, 
                                     bit_depth, 
-                                    framerate,
                                     dwell_time,
                                     helios_nd_filter_values, 
                                     laser_power_values, 
