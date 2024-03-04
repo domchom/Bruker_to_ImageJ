@@ -13,7 +13,7 @@ def main():
     gui = BaseGUI()
     gui.mainloop()
 
-    get standard GUI parameters
+    # get standard GUI parameters
     parent_folder_path = gui.folder_path
 
     # performance tracker
