@@ -2,7 +2,6 @@ import os
 import csv
 import timeit
 import tifffile
-from tqdm import tqdm
 from gui import BaseGUI
 from functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata
 
@@ -46,89 +45,87 @@ def main():
                 'Files Processed': [],
                 'Issues': []}
 
-    with tqdm(total = len(folders)) as pbar:
-        pbar.set_description('Files processed:')
-        for folder in folders:
-            print('******'*10)
-            try:
-                # set the folder_path and image name
-                folder_path = os.path.join(parent_folder_path, folder)
-                image_name = os.path.join(output_path, f"MAX_{folder}_raw.tif")
+    for folder in folders:
+        print('******'*10)
+        try:
+            # set the folder_path and image name
+            folder_path = os.path.join(parent_folder_path, folder)
+            image_name = os.path.join(output_path, f"MAX_{folder}_raw.tif")
 
-                if os.path.exists(image_name):
-                    print(f"{folder} already exists!")
-                    log_params['Files Not Processed'].append(f'{folder}: Already exists!')
-                    pass
+            if os.path.exists(image_name):
+                print(f"{folder} already exists!")
+                log_params['Files Not Processed'].append(f'{folder}: Already exists!')
 
-                else:
-                    # get the xml file
-                    xml_file = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]
-                    xml_file = os.path.join(folder_path, xml_file[0])
-
-                    # get the pixel size
-                    X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel =  get_pixel_size(xml_file)
-                    
-                    # get the frame rate
-                    framerate = get_frame_rate(xml_file)
-
-                    # create the hyperstack
-                    hyperstack, image_type = create_hyperstack(folder_path)
-                    
-                    print(f'{image_name}: {hyperstack.shape}, {image_type}')
-                    
-                    if image_type == 'multi_plane_multi_timepoint':
-                        tifffile.imwrite(
-                            image_name, 
-                            hyperstack,
-                            imagej=True,
-                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                            metadata={'axes': 'TCYX',
-                                    'finterval': framerate,
-                                    'mode': 'composite'}
-                            )
-                    
-                    if image_type == 'multi_plane_single_timepoint':
-                        tifffile.imwrite(
-                            image_name, 
-                            hyperstack,
-                            imagej=True,
-                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                            metadata={'axes': 'TZCYX',
-                                    'mode': 'composite'}
-                            )
-                    
-                    if image_type == 'single_plane':
-                        tifffile.imwrite(
-                            image_name, 
-                            hyperstack,
-                            imagej=True,
-                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                            metadata={'axes': 'TZCYX',
-                                    'finterval': framerate,
-                                    'mode': 'composite'}
-                            )
-            
-                    # extract the metadata and save it in the csv file
-                    bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params = extract_metadata(xml_file, log_params)
-                    with open(csv_file_path, 'a', newline='') as file:
-                        writer = csv.writer(file)
-                        writer.writerow([folder, 
-                                        X_microns_per_pixel, 
-                                        Z_microns_per_pixel, 
-                                        bit_depth, 
-                                        dwell_time,
-                                        helios_nd_filter_values, 
-                                        laser_power_values, 
-                                        objective_lens_description])  
-
-                    log_params['Files Processed'].append(folder)
-                    print(f"Successfully processed {folder}!")
-                    
-            except Exception as e:
-                log_params['Files Not Processed'].append(f'{folder}: {e}')
                 pass
 
-            pbar.update(1)
+            else:
+                # get the xml file
+                xml_file = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]
+                xml_file = os.path.join(folder_path, xml_file[0])
+
+                # get the pixel size
+                X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel =  get_pixel_size(xml_file)
+                
+                # get the frame rate
+                framerate = get_frame_rate(xml_file)
+
+                # create the hyperstack
+                hyperstack, image_type = create_hyperstack(folder_path)
+                                    
+                if image_type == 'multi_plane_multi_timepoint':
+                    tifffile.imwrite(
+                        image_name, 
+                        hyperstack,
+                        imagej=True,
+                        resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                        metadata={'axes': 'TCYX',
+                                'finterval': framerate,
+                                'mode': 'composite'}
+                        )
+                
+                if image_type == 'multi_plane_single_timepoint':
+                    tifffile.imwrite(
+                        image_name, 
+                        hyperstack,
+                        imagej=True,
+                        resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                        metadata={'axes': 'TZCYX',
+                                'mode': 'composite'}
+                        )
+                
+                if image_type == 'single_plane':
+                    # Have to recalculate the framerate for single plane
+                    num_frames = hyperstack.shape[0]
+                    framerate = framerate / num_frames
+                    tifffile.imwrite(
+                        image_name, 
+                        hyperstack,
+                        imagej=True,
+                        resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
+                        metadata={'axes': 'TZCYX',
+                                'finterval': framerate,
+                                'mode': 'composite'}
+                        )
+        
+                # extract the metadata and save it in the csv file
+                bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params = extract_metadata(xml_file, log_params)
+                with open(csv_file_path, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([folder, 
+                                    X_microns_per_pixel, 
+                                    Z_microns_per_pixel, 
+                                    bit_depth, 
+                                    dwell_time,
+                                    helios_nd_filter_values, 
+                                    laser_power_values, 
+                                    objective_lens_description])  
+
+                log_params['Files Processed'].append(folder)
+                print(f"Successfully processed {folder}!")
+                
+        except Exception as e:
+            log_params['Files Not Processed'].append(f'{folder}: {e}')
+            pass
         
     end = timeit.default_timer()
     log_params["Time Elapsed"] = f"{end - start:.2f} seconds"
