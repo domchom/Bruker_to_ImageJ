@@ -8,7 +8,7 @@ from functions_gui.functions import get_pixel_size, get_frame_rate, make_log, cr
 # TODO: make it so that the user does not need to install any packages manually
 
 # just for testing. No need to use this if you plan to use the GUI
-parent_folder_path = '/Users/domchom/Desktop/test'
+parent_folder_path = '/Volumes/T7/!Ect2-tail_waves/205DCE_240328_3xGFP-Ect2-tail_mCh-rGBD_SFC'
 
 def main():
     gui = BaseGUI()

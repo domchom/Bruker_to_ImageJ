@@ -24,7 +24,7 @@ class BaseGUI(tk.Tk):
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')        
         
         # create start button
-        self.start_button = ttk.Button(self, text = 'Start analysis')
+        self.start_button = ttk.Button(self, text = 'Start conversion')
         self.start_button['command'] = self.start_analysis
         self.start_button.grid(row = 9, column = 0, padx = 10, sticky = 'E')
 
