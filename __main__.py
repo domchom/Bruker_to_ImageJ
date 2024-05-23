@@ -94,24 +94,8 @@ def main():
                                     'finterval': framerate,
                                     'mode': 'composite'}
                             )
-                
-                if image_type == 'multi_plane_single_timepoint':
-                    image_name = os.path.join(output_path, f"{folder}_raw.tif")
-                    if os.path.exists(image_name):
-                        print(f"{folder} already exists!")
-                        log_params['Files Not Processed'].append(f'{folder}: Already exists!')
-                        pass
-                    else:
-                        tifffile.imwrite(
-                            image_name, 
-                            hyperstack,
-                            imagej=True,
-                            resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                            metadata={'axes': 'TZCYX',
-                                    'mode': 'composite'}
-                            )
-                        
-                if image_type == 'multi_plane_multi_timepoint':
+                                        
+                if image_type == 'multi_plane_multi_timepoint' or image_type == 'multi_plane_single_timepoint':
                     image_name = os.path.join(output_path, f"{folder}_raw.tif")
                     if os.path.exists(image_name):
                         print(f"{folder} already exists!")

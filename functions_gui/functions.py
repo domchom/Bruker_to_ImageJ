@@ -168,28 +168,35 @@ def create_hyperstack(folder_path, max_project=False):
     # Check to see if multiple stacks were acquired
     mip_folder_path = os.path.join(folder_path, "MIP")
     if os.path.exists(mip_folder_path) and os.path.isdir(mip_folder_path):
+
+        # Get all files in the MIP folder
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
-        # If a single timepoint, and do not want to create a max projection
-        if len(files_in_mip) < 5 and max_project == False: #TODO: This is a hacky way to determine if it's a single timepoint
-            for file in os.listdir(folder_path):
-                if file.endswith(".tif"):
-                    file_path = os.path.join(folder_path, file)
-                    all_files.append(file_path)
-                    image_type = "multi_plane_single_timepoint"
-        elif len(files_in_mip) < 5 and max_project == True:
-            all_files.extend(files_in_mip)
-            image_type = "multi_plane_single_timepoint_max_project"
-        # If a time series, max projection is not desired
-        elif len(files_in_mip) > 5 and max_project == False:
-            for file in os.listdir(folder_path):
-                if file.endswith(".tif"):
-                    file_path = os.path.join(folder_path, file)
-                    all_files.append(file_path)
-                    image_type = "multi_plane_multi_timepoint"
-        # If a time series, max projection is desired
+
+        # Check if a single timepoint was acquired
+        last_file = files_in_mip[-1]
+        single_timepoint = True if last_file.split('_')[-3] == 'Cycle00001' else False
+
+        # Collect all files in the folder for specific image types
+        if single_timepoint == True:
+            if max_project == False:
+                for file in os.listdir(folder_path):
+                    if file.endswith(".tif"):
+                        file_path = os.path.join(folder_path, file)
+                        all_files.append(file_path)
+                        image_type = "multi_plane_single_timepoint"
+            else:
+                all_files.extend(files_in_mip)
+                image_type = "multi_plane_single_timepoint_max_project"
         else:
-            all_files.extend(files_in_mip)
-            image_type = "multi_plane_multi_timepoint_max_project"
+            if max_project == False:
+                for file in os.listdir(folder_path):
+                    if file.endswith(".tif"):
+                        file_path = os.path.join(folder_path, file)
+                        all_files.append(file_path)
+                        image_type = "multi_plane_multi_timepoint"
+            else:
+                all_files.extend(files_in_mip)
+                image_type = "multi_plane_multi_timepoint_max_project"
 
     # For single plane time series
     else:
@@ -199,7 +206,8 @@ def create_hyperstack(folder_path, max_project=False):
                 all_files.append(file_path)
                 image_type = "single_plane"
 
-    all_files = sorted(all_files)
+    # Sort files to ensure correct order
+    all_files.sort()
 
     # Group files by channel
     channel_files = {}
@@ -209,21 +217,24 @@ def create_hyperstack(folder_path, max_project=False):
             channel_files[channel_name] = []
         channel_files[channel_name].append(file)
 
+    # Read images for each channel
     channel_images = {}
     for channel_name, files in channel_files.items():
-        channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
+        try:
+            channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
+        except Exception as e:
+            print(f"Error reading TIFF file for channel {channel_name}: {e}")
+            return None, None
 
     # Stack images for each channel
-    stacked_images = {}
-    for channel_name, images in channel_images.items():
-        stacked_images[channel_name] = np.stack(images)
+    stacked_images = {channel_name: np.stack(images) for channel_name, images in channel_images.items()}
 
     # Stack images across channels
     merged_images = np.stack(list(stacked_images.values()), axis=1)
 
+    # Adjust axes based on image type
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])        
-
     if image_type == "single_plane":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
 
