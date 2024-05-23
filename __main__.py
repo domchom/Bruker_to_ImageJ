@@ -107,7 +107,7 @@ def main():
                             hyperstack,
                             imagej=True,
                             resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
-                            metadata={'axes': 'ZCYX',
+                            metadata={'axes': 'TZCYX',
                                     'mode': 'composite'}
                             )
                         
@@ -124,6 +124,7 @@ def main():
                             imagej=True,
                             resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
                             metadata={'axes': 'TZCYX',
+                                    'finterval': framerate,
                                     'mode': 'composite'}
                             )
                 
