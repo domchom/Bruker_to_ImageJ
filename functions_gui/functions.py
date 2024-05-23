@@ -220,7 +220,7 @@ def create_hyperstack(folder_path, max_project=False):
 
     # Stack images across channels
     merged_images = np.stack(list(stacked_images.values()), axis=1)
-    
+
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])        
 

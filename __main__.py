@@ -166,7 +166,8 @@ def main():
                 print(f"Successfully processed {folder}!")
                     
             except Exception as e:
-                log_params['Files Not Processed'].append(f'{folder}: {e}')
+                log_params['Files Not Processed'].append(f'{folder}: {e}' )
+                print(f"Error processing {folder}!")
                 pass
             
         end = timeit.default_timer()
