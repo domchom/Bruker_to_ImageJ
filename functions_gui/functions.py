@@ -148,13 +148,15 @@ def make_log(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
 
-def create_hyperstack(folder_path):
+def create_hyperstack(folder_path, max_project=False):
     '''
     Create a hyperstack from the tiff files in the specified folder.
 
     Parameters:
     folder_path : str
         The folder containing the tiff files to be combined into a hyperstack.
+    max_project : bool
+        Whether or not to create a maximum projection of the hyperstack.
 
     Returns:
     numpy.ndarray
@@ -167,18 +169,27 @@ def create_hyperstack(folder_path):
     mip_folder_path = os.path.join(folder_path, "MIP")
     if os.path.exists(mip_folder_path) and os.path.isdir(mip_folder_path):
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
-        len(files_in_mip)
-        # If a single timepoint
-        if len(files_in_mip) < 3:
+        # If a single timepoint, and do not want to create a max projection
+        if len(files_in_mip) < 5 and max_project == False: #TODO: This is a hacky way to determine if it's a single timepoint
             for file in os.listdir(folder_path):
                 if file.endswith(".tif"):
                     file_path = os.path.join(folder_path, file)
                     all_files.append(file_path)
                     image_type = "multi_plane_single_timepoint"
-        # If a time series
+        elif len(files_in_mip) < 5 and max_project == True:
+            all_files.extend(files_in_mip)
+            image_type = "multi_plane_single_timepoint_max_project"
+        # If a time series, max projection is not desired
+        elif len(files_in_mip) > 5 and max_project == False:
+            for file in os.listdir(folder_path):
+                if file.endswith(".tif"):
+                    file_path = os.path.join(folder_path, file)
+                    all_files.append(file_path)
+                    image_type = "multi_plane_multi_timepoint"
+        # If a time series, max projection is desired
         else:
             all_files.extend(files_in_mip)
-            image_type = "multi_plane_multi_timepoint"
+            image_type = "multi_plane_multi_timepoint_max_project"
 
     # For single plane time series
     else:
@@ -210,10 +221,26 @@ def create_hyperstack(folder_path):
     # Stack images across channels
     merged_images = np.stack(list(stacked_images.values()), axis=1)
 
-    if image_type == "multi_plane_single_timepoint":
+    if image_type == "multi_plane_multi_timepoint":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])
+        pass
 
     if image_type == "single_plane":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
 
     return merged_images, image_type
+
+def determine_scope(
+    folder_path: str
+):
+    if '.oif' in folder_path:
+        return 'Olympus'
+    else:
+        return 'Bruker'
+    
+def create_hyperstack_olympus(
+    image_path: str
+):
+    if image_path.endswith(".oif"):
+        image = tifffile.imread(image_path, is_ome=True)
+        return image

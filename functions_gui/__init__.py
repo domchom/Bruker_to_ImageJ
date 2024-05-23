@@ -4,4 +4,6 @@ __all__ = ["get_pixel_size",
            "get_frame_rate", 
            "make_log", 
            "create_hyperstack",
-           "extract_metadata"]
+           "extract_metadata",
+           "determine_scope", 
+           "create_hyperstack_olympus"]
