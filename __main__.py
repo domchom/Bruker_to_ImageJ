@@ -24,6 +24,9 @@ def main():
     ch3_lut = gui.channel3_var
     ch4_lut = gui.channel4_var
 
+    # create the imagej tags to load the LUTs
+    ijtags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
+
     # performance tracker
     start = timeit.default_timer()
 
@@ -46,9 +49,6 @@ def main():
                 'Issues': []}
 
     microscope_type = determine_scope(folders[0])
-
-    # create the imagej tags, specifically for the LUTs
-    ijtags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
 
     if microscope_type == 'Bruker':
         print('Bruker microscope detected!')
