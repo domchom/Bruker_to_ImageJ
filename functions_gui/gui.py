@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askdirectory
@@ -15,6 +16,13 @@ class BaseGUI(tk.Tk):
         self.folder_path = tk.StringVar()
         self.max_project = tk.BooleanVar()
         self.max_project.set(True)
+
+        # create LUT dictionary and variables
+        self.lut_dict = self.create_lut()
+        self.channel1_var = tk.StringVar(value='Red')
+        self.channel2_var = tk.StringVar(value='Green')
+        self.channel3_var = tk.StringVar(value='Blue')
+        self.channel4_var = tk.StringVar(value='Magenta')
 
         # file path selection widget
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
@@ -38,9 +46,65 @@ class BaseGUI(tk.Tk):
         self.cancel_button['command'] = self.cancel_analysis
         self.cancel_button.grid(row = 9, column = 1, padx = 10, sticky = 'W')
 
+        # create LUT selection widgets
+        self.channel1_menu = ttk.Combobox(self, textvariable=self.channel1_var, values=list(self.lut_dict.keys()))
+        self.channel2_menu = ttk.Combobox(self, textvariable=self.channel2_var, values=list(self.lut_dict.keys()))
+        self.channel3_menu = ttk.Combobox(self, textvariable=self.channel3_var, values=list(self.lut_dict.keys()))
+        self.channel4_menu = ttk.Combobox(self, textvariable=self.channel4_var, values=list(self.lut_dict.keys()))
+        
+        self.channel1_menu.grid(row=0, column=2)
+        self.channel2_menu.grid(row=1, column=2)
+        self.channel3_menu.grid(row=2, column=2)
+        self.channel4_menu.grid(row=3, column=2)
 
     def get_folder_path(self):
         self.folder_path.set(askdirectory())
+
+    def create_lut(self):
+        # Define LUTs
+        grays = np.tile(np.arange(256, dtype='uint8'), (3, 1))
+
+        red = np.zeros((3, 256), dtype='uint8')
+        red[0] = np.arange(256, dtype='uint8')
+
+        green = np.zeros((3, 256), dtype='uint8')
+        green[1] = np.arange(256, dtype='uint8')
+
+        blue = np.zeros((3, 256), dtype='uint8')
+        blue[2] = np.arange(256, dtype='uint8')
+
+        magenta = np.zeros((3, 256), dtype='uint8')
+        magenta[0] = np.arange(256, dtype='uint8')
+        magenta[2] = np.arange(256, dtype='uint8')
+
+        cyan = np.zeros((3, 256), dtype='uint8')
+        cyan[1] = np.arange(256, dtype='uint8')
+        cyan[2] = np.arange(256, dtype='uint8')
+
+        yellow = np.zeros((3, 256), dtype='uint8')
+        yellow[0] = np.arange(256, dtype='uint8')
+        yellow[1] = np.arange(256, dtype='uint8')
+
+        fire = np.zeros((3, 256), dtype='uint8')
+        fire[0] = np.clip(np.arange(256) * 4, 0, 255)
+        fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)
+        fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)
+
+        ice = np.zeros((3, 256), dtype='uint8')
+        ice[1] = np.clip(np.arange(256) * 4, 0, 255)
+        ice[2] = np.clip(np.arange(256) * 4, 0, 255)
+
+        return {
+            'Grays': grays,
+            'Red': red,
+            'Green': green,
+            'Blue': blue,
+            'Magenta': magenta,
+            'Cyan': cyan,
+            'Yellow': yellow,
+            #'Fire': fire,
+            #'Ice': ice
+        }
 
     def cancel_analysis(self):
         sys.exit('You have cancelled the analysis')
@@ -48,6 +112,10 @@ class BaseGUI(tk.Tk):
     def start_analysis(self):
         self.folder_path = self.folder_path.get()
         self.max_project = self.max_project.get()
+        self.channel1_var = self.lut_dict[self.channel1_var.get()]
+        self.channel2_var = self.lut_dict[self.channel2_var.get()]
+        self.channel3_var = self.lut_dict[self.channel3_var.get()]
+        self.channel4_var = self.lut_dict[self.channel4_var.get()]
         
         # destroy the widget
         self.destroy()

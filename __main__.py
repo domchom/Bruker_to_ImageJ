@@ -3,13 +3,52 @@ import csv
 import timeit
 import shutil
 import tifffile
+import numpy as np
 from functions_gui.gui import BaseGUI
-from functions_gui.functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata, determine_scope, create_hyperstack_olympus
+from functions_gui.functions import get_pixel_size, get_frame_rate, make_log, create_hyperstack, extract_metadata, determine_scope, create_hyperstack_olympus, imagej_metadata_tags
 
 # TODO: make it so that the user does not need to install any packages manually
 
 # just for testing. No need to use this if you plan to use the GUI
 parent_folder_path = '/Volumes/T7/!Rho-IT/212DCE_240522_mCh-IT-Rho_GFP-rGBD_SFC'
+
+# Define the red LUT
+red = np.zeros((3, 256), dtype='uint8')
+red[0] = np.arange(256, dtype='uint8')
+
+# Define the green LUT
+green = np.zeros((3, 256), dtype='uint8')
+green[1] = np.arange(256, dtype='uint8')
+
+# Define the blue LUT
+blue = np.zeros((3, 256), dtype='uint8')
+blue[2] = np.arange(256, dtype='uint8')
+
+# Define the magenta LUT
+magenta = np.zeros((3, 256), dtype='uint8')
+magenta[0] = np.arange(256, dtype='uint8')
+magenta[2] = np.arange(256, dtype='uint8')
+
+# Define the cyan LUT
+cyan = np.zeros((3, 256), dtype='uint8')
+cyan[1] = np.arange(256, dtype='uint8')
+cyan[2] = np.arange(256, dtype='uint8')
+
+# Define the yellow LUT
+yellow = np.zeros((3, 256), dtype='uint8')
+yellow[0] = np.arange(256, dtype='uint8')
+yellow[1] = np.arange(256, dtype='uint8')
+
+# Define the fire LUT (example: gradient from black to red to yellow to white)
+fire = np.zeros((3, 256), dtype='uint8')
+fire[0] = np.clip(np.arange(256) * 4, 0, 255)  # Red increases linearly
+fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)  # Green starts increasing after 64 steps
+fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)  # Blue starts increasing after 128 steps
+
+# Define the ice LUT (example: gradient from black to cyan to white)
+ice = np.zeros((3, 256), dtype='uint8')
+ice[1] = np.clip(np.arange(256) * 4, 0, 255)  # Green increases linearly
+ice[2] = np.clip(np.arange(256) * 4, 0, 255)  # Blue increases linearly
 
 def main():
     gui = BaseGUI()
@@ -18,6 +57,10 @@ def main():
     # get standard GUI parameters
     parent_folder_path = gui.folder_path
     max_project = gui.max_project
+    ch1_lut = gui.channel1_var
+    ch2_lut = gui.channel2_var
+    ch3_lut = gui.channel3_var
+    ch4_lut = gui.channel4_var
 
     # performance tracker
     start = timeit.default_timer()
@@ -41,6 +84,9 @@ def main():
                 'Issues': []}
 
     microscope_type = determine_scope(folders[0])
+
+    # create the imagej tags, specifically for the LUTs
+    ijtags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
 
     if microscope_type == 'Bruker':
         print('Bruker microscope detected!')
@@ -77,7 +123,7 @@ def main():
 
                 # create the hyperstack
                 hyperstack, image_type = create_hyperstack(folder_path, max_project)
-                                    
+
                 if image_type == 'multi_plane_multi_timepoint_max_project' or image_type == 'multi_plane_single_timepoint_max_project':
                     image_name = os.path.join(output_path, f"MAX_{folder}_raw.tif")
                     if os.path.exists(image_name):
@@ -88,11 +134,14 @@ def main():
                         tifffile.imwrite(
                             image_name, 
                             hyperstack,
+                            byteorder='>',
                             imagej=True,
                             resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
                             metadata={'axes': 'TCYX',
                                     'finterval': framerate,
-                                    'mode': 'composite'}
+                                    'mode': 'composite'
+                                    },
+                            extratags=ijtags
                             )
                                         
                 if image_type == 'multi_plane_multi_timepoint' or image_type == 'multi_plane_single_timepoint':
@@ -105,13 +154,15 @@ def main():
                         tifffile.imwrite(
                             image_name, 
                             hyperstack,
+                            byteorder='>',
                             imagej=True,
                             resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
                             metadata={'axes': 'TZCYX',
                                     'finterval': framerate,
-                                    'mode': 'composite'}
-                            )
-                
+                                    'mode': 'composite'
+                                    },
+                            extratags=ijtags
+                            )                
                 if image_type == 'single_plane':
                     # Have to recalculate the framerate for single plane
                     num_frames = hyperstack.shape[0]
@@ -125,11 +176,14 @@ def main():
                         tifffile.imwrite(
                             image_name, 
                             hyperstack,
+                            byteorder='>',
                             imagej=True,
                             resolution=(1/X_microns_per_pixel, 1/Y_microns_per_pixel),
                             metadata={'axes': 'TZCYX',
                                     'finterval': framerate,
-                                    'mode': 'composite'}
+                                    'mode': 'composite'
+                                    },
+                            extratags=ijtags
                             )
         
                 # extract the metadata and save it in the csv file
@@ -174,10 +228,7 @@ def main():
             image = create_hyperstack_olympus(file)
             print
        
-                
-
-
-
+           
 if __name__ == '__main__':
     main()
 

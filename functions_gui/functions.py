@@ -1,4 +1,5 @@
 import os
+import struct
 import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -8,6 +9,57 @@ import xml.etree.ElementTree as ET
 # TODO: add the ability to import single plane images (although this might already work)
 # TODO: add the ability to import single timepoint z stacks (although this might already work)0
 
+def imagej_metadata_tags(metadata, byteorder):
+    """Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
+
+    The tags can be passed to the TiffWriter.save function as extratags.
+
+    """
+    header = [{'>': b'IJIJ', '<': b'JIJI'}[byteorder]]
+    bytecounts = [0]
+    body = []
+
+    def writestring(data, byteorder):
+        return data.encode('utf-16' + {'>': 'be', '<': 'le'}[byteorder])
+
+    def writedoubles(data, byteorder):
+        return struct.pack(byteorder+('d' * len(data)), *data)
+
+    def writebytes(data, byteorder):
+        return data.tobytes()
+
+    metadata_types = (
+        ('Info', b'info', 1, writestring),
+        ('Labels', b'labl', None, writestring),
+        ('Ranges', b'rang', 1, writedoubles),
+        ('LUTs', b'luts', None, writebytes),
+        ('Plot', b'plot', 1, writebytes),
+        ('ROI', b'roi ', 1, writebytes),
+        ('Overlays', b'over', None, writebytes))
+
+    for key, mtype, count, func in metadata_types:
+        if key not in metadata:
+            continue
+        if byteorder == '<':
+            mtype = mtype[::-1]
+        values = metadata[key]
+        if count is None:
+            count = len(values)
+        else:
+            values = [values]
+        header.append(mtype + struct.pack(byteorder+'I', count))
+        for value in values:
+            data = func(value, byteorder)
+            body.append(data)
+            bytecounts.append(len(data))
+
+    body = b''.join(body)
+    header = b''.join(header)
+    data = header + body
+    bytecounts[0] = len(header)
+    bytecounts = struct.pack(byteorder+('I' * len(bytecounts)), *bytecounts)
+    return ((50839, 'B', len(data), data, True),
+            (50838, 'I', len(bytecounts)//4, bytecounts, True))
 
 def get_pixel_size(xml_file):
     """
@@ -165,11 +217,15 @@ def create_hyperstack(folder_path, max_project=False):
     all_files = []
     image_type = None
 
-    # Check to see if multiple stacks were acquired
-    mip_folder_path = os.path.join(folder_path, "MIP")
-    if os.path.exists(mip_folder_path) and os.path.isdir(mip_folder_path):
+    #get all the files in the folder
+    files_names = [file for file in os.listdir(folder_path) if file.endswith('.tif')]
+    last_file_name = files_names[-1]
+    single_plane = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
+    
+    if not single_plane:
 
         # Get all files in the MIP folder
+        mip_folder_path = os.path.join(folder_path, "MIP")
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
 
         # Check if a single timepoint was acquired

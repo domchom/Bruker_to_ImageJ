@@ -6,4 +6,6 @@ __all__ = ["get_pixel_size",
            "create_hyperstack",
            "extract_metadata",
            "determine_scope", 
-           "create_hyperstack_olympus"]
+           "create_hyperstack_olympus",
+           "imagej_metadata_tags"
+]
