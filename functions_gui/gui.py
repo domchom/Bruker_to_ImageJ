@@ -51,11 +51,19 @@ class BaseGUI(tk.Tk):
         self.channel2_menu = ttk.Combobox(self, textvariable=self.channel2_var, values=list(self.lut_dict.keys()))
         self.channel3_menu = ttk.Combobox(self, textvariable=self.channel3_var, values=list(self.lut_dict.keys()))
         self.channel4_menu = ttk.Combobox(self, textvariable=self.channel4_var, values=list(self.lut_dict.keys()))
-        
-        self.channel1_menu.grid(row=0, column=2)
-        self.channel2_menu.grid(row=1, column=2)
-        self.channel3_menu.grid(row=2, column=2)
-        self.channel4_menu.grid(row=3, column=2)
+        self.channel1_menu.grid(row=0, column=3)
+        self.channel2_menu.grid(row=1, column=3)
+        self.channel3_menu.grid(row=2, column=3)
+        self.channel4_menu.grid(row=3, column=3)
+
+        self.ch1_label = ttk.Label(self, text="Ch1 LUT")
+        self.ch2_label = ttk.Label(self, text="Ch2 LUT")
+        self.ch3_label = ttk.Label(self, text="Ch3 LUT")
+        self.ch4_label = ttk.Label(self, text="Ch4 LUT")
+        self.ch1_label.grid(row=0, column=2)
+        self.ch2_label.grid(row=1, column=2)
+        self.ch3_label.grid(row=2, column=2)
+        self.ch4_label.grid(row=3, column=2)
 
     def get_folder_path(self):
         self.folder_path.set(askdirectory())
