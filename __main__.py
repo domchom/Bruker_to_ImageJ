@@ -12,44 +12,6 @@ from functions_gui.functions import get_pixel_size, get_frame_rate, make_log, cr
 # just for testing. No need to use this if you plan to use the GUI
 parent_folder_path = '/Volumes/T7/!Rho-IT/212DCE_240522_mCh-IT-Rho_GFP-rGBD_SFC'
 
-# Define the red LUT
-red = np.zeros((3, 256), dtype='uint8')
-red[0] = np.arange(256, dtype='uint8')
-
-# Define the green LUT
-green = np.zeros((3, 256), dtype='uint8')
-green[1] = np.arange(256, dtype='uint8')
-
-# Define the blue LUT
-blue = np.zeros((3, 256), dtype='uint8')
-blue[2] = np.arange(256, dtype='uint8')
-
-# Define the magenta LUT
-magenta = np.zeros((3, 256), dtype='uint8')
-magenta[0] = np.arange(256, dtype='uint8')
-magenta[2] = np.arange(256, dtype='uint8')
-
-# Define the cyan LUT
-cyan = np.zeros((3, 256), dtype='uint8')
-cyan[1] = np.arange(256, dtype='uint8')
-cyan[2] = np.arange(256, dtype='uint8')
-
-# Define the yellow LUT
-yellow = np.zeros((3, 256), dtype='uint8')
-yellow[0] = np.arange(256, dtype='uint8')
-yellow[1] = np.arange(256, dtype='uint8')
-
-# Define the fire LUT (example: gradient from black to red to yellow to white)
-fire = np.zeros((3, 256), dtype='uint8')
-fire[0] = np.clip(np.arange(256) * 4, 0, 255)  # Red increases linearly
-fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)  # Green starts increasing after 64 steps
-fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)  # Blue starts increasing after 128 steps
-
-# Define the ice LUT (example: gradient from black to cyan to white)
-ice = np.zeros((3, 256), dtype='uint8')
-ice[1] = np.clip(np.arange(256) * 4, 0, 255)  # Green increases linearly
-ice[2] = np.clip(np.arange(256) * 4, 0, 255)  # Blue increases linearly
-
 def main():
     gui = BaseGUI()
     gui.mainloop()
