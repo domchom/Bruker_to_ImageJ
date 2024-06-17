@@ -33,7 +33,7 @@ class BaseGUI(tk.Tk):
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
         # create max project button
-        self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' Max Project Images?')
+        self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' Max Project z-stacks?')
         self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'E')  
         
         # create start button
