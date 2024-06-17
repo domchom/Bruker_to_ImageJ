@@ -5,9 +5,6 @@ import numpy as np
 import xml.etree.ElementTree as ET
 
 # TODO: and the ability to import movies from the lightsheet and FV
-# TODO: add the ability to create MIPs and save them if no MIPs already exist
-# TODO: add the ability to import single plane images (although this might already work)
-# TODO: add the ability to import single timepoint z stacks (although this might already work)0
 
 def imagej_metadata_tags(metadata, byteorder):
     """Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
@@ -223,7 +220,6 @@ def create_hyperstack(folder_path, max_project=False):
     single_plane = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
     
     if not single_plane:
-
         # Get all files in the MIP folder
         mip_folder_path = os.path.join(folder_path, "MIP")
         files_in_mip = [os.path.join(mip_folder_path, file) for file in os.listdir(mip_folder_path)]
