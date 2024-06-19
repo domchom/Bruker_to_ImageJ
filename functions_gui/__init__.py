@@ -1,10 +1,8 @@
 from functions_gui.functions import *
 
-__all__ = ["get_pixel_size", 
-           "get_frame_rate", 
+__all__ = ["extract_metadata", 
            "make_log", 
            "create_hyperstack",
-           "extract_metadata",
            "determine_scope", 
            "create_hyperstack_olympus",
            "imagej_metadata_tags"

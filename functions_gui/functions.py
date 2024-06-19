@@ -58,29 +58,6 @@ def imagej_metadata_tags(metadata, byteorder):
     return ((50839, 'B', len(data), data, True),
             (50838, 'I', len(bytecounts)//4, bytecounts, True))
 
-def get_pixel_size(xml_file):
-    """
-    Retrieves the pixel size in microns from an XML file.
-
-    Parameters:
-        xml_file (str): The path to the XML file.
-
-    Returns:
-        tuple: A tuple containing the pixel size in microns for the X, Y, and Z axes respectively.
-    """
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
-
-    microns_per_pixel_element = root.find(".//PVStateValue[@key='micronsPerPixel']")
-    microns_per_pixel = {}
-
-    for indexed_value in microns_per_pixel_element.findall("./IndexedValue"):
-        axis = indexed_value.attrib["index"]
-        value = float(indexed_value.attrib["value"])
-        microns_per_pixel[axis] = value 
-
-    return microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
-
 def extract_metadata(xml_file, log_params):
     """
     Extracts metadata from an XML file.
@@ -144,22 +121,6 @@ def extract_metadata(xml_file, log_params):
     else:
         log_params['Issues'] = "Objective Lens description not found in the XML."
 
-    return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params
-
-def get_frame_rate(xml_file):
-    """
-    Calculate the frame rate of a video based on the provided XML file.
-
-    Parameters:
-        xml_file (str): The path to the XML file containing the video metadata.
-
-    Returns:
-        float: The frame rate of the video.
-    """
-
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
-
     frames = root.findall('.//Frame')
     absolute_times = {}
 
@@ -177,7 +138,15 @@ def get_frame_rate(xml_file):
     total_time = float(absolute_times[num_frames])
     framerate = total_time / num_frames
 
-    return framerate
+    microns_per_pixel_element = root.find(".//PVStateValue[@key='micronsPerPixel']")
+    microns_per_pixel = {}
+
+    for indexed_value in microns_per_pixel_element.findall("./IndexedValue"):
+        axis = indexed_value.attrib["index"]
+        value = float(indexed_value.attrib["value"])
+        microns_per_pixel[axis] = value 
+
+    return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params, framerate, microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
 
 def make_log(
     logPath: str, 
