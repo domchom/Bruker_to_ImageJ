@@ -77,7 +77,7 @@ def extract_metadata(xml_file, log_params):
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
-    # get the bit depth
+    # get the bit depth with key="bitDepth"
     bit_depth_element = root.find("./PVStateShard/PVStateValue[@key='bitDepth']")
     if bit_depth_element is not None:
         bit_depth = bit_depth_element.attrib['value']
@@ -121,9 +121,9 @@ def extract_metadata(xml_file, log_params):
     else:
         log_params['Issues'] = "Objective Lens description not found in the XML."
 
+    # Find the frame rate
     frames = root.findall('.//Frame')
     absolute_times = {}
-
     for index, frame in enumerate(frames, start=1):
         absolute_time = frame.attrib.get('absoluteTime')
         files = frame.findall('File')
@@ -132,15 +132,13 @@ def extract_metadata(xml_file, log_params):
             if "000001.ome.tif" in filename:
                 name = int(filename.split("_")[-3].split("e")[-1])
                 absolute_times[name] = absolute_time
-
     num_frames = len(absolute_times)
-        
     total_time = float(absolute_times[num_frames])
     framerate = total_time / num_frames
 
+    # Find the microns per pixel values
     microns_per_pixel_element = root.find(".//PVStateValue[@key='micronsPerPixel']")
     microns_per_pixel = {}
-
     for indexed_value in microns_per_pixel_element.findall("./IndexedValue"):
         axis = indexed_value.attrib["index"]
         value = float(indexed_value.attrib["value"])
