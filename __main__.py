@@ -29,25 +29,6 @@ def setup_logging(processed_images_path) -> tuple:
                    'Issues': []}
     return log_file_path, log_details
 
-def create_metadata_csv(processed_images_path) -> str:
-    '''
-    Create the metadata CSV file.
-    '''
-    metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
-    with open(metadata_csv_path, 'w', newline='') as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow(['Folder Name', 
-                            'Pixel Size', 
-                            'Z depth', 
-                            'Frame Rate',
-                            'Bit Depth', 
-                            'Dwell Time', 
-                            'Helios ND Filter Values',
-                            'Laser Power Values', 
-                            'Objective Lens Description']
-                        )
-    return metadata_csv_path
-
 def process_folder(folder_name, 
                    parent_folder_path, 
                    processed_images_path, 
@@ -96,11 +77,35 @@ def process_folder(folder_name,
                     extratags=imagej_tags
                 )
     
+    # Prepare the column headers and values for laser power
+    laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in laser_power_values.values()]
+    laser_powers = [value.split(':')[1].split(',')[0].strip() for value in laser_power_values.values()]
+
+    # Prepare the column headers and values for ND filters
+    nd_filter_headers = [f'{key} light path' for key in helios_nd_filter_values.keys()]
+    nd_filter_values = [value.split(':')[-1].strip() for value in helios_nd_filter_values.values()]
+
+    # Check if the file exists and create headers if not
+    try:
+        with open(metadata_csv_path, 'r') as file:
+            existing_headers = file.readline().strip().split(',')
+    except FileNotFoundError:
+        existing_headers = []
+
+    if not existing_headers:
+        # Write the headers
+        with open(metadata_csv_path, 'w', newline='') as file:
+            csv_writer = csv.writer(file)
+            headers = ["Folder Name", "X microns per pixel", "Z microns per pixel", 
+                       "Frame Rate", "Bit Depth", "Dwell Time", 
+                       "Objective Lens Description"] + laser_power_headers + nd_filter_headers
+            csv_writer.writerow(headers)
+
     # Write metadata to CSV
     with open(metadata_csv_path, 'a', newline='') as file:
         csv_writer = csv.writer(file)
-        csv_writer.writerow([folder_name, X_microns_per_pixel, Z_microns_per_pixel, frame_rate, bit_depth, dwell_time,
-                             helios_nd_filter_values, laser_power_values, objective_lens_description])
+        csv_writer.writerow([folder_name, X_microns_per_pixel, Z_microns_per_pixel, frame_rate, 
+                             bit_depth, dwell_time, objective_lens_description] + laser_powers + nd_filter_values)
     
     # Add folder name to log
     log_details['Files Processed'].append(folder_name)
@@ -131,7 +136,7 @@ def main():
     # Initialize output folders, logging, and metadata CSV
     processed_images_path, scope_folders_path = initialize_output_folders(parent_folder_path)
     log_file_path, log_details = setup_logging(processed_images_path)
-    metadata_csv_path = create_metadata_csv(processed_images_path)
+    metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
 
     # Determine the microscope type 
     microscope_type = determine_scope(image_folders[0])
