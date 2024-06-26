@@ -65,7 +65,7 @@ def process_folder(folder_name,
     # Write the hyperstack to a TIFF file
     metadata = {
         'axes': 'TCYX' if 'max_project' in image_type else 'TZCYX',
-        'finterval': frame_rate,
+        'finterval': frame_rate,'unit': 'um',
         'mode': 'composite'
     }
     tifffile.imwrite(image_output_name, 
@@ -81,8 +81,8 @@ def process_folder(folder_name,
     laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in laser_power_values.values()]
     laser_powers = [value.split(':')[1].split(',')[0].strip() for value in laser_power_values.values()]
 
-    # Prepare the column headers and values for ND filters
-    nd_filter_headers = [f'{key} light path' for key in helios_nd_filter_values.keys()]
+    # Prepare the column headers and values for ND filters        
+    nd_filter_headers = ['imaging light path', 'PA light path']
     nd_filter_values = [value.split(':')[-1].strip() for value in helios_nd_filter_values.values()]
 
     # Check if the file exists and create headers if not
