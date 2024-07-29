@@ -65,7 +65,7 @@ def process_folder(folder_name,
     # Write the hyperstack to a TIFF file
     metadata = {
         'axes': 'TCYX' if 'max_project' in image_type else 'TZCYX',
-        'finterval': frame_rate,'unit': 'um',
+        'finterval': frame_rate, 'unit': 'um',
         'mode': 'composite'
     }
     tifffile.imwrite(image_output_name, 

@@ -20,7 +20,7 @@ class BaseGUI(tk.Tk):
         # create LUT dictionary and variables
         self.lut_dict = self.create_lut()
         self.channel1_var = tk.StringVar(value='Red')
-        self.channel2_var = tk.StringVar(value='Green')
+        self.channel2_var = tk.StringVar(value='Cyan')
         self.channel3_var = tk.StringVar(value='Blue')
         self.channel4_var = tk.StringVar(value='Magenta')
 
