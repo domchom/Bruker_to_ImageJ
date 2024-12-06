@@ -28,7 +28,7 @@ class BaseGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        # self.folder_path.set('/Users/domchom/Desktop/untitled folder')
+        self.folder_path.set('/Users/domchom/Desktop/test')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
