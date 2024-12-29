@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PVScan version="5.8.64.700" date="12/6/2024 1:38:39 PM" notes="">
+  <SystemIDs SystemID="F96C-DD13-B039-C4AD-6B47-F6ED-559A-D86E">
+    <SystemID SystemID="9155158" Description="SFC- UW LOCI" />
+  </SystemIDs>
+  <PVStateShard>
+    <PVStateValue key="activeMode" value="SFC" />
+    <PVStateValue key="bitDepth" value="16" />
+    <PVStateValue key="dwellTime" value="2" />
+    <PVStateValue key="framePeriod" value="0.312" />
+    <PVStateValue key="heliosID">
+      <IndexedValue index="0" value="01154774" description="Imaging" />
+      <IndexedValue index="1" value="09155158" description="Uncaging" />
+    </PVStateValue>
+    <PVStateValue key="heliosNDFilter">
+      <IndexedValue index="0" value="0" description="Open" />
+      <IndexedValue index="1" value="1" description="Closed" />
+    </PVStateValue>
+    <PVStateValue key="interlacedScanTrackCount" value="0" />
+    <PVStateValue key="laserPower">
+      <IndexedValue index="0" value="0" description="405 nm" />
+      <IndexedValue index="1" value="0" description="488 nm" />
+      <IndexedValue index="2" value="0" description="561 nm" />
+      <IndexedValue index="3" value="0" description="640 nm" />
+      <IndexedValue index="4" value="0" description="405 PA " />
+      <IndexedValue index="5" value="0" description="488 PA" />
+      <IndexedValue index="6" value="0" description="640 PA" />
+      <IndexedValue index="7" value="0" description="1LED" />
+    </PVStateValue>
+    <PVStateValue key="LEDPower">
+      <IndexedValue index="0" value="0" description="1LED" />
+    </PVStateValue>
+    <PVStateValue key="LEDchannelSelected">
+      <SubindexedValues index="0">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="1">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="2">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="3">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="linesPerFrame" value="512" />
+    <PVStateValue key="maxVoltage">
+      <IndexedValue index="XAxis" value="-6.57" />
+      <IndexedValue index="YAxis" value="-6.17" />
+    </PVStateValue>
+    <PVStateValue key="micronsPerPixel">
+      <IndexedValue index="XAxis" value="0.26614481409002" />
+      <IndexedValue index="YAxis" value="0.26614481409002" />
+      <IndexedValue index="ZAxis" value="1" />
+    </PVStateValue>
+    <PVStateValue key="minVoltage">
+      <IndexedValue index="XAxis" value="6.27" />
+      <IndexedValue index="YAxis" value="6.67" />
+    </PVStateValue>
+    <PVStateValue key="objectiveLens" value="PlanApoVC 60x/ 1.40 Oil PFS" />
+    <PVStateValue key="objectiveLensMag" value="60" />
+    <PVStateValue key="objectiveLensNA" value="1.4" />
+    <PVStateValue key="pixelsPerLine" value="512" />
+    <PVStateValue key="positionCurrent">
+      <SubindexedValues index="XAxis">
+        <SubindexedValue subindex="0" value="-20260.3" />
+      </SubindexedValues>
+      <SubindexedValues index="YAxis">
+        <SubindexedValue subindex="0" value="-1696.7" />
+      </SubindexedValues>
+      <SubindexedValues index="ZAxis">
+        <SubindexedValue subindex="0" value="4" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="rastersPerFrame" value="1" />
+    <PVStateValue key="samplesPerPixel" value="1" />
+    <PVStateValue key="scanLinePeriod" value="0" />
+    <PVStateValue key="sfc_aperture" value="60um pinhole" />
+    <PVStateValue key="sfc_binFactor" value="1" />
+    <PVStateValue key="sfc_channelLaserSelected">
+      <SubindexedValues index="0">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="True" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="1">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="True" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="2">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="3">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="sfc_channelFilterSelected">
+      <IndexedValue index="0" value="600/52" />
+      <IndexedValue index="1" value="525/50" />
+      <IndexedValue index="2" value="Open" />
+      <IndexedValue index="3" value="Open" />
+    </PVStateValue>
+    <PVStateValue key="sfc_exposureMode" value="Timed" />
+    <PVStateValue key="sfc_exposureTime" value="50" />
+    <PVStateValue key="sfc_gain">
+      <IndexedValue index="0" value="1" description="Camera 1" />
+    </PVStateValue>
+    <PVStateValue key="sfc_gainMultFactor">
+      <IndexedValue index="0" value="463" description="Camera 1" />
+    </PVStateValue>
+    <PVStateValue key="sfc_galvoMode" value="Normal" />
+    <PVStateValue key="sfc_imagingMode" value="Confocal" />
+    <PVStateValue key="sfc_piezoHalfPeriod" value="0.156" />
+    <PVStateValue key="sfc_readoutPortSetting">
+      <IndexedValue index="0" value="0" description="Camera 1: 20 MHz (EM)" />
+    </PVStateValue>
+    <PVStateValue key="xYStageGridIndex" value="0" />
+    <PVStateValue key="xYStageGridXIndex" value="-1" />
+    <PVStateValue key="xYStageGridYIndex" value="-1" />
+    <PVStateValue key="yAspectExpansion" value="1" />
+    <PVStateValue key="zDevice" value="0" />
+  </PVStateShard>
+  <Sequence type="TSeries Timed Element" cycle="1" time="13:38:39.8381698" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard />
+    <Frame relativeTime="0" absoluteTime="0.298000000000002" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0" absoluteTime="0.298" page="1" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0" absoluteTime="0.298" page="1" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.590999999999994" absoluteTime="0.888999999999996" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.591" absoluteTime="0.889" page="2" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.591" absoluteTime="0.889" page="2" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.22099999999999" absoluteTime="1.51899999999999" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.221" absoluteTime="1.519" page="3" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.221" absoluteTime="1.519" page="3" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.821" absoluteTime="2.119" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.821" absoluteTime="2.119" page="4" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.821" absoluteTime="2.119" page="4" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="2.413" absoluteTime="2.711" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.413" absoluteTime="2.711" page="5" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.413" absoluteTime="2.711" page="5" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="3.011" absoluteTime="3.309" index="6" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="3.011" absoluteTime="3.309" page="6" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="3.011" absoluteTime="3.309" page="6" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="3.60899999999999" absoluteTime="3.907" index="7" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="3.609" absoluteTime="3.907" page="7" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="3.609" absoluteTime="3.907" page="7" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="4.217" absoluteTime="4.515" index="8" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="4.217" absoluteTime="4.515" page="8" filename="test-t-series-no-stack-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="4.217" absoluteTime="4.515" page="8" filename="test-t-series-no-stack-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0" />
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+</PVScan>
