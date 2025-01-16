@@ -1,5 +1,6 @@
 import os
 import struct
+import shutil
 import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -74,7 +75,37 @@ def extract_metadata(xml_file, log_params):
     - objective_lens_description (str): The objective lens description extracted from the XML file.
     - log_params (dict): The updated log_params dictionary with any issues encountered during extraction.
     """
-    tree = ET.parse(xml_file)
+
+    # Step 1: Make a copy of the XML file
+    backup_file = xml_file + ".backup"
+    try:
+        shutil.copy(xml_file, backup_file)
+    except Exception as e:
+        log_params['Issues'] = f"Error creating a backup of the XML file: {str(e)}"
+        return None, None, None, None, None, log_params
+
+    # Step 2: Update the version in the backup file
+    try:
+        with open(backup_file, "r") as file:
+            lines = file.readlines()
+    
+        # Remove the line directly after interlacedScanTrackLasers and interlacedScanTrackPowers elements because they have imcompatible XML syntax
+        x=0
+        for line in lines:
+            if "interlacedScanTrackLasers" in line:
+                del lines[x + 1]
+            elif "interlacedScanTrackPowers" in line:
+                del lines[x + 1]
+            x+=1
+
+        # Write the updated lines back to the backup file
+        with open(backup_file, "w") as file:
+            file.writelines(lines)
+    except Exception as e:
+        log_params['Issues'] = f"Error updating XML version in backup: {str(e)}"
+        return None, log_params
+    
+    tree = ET.parse(backup_file)
     root = tree.getroot()
 
     # get the bit depth with key="bitDepth"
@@ -143,6 +174,12 @@ def extract_metadata(xml_file, log_params):
         axis = indexed_value.attrib["index"]
         value = float(indexed_value.attrib["value"])
         microns_per_pixel[axis] = value 
+
+    # Step 4: Delete the backup file
+    try:
+        os.remove(backup_file)
+    except Exception as e:
+        log_params['Issues'] = f"Error deleting backup file: {str(e)}"
 
     return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params, framerate, microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
 
