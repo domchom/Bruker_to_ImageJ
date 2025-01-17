@@ -201,7 +201,7 @@ def make_log(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
 
-def create_hyperstack(folder_path, max_project=False):
+def create_hyperstack(folder_path, max_project=False, single_plane=False):
     '''
     Create a hyperstack from the tiff files in the specified folder.
 
@@ -221,36 +221,26 @@ def create_hyperstack(folder_path, max_project=False):
     # Get all the tif files in the folder
     folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
-    # If last tif file is 'Cycle00001', then just a single frame
-    last_file_name = folder_tif_files[-1]
-    single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
-
-    # TODO: rewrite how it detects if a single plane exists, need more test data
-    # Will likely just need to convert and then check the shape, and see if just one plane is there
-    # maybe will just need the user to specify
-
-    '''    
-    # For single plane time series
-    else:
-        for file in os.listdir(folder_path):
-            if file.endswith(".tif"):
-                file_path = os.path.join(folder_path, file)
-                all_files.append(file_path)
+    if single_plane == True:
         image_type = "single_plane"
-    '''
 
-    # Collect all files in the folder for specific image types
-    if single_timepoint:
-        if max_project:
-            image_type = "multi_plane_single_timepoint_max_project"
-        else:
-            image_type = "multi_plane_single_timepoint"
-            
     else:
-        if max_project:
-            image_type = "multi_plane_multi_timepoint_max_project"
+        # If last tif file is 'Cycle00001', then just a single frame
+        last_file_name = folder_tif_files[-1]
+        single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
+
+        # Collect all files in the folder for specific image types
+        if single_timepoint:
+            if max_project:
+                image_type = "multi_plane_single_timepoint_max_project"
+            else:
+                image_type = "multi_plane_single_timepoint"
+                
         else:
-            image_type = "multi_plane_multi_timepoint"
+            if max_project:
+                image_type = "multi_plane_multi_timepoint_max_project"
+            else:
+                image_type = "multi_plane_multi_timepoint"
 
     # Sort files to ensure correct order
     folder_tif_files.sort()
@@ -281,11 +271,16 @@ def create_hyperstack(folder_path, max_project=False):
     # Adjust axes based on image type, max projected images do not need to be adjusted
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])        
-    if image_type == "single_plane":
+    if image_type == "single_plane" and len(merged_images.shape) == 5:
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
+    elif image_type == "single_plane" and len(merged_images.shape) == 4:
+        image_type = "single_plane_single_frame"
+
+    print(f"Image type: {image_type}")
+    print(f"Image shape: {merged_images.shape}")
 
     # If the user would like a max projected image, max project
-    if max_project:
+    if max_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
         merged_images = np.max(merged_images, axis = 2)
 
     return merged_images, image_type

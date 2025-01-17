@@ -16,6 +16,7 @@ class BaseGUI(tk.Tk):
         self.folder_path = tk.StringVar()
         self.max_project = tk.BooleanVar()
         self.max_project.set(True)
+        self.single_plane = tk.BooleanVar()
 
         # create LUT dictionary and variables
         self.lut_dict = self.create_lut()
@@ -28,13 +29,17 @@ class BaseGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Downloads/new')
+        # self.folder_path.set('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/single_plane')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
         # create max project button
         self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' Max Project z-stacks?')
-        self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'E')  
+        self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'W')  
+
+        # create single-plane button
+        self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane data?')
+        self.single_plane_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -120,6 +125,7 @@ class BaseGUI(tk.Tk):
     def start_analysis(self):
         self.folder_path = self.folder_path.get()
         self.max_project = self.max_project.get()
+        self.single_plane = self.single_plane.get()
         self.channel1_var = self.lut_dict[self.channel1_var.get()]
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
         self.channel3_var = self.lut_dict[self.channel3_var.get()]

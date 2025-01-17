@@ -35,7 +35,8 @@ def process_folder(folder_name,
                    imagej_tags, 
                    max_projection, 
                    log_details, 
-                   metadata_csv_path
+                   metadata_csv_path,
+                    single_plane=False
                    ) -> dict:
     '''
     Process the folder and create the hyperstack. Also extract metadata and write to CSV.
@@ -50,7 +51,7 @@ def process_folder(folder_name,
         bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_details, frame_rate, X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel = extract_metadata(xml_file_path, log_details)
 
     # Create the hyperstack and get the image type
-    hyperstack, image_type = create_hyperstack(folder_path, max_projection)
+    hyperstack, image_type = create_hyperstack(folder_path, max_projection, single_plane)
 
     # Recalculate the frame rate for single plane: divide by number of frames
     frame_rate = frame_rate / hyperstack.shape[0] if image_type == 'single_plane' else frame_rate
@@ -62,9 +63,16 @@ def process_folder(folder_name,
         log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
         return log_details
     
+    if 'max_project' in image_type:
+        axes = 'TCYX' 
+    elif 'single_frame' in image_type: 
+        axes = 'ZCYX' 
+    else:
+        axes = 'TZCYX'
+
     # Write the hyperstack to a TIFF file
     metadata = {
-        'axes': 'TCYX' if 'max_project' in image_type else 'TZCYX',
+        'axes': axes,
         'finterval': frame_rate, 'unit': 'um',
         'mode': 'composite'
     }
@@ -122,6 +130,7 @@ def main():
     # Get GUI variables
     parent_folder_path = gui.folder_path
     max_projection = gui.max_project
+    single_plane = gui.single_plane
     ch1_lut = gui.channel1_var
     ch2_lut = gui.channel2_var
     ch3_lut = gui.channel3_var
@@ -147,7 +156,7 @@ def main():
         for folder_name in image_folders:
             print('******'*10)
             try:
-                log_details = process_folder(folder_name, parent_folder_path, processed_images_path, imagej_tags, max_projection, log_details, metadata_csv_path)
+                log_details = process_folder(folder_name, parent_folder_path, processed_images_path, imagej_tags, max_projection, log_details, metadata_csv_path, single_plane)
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
                 print(f"Error processing {folder_name}!")
