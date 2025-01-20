@@ -6,5 +6,7 @@ __all__ = ["extract_metadata",
            "determine_scope", 
            "create_hyperstack_olympus",
            "imagej_metadata_tags",
-           "process_folder"
+           "process_folder",
+           "initialize_output_folders",
+           "setup_logging"
 ]
