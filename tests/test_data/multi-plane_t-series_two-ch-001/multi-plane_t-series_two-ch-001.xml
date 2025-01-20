@@ -1,0 +1,670 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PVScan version="5.8.64.700" date="1/20/2025 12:49:10 PM" notes="">
+  <SystemIDs SystemID="F96C-DD13-B039-C4AD-6B47-F6ED-559A-D86E">
+    <SystemID SystemID="9155158" Description="SFC- UW LOCI" />
+  </SystemIDs>
+  <PVStateShard>
+    <PVStateValue key="activeMode" value="SFC" />
+    <PVStateValue key="bitDepth" value="16" />
+    <PVStateValue key="dwellTime" value="2" />
+    <PVStateValue key="framePeriod" value="0.44" />
+    <PVStateValue key="heliosID">
+      <IndexedValue index="0" value="01154774" description="Imaging" />
+      <IndexedValue index="1" value="09155158" description="Uncaging" />
+    </PVStateValue>
+    <PVStateValue key="heliosNDFilter">
+      <IndexedValue index="0" value="0" description="Open" />
+      <IndexedValue index="1" value="1" description="Closed" />
+    </PVStateValue>
+    <PVStateValue key="interlacedScanTrackCount" value="0" />
+    <PVStateValue key="laserPower">
+      <IndexedValue index="0" value="0" description="405 nm" />
+      <IndexedValue index="1" value="0" description="488 nm" />
+      <IndexedValue index="2" value="0" description="561 nm" />
+      <IndexedValue index="3" value="0" description="640 nm" />
+      <IndexedValue index="4" value="0" description="405 PA " />
+      <IndexedValue index="5" value="0" description="488 PA" />
+      <IndexedValue index="6" value="0" description="640 PA" />
+      <IndexedValue index="7" value="0" description="1LED" />
+    </PVStateValue>
+    <PVStateValue key="LEDPower">
+      <IndexedValue index="0" value="0" description="1LED" />
+    </PVStateValue>
+    <PVStateValue key="LEDchannelSelected">
+      <SubindexedValues index="0">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="1">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="2">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="3">
+        <SubindexedValue subindex="0" value="False" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="linesPerFrame" value="100" />
+    <PVStateValue key="maxVoltage">
+      <IndexedValue index="XAxis" value="-6.57" />
+      <IndexedValue index="YAxis" value="-6.17" />
+    </PVStateValue>
+    <PVStateValue key="micronsPerPixel">
+      <IndexedValue index="XAxis" value="0.266321741944764" />
+      <IndexedValue index="YAxis" value="0.266321741944764" />
+      <IndexedValue index="ZAxis" value="1" />
+    </PVStateValue>
+    <PVStateValue key="minVoltage">
+      <IndexedValue index="XAxis" value="6.27" />
+      <IndexedValue index="YAxis" value="6.67" />
+    </PVStateValue>
+    <PVStateValue key="objectiveLens" value="PlanApo 60x/ 1.20 Water PFS" />
+    <PVStateValue key="objectiveLensMag" value="60" />
+    <PVStateValue key="objectiveLensNA" value="1.2" />
+    <PVStateValue key="pixelsPerLine" value="100" />
+    <PVStateValue key="positionCurrent">
+      <SubindexedValues index="XAxis">
+        <SubindexedValue subindex="0" value="-20432.9" />
+      </SubindexedValues>
+      <SubindexedValues index="YAxis">
+        <SubindexedValue subindex="0" value="644.8" />
+      </SubindexedValues>
+      <SubindexedValues index="ZAxis">
+        <SubindexedValue subindex="0" value="-11" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="rastersPerFrame" value="1" />
+    <PVStateValue key="samplesPerPixel" value="1" />
+    <PVStateValue key="scanLinePeriod" value="0" />
+    <PVStateValue key="sfc_aperture" value="60um pinhole" />
+    <PVStateValue key="sfc_binFactor" value="1" />
+    <PVStateValue key="sfc_channelLaserSelected">
+      <SubindexedValues index="0">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="True" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="1">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="True" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="2">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+      <SubindexedValues index="3">
+        <SubindexedValue subindex="0" value="False" />
+        <SubindexedValue subindex="1" value="False" />
+        <SubindexedValue subindex="2" value="False" />
+        <SubindexedValue subindex="3" value="False" />
+        <SubindexedValue subindex="7" value="False" />
+      </SubindexedValues>
+    </PVStateValue>
+    <PVStateValue key="sfc_emissionFilter" value="Quad" />
+    <PVStateValue key="sfc_exposureMode" value="Timed" />
+    <PVStateValue key="sfc_exposureTime" value="220" />
+    <PVStateValue key="sfc_gain">
+      <IndexedValue index="0" value="1" description="Camera 1" />
+    </PVStateValue>
+    <PVStateValue key="sfc_gainMultFactor">
+      <IndexedValue index="0" value="451" description="Camera 1" />
+    </PVStateValue>
+    <PVStateValue key="sfc_galvoMode" value="Normal" />
+    <PVStateValue key="sfc_imagingMode" value="Confocal" />
+    <PVStateValue key="sfc_piezoHalfPeriod" value="0.22" />
+    <PVStateValue key="sfc_readoutPortSetting">
+      <IndexedValue index="0" value="0" description="Camera 1: 20 MHz (EM)" />
+    </PVStateValue>
+    <PVStateValue key="xYStageGridIndex" value="0" />
+    <PVStateValue key="xYStageGridXIndex" value="-1" />
+    <PVStateValue key="xYStageGridYIndex" value="-1" />
+    <PVStateValue key="yAspectExpansion" value="1" />
+    <PVStateValue key="zDevice" value="0" />
+  </PVStateShard>
+  <Sequence type="TSeries ZSeries Element" cycle="1" time="12:49:10.3619724" bidirectionalZ="False" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard />
+    <Frame relativeTime="0" absoluteTime="0.411999999999978" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.440327" absoluteTime="0.852327" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.66049" absoluteTime="1.07249" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403266" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-15.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.4403266" absoluteTime="0.852326599999978" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.880653" absoluteTime="1.292653" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.100816" absoluteTime="1.512816" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403266" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-14.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.8806532" absoluteTime="1.29265319999998" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.32098" absoluteTime="1.73298" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.541143" absoluteTime="1.953143" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403266" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-13.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.3209798" absoluteTime="1.73297979999998" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.761306" absoluteTime="2.173306" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.98147" absoluteTime="2.39347" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403266" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-12.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.7613064" absoluteTime="2.17330639999998" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.201633" absoluteTime="2.613633" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.421796" absoluteTime="2.833796" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00001_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403266" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-11.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+  <Sequence type="TSeries ZSeries Element" cycle="2" time="12:49:13.0836945" bidirectionalZ="False" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard>
+      <PVStateValue key="positionCurrent">
+        <SubindexedValues index="XAxis">
+          <SubindexedValue subindex="0" value="-20432.9" />
+        </SubindexedValues>
+        <SubindexedValues index="YAxis">
+          <SubindexedValue subindex="0" value="644.8" />
+        </SubindexedValues>
+        <SubindexedValues index="ZAxis">
+          <SubindexedValue subindex="0" value="-15" />
+        </SubindexedValues>
+      </PVStateValue>
+    </PVStateShard>
+    <Frame relativeTime="0" absoluteTime="3.17399999999998" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.440326" absoluteTime="3.614326" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.660489" absoluteTime="3.834489" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403262" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-15.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.4403262" absoluteTime="3.61432619999998" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.880652" absoluteTime="4.054652" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.100816" absoluteTime="4.274815" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403262" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-14.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.8806524" absoluteTime="4.05465239999998" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.320979" absoluteTime="4.494979" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.541142" absoluteTime="4.715142" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403262" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-13.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.3209786" absoluteTime="4.49497859999998" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.761305" absoluteTime="4.935305" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.981468" absoluteTime="5.155468" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403262" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-12.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.7613048" absoluteTime="4.93530479999998" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.201631" absoluteTime="5.375631" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.421794" absoluteTime="5.595794" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00002_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403262" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-11.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+  <Sequence type="TSeries ZSeries Element" cycle="3" time="12:49:15.9051500" bidirectionalZ="False" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard>
+      <PVStateValue key="positionCurrent">
+        <SubindexedValues index="XAxis">
+          <SubindexedValue subindex="0" value="-20432.9" />
+        </SubindexedValues>
+        <SubindexedValues index="YAxis">
+          <SubindexedValue subindex="0" value="644.8" />
+        </SubindexedValues>
+        <SubindexedValues index="ZAxis">
+          <SubindexedValue subindex="0" value="-15" />
+        </SubindexedValues>
+      </PVStateValue>
+    </PVStateShard>
+    <Frame relativeTime="0" absoluteTime="6.00099999999998" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.440295" absoluteTime="6.441295" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.660443" absoluteTime="6.661443" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4402952" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-15.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.4402952" absoluteTime="6.44129519999998" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.88059" absoluteTime="6.88159" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.100738" absoluteTime="7.101738" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4402952" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-14.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.8805904" absoluteTime="6.88159039999998" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.320886" absoluteTime="7.321886" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.541033" absoluteTime="7.542033" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4402952" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-13.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.3208856" absoluteTime="7.32188559999998" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.761181" absoluteTime="7.762181" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.981328" absoluteTime="7.982328" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4402952" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-12.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.7611808" absoluteTime="7.76218079999998" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.201476" absoluteTime="8.202476" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.421624" absoluteTime="8.422624" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00003_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4402952" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-11.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+  <Sequence type="TSeries ZSeries Element" cycle="4" time="12:49:18.7266054" bidirectionalZ="False" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard>
+      <PVStateValue key="positionCurrent">
+        <SubindexedValues index="XAxis">
+          <SubindexedValue subindex="0" value="-20432.9" />
+        </SubindexedValues>
+        <SubindexedValues index="YAxis">
+          <SubindexedValue subindex="0" value="644.8" />
+        </SubindexedValues>
+        <SubindexedValues index="ZAxis">
+          <SubindexedValue subindex="0" value="-15" />
+        </SubindexedValues>
+      </PVStateValue>
+    </PVStateShard>
+    <Frame relativeTime="0" absoluteTime="8.81199999999995" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.440327" absoluteTime="9.252327" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.660491" absoluteTime="9.47249" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.440327" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-15.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.440327" absoluteTime="9.25232699999995" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.880654" absoluteTime="9.692654" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.100818" absoluteTime="9.912817" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.440327" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-14.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.880654" absoluteTime="9.69265399999995" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.320981" absoluteTime="10.132981" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.541145" absoluteTime="10.353144" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.440327" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-13.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.320981" absoluteTime="10.132981" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.761308" absoluteTime="10.573308" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.981472" absoluteTime="10.793471" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.440327" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-12.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.761308" absoluteTime="10.573308" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.201635" absoluteTime="11.013635" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.421798" absoluteTime="11.233798" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00004_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.440327" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-11.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+  <Sequence type="TSeries ZSeries Element" cycle="5" time="12:49:21.4473302" bidirectionalZ="False" xYStageGridDefined="False" xYStageGridNumXPositions="6" xYStageGridNumYPositions="6" xYStageGridOverlapPercentage="0" xYStageGridXOverlap="0" xYStageGridYOverlap="0">
+    <PVStateShard>
+      <PVStateValue key="positionCurrent">
+        <SubindexedValues index="XAxis">
+          <SubindexedValue subindex="0" value="-20432.9" />
+        </SubindexedValues>
+        <SubindexedValues index="YAxis">
+          <SubindexedValue subindex="0" value="644.8" />
+        </SubindexedValues>
+        <SubindexedValues index="ZAxis">
+          <SubindexedValue subindex="0" value="-15" />
+        </SubindexedValues>
+      </PVStateValue>
+    </PVStateShard>
+    <Frame relativeTime="0" absoluteTime="11.559" index="1" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.440327" absoluteTime="11.999327" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="0.66049" absoluteTime="12.21949" page="1" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403268" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-15.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.4403268" absoluteTime="11.9993268" index="2" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="0.880654" absoluteTime="12.439654" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.100817" absoluteTime="12.659817" page="2" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403268" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-14.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="0.8806536" absoluteTime="12.4396536" index="3" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.32098" absoluteTime="12.87998" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.541144" absoluteTime="13.100144" page="3" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403268" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-13.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.3209804" absoluteTime="12.8799804" index="4" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="1.761307" absoluteTime="13.320307" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="1.981471" absoluteTime="13.540471" page="4" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403268" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-12.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+    <Frame relativeTime="1.7613072" absoluteTime="13.3203072" index="5" parameterSet="CurrentSettings">
+      <File channel="1" channelName="Ch1" relativeTime="2.201634" absoluteTime="13.760634" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch1_000001.ome.tif" />
+      <File channel="2" channelName="Ch2" relativeTime="2.421797" absoluteTime="13.980797" page="5" filename="multi-plane_t-series_two-ch-001_Cycle00005_Ch2_000001.ome.tif" />
+      <ExtraParameters lastGoodFrame="0" />
+      <PVStateShard>
+        <PVStateValue key="framePeriod" value="0.4403268" />
+        <PVStateValue key="positionCurrent">
+          <SubindexedValues index="XAxis">
+            <SubindexedValue subindex="0" value="-20432.9" />
+          </SubindexedValues>
+          <SubindexedValues index="YAxis">
+            <SubindexedValue subindex="0" value="644.8" />
+          </SubindexedValues>
+          <SubindexedValues index="ZAxis">
+            <SubindexedValue subindex="0" value="-11.1" />
+          </SubindexedValues>
+        </PVStateValue>
+      </PVStateShard>
+    </Frame>
+  </Sequence>
+</PVScan>
