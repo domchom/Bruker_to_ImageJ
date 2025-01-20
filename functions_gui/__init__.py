@@ -5,5 +5,6 @@ __all__ = ["extract_metadata",
            "create_hyperstack",
            "determine_scope", 
            "create_hyperstack_olympus",
-           "imagej_metadata_tags"
+           "imagej_metadata_tags",
+           "process_folder"
 ]
