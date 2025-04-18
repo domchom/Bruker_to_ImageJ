@@ -21,6 +21,7 @@ def main():
 
     # Get GUI variables
     parent_folder_path = gui.folder_path
+    avg_projection = gui.avg_project
     max_projection = gui.max_project
     single_plane = gui.single_plane
     ch1_lut = gui.channel1_var
@@ -42,13 +43,20 @@ def main():
     # Determine the microscope type 
     microscope_type = determine_scope(image_folders[0])
 
+    if avg_projection and max_projection:
+        print('Both max and avg projection selected. Only max projection will be used.')
+        avg_projection = False
+    if not avg_projection and not max_projection:
+        print('Neither max nor avg projection selected. Defaulting to max projection.')
+        max_projection = True
+
     if microscope_type == 'Bruker':
         print('Bruker microscope detected!')
         
         for folder_name in image_folders:
             print('******'*10)
             try:
-                log_details = process_folder(folder_name, parent_folder_path, processed_images_path, imagej_tags, max_projection, log_details, metadata_csv_path, single_plane)
+                log_details = process_folder(folder_name, parent_folder_path, processed_images_path, imagej_tags, avg_projection, max_projection, log_details, metadata_csv_path, single_plane)
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
                 print(f"Error processing {folder_name}!")
@@ -65,11 +73,11 @@ def main():
 
     for folder_name in image_folders:
         shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
-    
+
     end_time = timeit.default_timer()
     log_details["Time Elapsed"] = f"{end_time - start_time:.2f} seconds"
     make_log(log_file_path, log_details)
-           
+                
 if __name__ == '__main__':
     main()
 

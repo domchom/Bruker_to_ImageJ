@@ -202,7 +202,7 @@ def make_log(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
 
-def create_hyperstack(folder_path, max_project=False, single_plane=False):
+def create_hyperstack(folder_path, avg_project=False, max_project=False, single_plane=False):
     '''
     Create a hyperstack from the tiff files in the specified folder.
 
@@ -234,12 +234,16 @@ def create_hyperstack(folder_path, max_project=False, single_plane=False):
         if single_timepoint:
             if max_project:
                 image_type = "multi_plane_single_timepoint_max_project"
+            elif avg_project:
+                image_type = "multi_plane_single_timepoint_avg_project"
             else:
                 image_type = "multi_plane_single_timepoint"
                 
         else:
             if max_project:
                 image_type = "multi_plane_multi_timepoint_max_project"
+            elif avg_project:
+                image_type = "multi_plane_multi_timepoint_avg_project"
             else:
                 image_type = "multi_plane_multi_timepoint"
 
@@ -283,6 +287,9 @@ def create_hyperstack(folder_path, max_project=False, single_plane=False):
     # If the user would like a max projected image, max project
     if max_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
         merged_images = np.max(merged_images, axis = 2)
+    if avg_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
+        merged_images = np.mean(merged_images, axis = 2)
+    
 
     return merged_images, image_type
 
@@ -305,6 +312,7 @@ def process_folder(folder_name,
                    parent_folder_path, 
                    processed_images_path, 
                    imagej_tags, 
+                   avg_projection,
                    max_projection, 
                    log_details, 
                    metadata_csv_path,
@@ -323,13 +331,14 @@ def process_folder(folder_name,
         bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_details, frame_rate, X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel = extract_metadata(xml_file_path, log_details)
 
     # Create the hyperstack and get the image type
-    hyperstack, image_type = create_hyperstack(folder_path, max_projection, single_plane)
+    hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
 
     # Recalculate the frame rate for single plane: divide by number of frames
     frame_rate = frame_rate / hyperstack.shape[0] if image_type == 'single_plane' else frame_rate
     
     # create the output image name
     image_output_name = os.path.join(processed_images_path, f"{'MAX_' if 'max_project' in image_type else ''}{folder_name}_raw.tif")
+    image_output_name = os.path.join(processed_images_path, f"{'AVG_' if 'avg_project' in image_type else ''}{folder_name}_raw.tif")
     if os.path.exists(image_output_name):
         print(f"{folder_name} already exists!")
         log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')

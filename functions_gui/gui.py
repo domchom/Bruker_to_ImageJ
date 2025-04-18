@@ -37,9 +37,13 @@ class BaseGUI(tk.Tk):
         self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' Max Project z-stacks?')
         self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'W')  
 
+        # create avg project button
+        self.avg_project_button = ttk.Checkbutton(self, variable = self.avg_project, text = ' AVG Project z-stacks?')
+        self.avg_project_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
+
         # create single-plane button
         self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane data?')
-        self.single_plane_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
+        self.single_plane_button.grid(row = 3, column = 0, padx = 10, sticky = 'W')  
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -125,6 +129,7 @@ class BaseGUI(tk.Tk):
     def start_analysis(self):
         self.folder_path = self.folder_path.get()
         self.max_project = self.max_project.get()
+        self.avg_project = self.avg_project.get()
         self.single_plane = self.single_plane.get()
         self.channel1_var = self.lut_dict[self.channel1_var.get()]
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
