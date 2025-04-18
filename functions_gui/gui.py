@@ -14,6 +14,8 @@ class BaseGUI(tk.Tk):
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
         self.folder_path = tk.StringVar()
+        self.avg_project = tk.BooleanVar()
+        self.avg_project.set(False)
         self.max_project = tk.BooleanVar()
         self.max_project.set(True)
         self.single_plane = tk.BooleanVar()

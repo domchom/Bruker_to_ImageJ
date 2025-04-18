@@ -289,8 +289,8 @@ def create_hyperstack(folder_path, avg_project=False, max_project=False, single_
         merged_images = np.max(merged_images, axis = 2)
     if avg_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
         merged_images = np.mean(merged_images, axis = 2)
+        merged_images = np.round(merged_images).astype(np.uint16) 
     
-
     return merged_images, image_type
 
 def determine_scope(
@@ -337,14 +337,14 @@ def process_folder(folder_name,
     frame_rate = frame_rate / hyperstack.shape[0] if image_type == 'single_plane' else frame_rate
     
     # create the output image name
-    image_output_name = os.path.join(processed_images_path, f"{'MAX_' if 'max_project' in image_type else ''}{folder_name}_raw.tif")
-    image_output_name = os.path.join(processed_images_path, f"{'AVG_' if 'avg_project' in image_type else ''}{folder_name}_raw.tif")
+    prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
+    image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
     if os.path.exists(image_output_name):
         print(f"{folder_name} already exists!")
         log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
         return log_details
     
-    if 'max_project' in image_type:
+    if 'max_project' or 'avg_project' in image_type:
         axes = 'TCYX' 
     elif 'single_frame' in image_type: 
         axes = 'ZCYX' 
