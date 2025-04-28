@@ -19,6 +19,9 @@ class BaseGUI(tk.Tk):
         self.max_project = tk.BooleanVar()
         self.max_project.set(True)
         self.single_plane = tk.BooleanVar()
+        self.single_plane.set(False)
+        self.flamingo = tk.BooleanVar()
+        self.flamingo.set(False)
 
         # create LUT dictionary and variables
         self.lut_dict = self.create_lut()
@@ -46,6 +49,9 @@ class BaseGUI(tk.Tk):
         # create single-plane button
         self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane data?')
         self.single_plane_button.grid(row = 3, column = 0, padx = 10, sticky = 'W')  
+
+        self.flamingo_button = ttk.Checkbutton(self, text="Flamingo data?", variable=self.flamingo)
+        self.flamingo_button.grid(row=4, column=0, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -137,6 +143,7 @@ class BaseGUI(tk.Tk):
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
         self.channel3_var = self.lut_dict[self.channel3_var.get()]
         self.channel4_var = self.lut_dict[self.channel4_var.get()]
+        self.flamingo = self.flamingo.get()
         
         # destroy the widget
         self.destroy()
