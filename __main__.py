@@ -110,16 +110,8 @@ def main():
         # Get the list of all TIF files in the directory
         tif_files = [f for f in os.listdir(parent_folder_path) if f.endswith('.tif') and f.startswith('S')]
         # for reference filename structure: S000_t000000_V000_R0000_X000_Y000_C00_I0_D0_P00366
-        # S: unsure
-        # t: time point
-        # V: unsure
-        # R: rotation
-        # X: x position
-        # Y: y position
-        # C: channel
-        # I: illumination side
-        # D: unsure
-        # P: number of Z-planes
+        # S: unsure, t: time point, V: unsure, R: rotation, X: x position, 
+        # Y: y position, C: channel, I: illumination side, D: unsure, P: Z-planes
 
         # Get the number of channels and frames
         num_channels, channels = get_num_channels(tif_files)
@@ -139,7 +131,8 @@ def main():
         folder_name = os.path.basename(parent_folder_path)
         name_suffix = 'MAX' if max_projection else 'AVG' if avg_projection else 'hyperstack'
         hyperstack_output_path = f'{parent_folder_path}/{folder_name}_{name_suffix}.tif'
-        if max_projection or avg_projection: 
+        
+        if max_projection == True or avg_projection == True: 
             metadata = {
                 'axes': 'TCYX',
                 'unit': 'um',
@@ -154,12 +147,12 @@ def main():
          
         # Calculate the size of the final hyperstack in bytes
         final_hyperstack_size = final_hyperstack.nbytes
-        print(f"Final hyperstack size: {final_hyperstack_size / (1024 ** 3):.2f} GB")
-        if final_hyperstack_size > 2 * (1024 ** 3):
-            print("Warning: The final hyperstack is larger than 2 GB. It may take a while to save.")
+        if final_hyperstack_size > (1024 ** 3):
+            print(f"Warning: The final hyperstack is {final_hyperstack_size / (1024 ** 3):.2f} GB. It may take a while to save.")
             print("Consider splitting the data into smaller chunks.")
             
         print(f"Saving hyperstack to {hyperstack_output_path}...")
+        
         tifffile.imwrite(hyperstack_output_path, 
                             final_hyperstack, 
                             byteorder='>', 

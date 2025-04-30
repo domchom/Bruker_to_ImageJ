@@ -203,6 +203,10 @@ class FlamingoGUI(tk.Tk):
         self.cancel_button = ttk.Button(self, text = 'Cancel')
         self.cancel_button['command'] = self.cancel_analysis
         self.cancel_button.grid(row = 9, column = 1, padx = 10, sticky = 'W')
+        
+        # create label
+        self.help = ttk.Label(self, text = 'Flamingo conversion only works for a single image/movie at a time.\nIt does not currently support a folder containing multiple folders of images/movies')
+        self.help.grid(row=10, column=0, columnspan=4, padx=10, sticky='W')
 
         # create LUT selection widgets
         self.channel1_menu = ttk.Combobox(self, textvariable=self.channel1_var, values=list(self.lut_dict.keys()))
