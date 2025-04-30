@@ -1,4 +1,4 @@
-from functions_gui.functions import *
+from functions_gui.bruker_functions import *
 from functions_gui.flamingo_functions import *
 
 __all__ = ["extract_metadata", 

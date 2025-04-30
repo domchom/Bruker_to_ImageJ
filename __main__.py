@@ -3,7 +3,7 @@ import timeit
 import shutil
 import tifffile
 from functions_gui.gui import BaseGUI, FlamingoGUI
-from functions_gui.functions import (
+from functions_gui.bruker_functions import (
     make_log, 
     determine_scope, 
     create_hyperstack_olympus, 
@@ -19,7 +19,6 @@ from functions_gui.flamingo_functions import (
     process_flamingo_folder,
     combine_illumination_sides
 )
-
 
 def main():
     gui = BaseGUI()
@@ -39,6 +38,7 @@ def main():
     ch4_lut = gui.channel4_var
     flamingo = gui.flamingo
     
+    # If user specifies Flamingo data
     if gui.flamingo:
         gui = FlamingoGUI()
         gui.mainloop()
@@ -56,6 +56,7 @@ def main():
         ch4_lut = gui.channel4_var
         flamingo = gui.flamingo
     
+    # Check if both max and avg projection are selected
     if avg_projection and max_projection:
             print('Both max and avg projection selected. Only max projection will be used.')
             avg_projection = False
@@ -65,6 +66,7 @@ def main():
     # Create a dictionary of imagej metadata tags
     imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
 
+    # If Bruker data
     if not flamingo:
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
@@ -83,7 +85,15 @@ def main():
             for folder_name in image_folders:
                 print('******'*10)
                 try:
-                    log_details = process_folder(folder_name, parent_folder_path, processed_images_path, imagej_tags, avg_projection, max_projection, log_details, metadata_csv_path, single_plane)
+                    log_details = process_folder(folder_name, 
+                                                 parent_folder_path, 
+                                                 processed_images_path, 
+                                                 imagej_tags, 
+                                                 avg_projection, 
+                                                 max_projection, 
+                                                 log_details, 
+                                                 metadata_csv_path, 
+                                                 single_plane)
                 except Exception as e:
                     log_details['Files Not Processed'].append(f'{folder_name}: {e}')
                     print(f"Error processing {folder_name}!")
@@ -125,13 +135,26 @@ def main():
         all_images = process_flamingo_folder(parent_folder_path, tif_files, max_projection, avg_projection)
 
         # Create the final hyperstack that will hold all frames
-        final_hyperstack = combine_illumination_sides(all_images, tif_files, num_frames, num_channels, channels, max_projection, avg_projection)
+        final_hyperstack = combine_illumination_sides(all_images, 
+                                                      tif_files, 
+                                                      num_frames, 
+                                                      num_channels, 
+                                                      channels, 
+                                                      max_projection, 
+                                                      avg_projection)
 
-        # Save the hyperstack as a multi-page TIFF
+        # Create output path for the final hyperstack
         folder_name = os.path.basename(parent_folder_path)
         name_suffix = 'MAX' if max_projection else 'AVG' if avg_projection else 'hyperstack'
         hyperstack_output_path = f'{parent_folder_path}/{folder_name}_{name_suffix}.tif'
         
+        # Check if the output file already exists
+        if os.path.exists(hyperstack_output_path):
+            print(f"Output file {hyperstack_output_path} already exists. Overwriting...")
+            # Remove the existing file
+            os.remove(hyperstack_output_path)
+        
+        # Create metadata for the hyperstack
         if max_projection == True or avg_projection == True: 
             metadata = {
                 'axes': 'TCYX',
@@ -145,7 +168,8 @@ def main():
                 'mode': 'composite'
             }
          
-        # Calculate the size of the final hyperstack in bytes
+        # Calculate the size of the final hyperstack in bytes, and warn if it's too large
+        # 1 GB = 1024^3 bytes
         final_hyperstack_size = final_hyperstack.nbytes
         if final_hyperstack_size > (1024 ** 3):
             print(f"Warning: The final hyperstack is {final_hyperstack_size / (1024 ** 3):.2f} GB. It may take a while to save.")
@@ -162,7 +186,6 @@ def main():
                         )
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
-
                             
 if __name__ == '__main__':
     main()
