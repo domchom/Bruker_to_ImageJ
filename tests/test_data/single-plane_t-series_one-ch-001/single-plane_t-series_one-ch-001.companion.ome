@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 http://www.openmicroscopy.org/Schemas/OME/2012-06/ome.xsd" UUID="urn:uuid:4c7effb2-6012-4d4a-9ef4-d59f33549b8b">
+	<Image ID="Image:1" Name="Sequence:1">
+		<AcquisitionDate>2025-01-20T12:47:45</AcquisitionDate>
+		<Pixels DimensionOrder="XYZCT" ID="Pixels:1" PhysicalSizeX="0.26632174194476366" PhysicalSizeY="0.26632174194476366" PhysicalSizeZ="1" SizeC="1" SizeT="5" SizeX="100" SizeY="100" SizeZ="1" Type="uint16">
+			<Channel ID="Channel:1:0" Name="Ch1" SamplesPerPixel="1" />
+			<TiffData FirstC="0" FirstT="0" FirstZ="0" PlaneCount="1" IFD="8">
+				<UUID FileName="single-plane_t-series_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:b5afb7a8-f917-4517-aad6-60f3125ba52b</UUID>
+			</TiffData>
+			<TiffData FirstC="0" FirstT="1" FirstZ="0" PlaneCount="1" IFD="9">
+				<UUID FileName="single-plane_t-series_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:b5afb7a8-f917-4517-aad6-60f3125ba52b</UUID>
+			</TiffData>
+			<TiffData FirstC="0" FirstT="2" FirstZ="0" PlaneCount="1" IFD="10">
+				<UUID FileName="single-plane_t-series_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:b5afb7a8-f917-4517-aad6-60f3125ba52b</UUID>
+			</TiffData>
+			<TiffData FirstC="0" FirstT="3" FirstZ="0" PlaneCount="1" IFD="11">
+				<UUID FileName="single-plane_t-series_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:b5afb7a8-f917-4517-aad6-60f3125ba52b</UUID>
+			</TiffData>
+			<TiffData FirstC="0" FirstT="4" FirstZ="0" PlaneCount="1" IFD="12">
+				<UUID FileName="single-plane_t-series_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:b5afb7a8-f917-4517-aad6-60f3125ba52b</UUID>
+			</TiffData>
+			<Plane DeltaT="0" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-20" PositionZUnit="µm" TheC="0" TheT="0" TheZ="0" />
+			<Plane DeltaT="0.46300000000002228" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-20" PositionZUnit="µm" TheC="0" TheT="1" TheZ="0" />
+			<Plane DeltaT="0.92700000000002092" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-20" PositionZUnit="µm" TheC="0" TheT="2" TheZ="0" />
+			<Plane DeltaT="1.4120000000000346" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-20" PositionZUnit="µm" TheC="0" TheT="3" TheZ="0" />
+			<Plane DeltaT="1.8850000000000477" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-20" PositionZUnit="µm" TheC="0" TheT="4" TheZ="0" />
+		</Pixels>
+	</Image>
+</OME>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2012-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2012-06 http://www.openmicroscopy.org/Schemas/OME/2012-06/ome.xsd" UUID="urn:uuid:cd864c71-265d-4273-b7b4-8a7e7d0d7b59">
+	<Image ID="Image:1" Name="Sequence:1">
+		<AcquisitionDate>2025-01-20T12:52:11</AcquisitionDate>
+		<Pixels DimensionOrder="XYZCT" ID="Pixels:1" PhysicalSizeX="0.26632174194476366" PhysicalSizeY="0.26632174194476366" PhysicalSizeZ="0.10000000000000001" SizeC="1" SizeT="1" SizeX="100" SizeY="100" SizeZ="1" Type="uint16">
+			<Channel ID="Channel:1:0" Name="Ch1" SamplesPerPixel="1" />
+			<TiffData FirstC="0" FirstT="0" FirstZ="0" PlaneCount="1" IFD="0">
+				<UUID FileName="single-plane_single-frame_one-ch-001_Cycle00001_Ch1_000001.ome.tif">urn:uuid:f732ad7a-30a4-4121-8fce-2427e7cc93f2</UUID>
+			</TiffData>
+			<Plane DeltaT="0" PositionX="-20432.900000000001" PositionXUnit="µm" PositionY="644.79999999999995" PositionYUnit="µm" PositionZ="-10" PositionZUnit="µm" TheC="0" TheT="0" TheZ="0" />
+		</Pixels>
+	</Image>
+</OME>
