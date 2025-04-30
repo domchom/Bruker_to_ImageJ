@@ -222,10 +222,7 @@ def create_hyperstack(folder_path, avg_project=False, max_project=False, single_
     # Get all the tif files in the folder
     folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
-    if single_plane == True:
-        image_type = "single_plane"
-
-    else:
+    if single_plane == False:
         # If last tif file is 'Cycle00001', then just a single frame
         last_file_name = folder_tif_files[-1]
         single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
@@ -246,6 +243,8 @@ def create_hyperstack(folder_path, avg_project=False, max_project=False, single_
                 image_type = "multi_plane_multi_timepoint_avg_project"
             else:
                 image_type = "multi_plane_multi_timepoint"
+    else:
+        image_type = "single_plane"
 
     # Sort files to ensure correct order
     folder_tif_files.sort()
@@ -275,19 +274,19 @@ def create_hyperstack(folder_path, avg_project=False, max_project=False, single_
 
     # Adjust axes based on image type, max projected images do not need to be adjusted
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
-        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])        
+        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
+             
     if image_type == "single_plane" and len(merged_images.shape) == 5:
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
+        image_type = "single_plane_multi_frame"
+        
     elif image_type == "single_plane" and len(merged_images.shape) == 4:
         image_type = "single_plane_single_frame"
 
-    print(f"Image type: {image_type}")
-    print(f"Image shape: {merged_images.shape}")
-
     # If the user would like a max projected image, max project
-    if max_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
+    if max_project == True and "single_plane" not in image_type:
         merged_images = np.max(merged_images, axis = 2)
-    if avg_project == True and image_type != "single_plane" and image_type != "single_plane_single_frame":
+    if avg_project == True and "single_plane" not in image_type:
         merged_images = np.mean(merged_images, axis = 2)
         merged_images = np.round(merged_images).astype(np.uint16) 
     
@@ -334,7 +333,7 @@ def process_folder(folder_name,
     hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
 
     # Recalculate the frame rate for single plane: divide by number of frames
-    frame_rate = frame_rate / hyperstack.shape[0] if image_type == 'single_plane' else frame_rate
+    frame_rate = frame_rate / hyperstack.shape[0] if 'single_plane' in image_type else frame_rate
     
     # create the output image name
     prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
@@ -344,13 +343,15 @@ def process_folder(folder_name,
         log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
         return log_details
     
-    if 'max_project' or 'avg_project' in image_type:
+    if 'max_project' in image_type:
         axes = 'TCYX' 
-    elif 'single_frame' in image_type: 
+    elif 'avg_project' in image_type:
+        axes = 'TCYX' 
+    elif image_type == 'single_plane_single_frame': 
         axes = 'ZCYX' 
-    else:
+    elif image_type == 'single_plane_multi_frame':
         axes = 'TZCYX'
-
+        
     # Write the hyperstack to a TIFF file
     metadata = {
         'axes': axes,

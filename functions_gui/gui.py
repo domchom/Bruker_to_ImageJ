@@ -9,19 +9,20 @@ class BaseGUI(tk.Tk):
         super().__init__()
 
         # configure root window
-        self.title("Define your analysis parameters")
+        self.title("Bruker Conversion")
         self.main_frame = ttk.Frame(self, padding="20")
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
+        # create variables
         self.folder_path = tk.StringVar()
         self.avg_project = tk.BooleanVar()
         self.avg_project.set(False)
         self.max_project = tk.BooleanVar()
-        self.max_project.set(False)
+        self.max_project.set(True)
         self.single_plane = tk.BooleanVar()
         self.single_plane.set(False)
-        self.flamingo = tk.BooleanVar()
-        self.flamingo.set(True)
+        # set default value for 'rolling' and 'kymograph' to False
+        self.flamingo = False
 
         # create LUT dictionary and variables
         self.lut_dict = self.create_lut()
@@ -34,7 +35,7 @@ class BaseGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6')
+        self.folder_path.set('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -49,9 +50,6 @@ class BaseGUI(tk.Tk):
         # create single-plane button
         self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane Bruker data')
         self.single_plane_button.grid(row = 3, column = 0, padx = 10, sticky = 'W')  
-
-        self.flamingo_button = ttk.Checkbutton(self, text=" Check this Box for Flamingo data", variable=self.flamingo)
-        self.flamingo_button.grid(row=5, column=0, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -62,6 +60,11 @@ class BaseGUI(tk.Tk):
         self.cancel_button = ttk.Button(self, text = 'Cancel')
         self.cancel_button['command'] = self.cancel_analysis
         self.cancel_button.grid(row = 9, column = 1, padx = 10, sticky = 'W')
+        
+        # create button to launch rolling analysis gui
+        self.flamingo_button = ttk.Button(self, text = 'Launch flamingo conversion')
+        self.flamingo_button['command'] = self.launch_flamingo_conversion
+        self.flamingo_button.grid(row = 9, column = 3, padx = 10, sticky = 'W')
 
         # create LUT selection widgets
         self.channel1_menu = ttk.Combobox(self, textvariable=self.channel1_var, values=list(self.lut_dict.keys()))
@@ -84,6 +87,10 @@ class BaseGUI(tk.Tk):
 
     def get_folder_path(self):
         self.folder_path.set(askdirectory())
+        
+    def launch_flamingo_conversion(self):
+        self.flamingo = True
+        self.destroy()
 
     def create_lut(self):
         # Define LUTs
@@ -143,7 +150,7 @@ class BaseGUI(tk.Tk):
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
         self.channel3_var = self.lut_dict[self.channel3_var.get()]
         self.channel4_var = self.lut_dict[self.channel4_var.get()]
-        self.flamingo = self.flamingo.get()
+        self.flamingo = False
         
         # destroy the widget
         self.destroy()
@@ -154,7 +161,7 @@ class FlamingoGUI(tk.Tk):
         super().__init__()
 
         # configure root window
-        self.title("Define your analysis parameters")
+        self.title("Flamingo Conversion")
         self.main_frame = ttk.Frame(self, padding="20")
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
@@ -162,11 +169,7 @@ class FlamingoGUI(tk.Tk):
         self.avg_project = tk.BooleanVar()
         self.avg_project.set(False)
         self.max_project = tk.BooleanVar()
-        self.max_project.set(False)
-        self.single_plane = tk.BooleanVar()
-        self.single_plane.set(False)
-        self.flamingo = tk.BooleanVar()
-        self.flamingo.set(True)
+        self.max_project.set(True)
 
         # create LUT dictionary and variables
         self.lut_dict = self.create_lut()
@@ -190,13 +193,6 @@ class FlamingoGUI(tk.Tk):
         # create avg project button
         self.avg_project_button = ttk.Checkbutton(self, variable = self.avg_project, text = ' AVG Project z-stacks')
         self.avg_project_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
-
-        # create single-plane button
-        self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane Bruker data')
-        self.single_plane_button.grid(row = 3, column = 0, padx = 10, sticky = 'W')  
-
-        self.flamingo_button = ttk.Checkbutton(self, text=" Check this Box for Flamingo data", variable=self.flamingo)
-        self.flamingo_button.grid(row=5, column=0, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -283,12 +279,11 @@ class FlamingoGUI(tk.Tk):
         self.folder_path = self.folder_path.get()
         self.max_project = self.max_project.get()
         self.avg_project = self.avg_project.get()
-        self.single_plane = self.single_plane.get()
         self.channel1_var = self.lut_dict[self.channel1_var.get()]
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
         self.channel3_var = self.lut_dict[self.channel3_var.get()]
         self.channel4_var = self.lut_dict[self.channel4_var.get()]
-        self.flamingo = self.flamingo.get()
+        self.flamingo = True
         
         # destroy the widget
         self.destroy()

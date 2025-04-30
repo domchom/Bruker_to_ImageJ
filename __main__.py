@@ -2,7 +2,7 @@ import os
 import timeit
 import shutil
 import tifffile
-from functions_gui.gui import BaseGUI
+from functions_gui.gui import BaseGUI, FlamingoGUI
 from functions_gui.functions import (
     make_log, 
     determine_scope, 
@@ -38,6 +38,23 @@ def main():
     ch3_lut = gui.channel3_var
     ch4_lut = gui.channel4_var
     flamingo = gui.flamingo
+    
+    if gui.flamingo:
+        gui = FlamingoGUI()
+        gui.mainloop()
+        
+        # Performance tracker
+        start_time = timeit.default_timer()
+
+        # Get GUI variables
+        parent_folder_path = gui.folder_path
+        avg_projection = gui.avg_project
+        max_projection = gui.max_project
+        ch1_lut = gui.channel1_var
+        ch2_lut = gui.channel2_var
+        ch3_lut = gui.channel3_var
+        ch4_lut = gui.channel4_var
+        flamingo = gui.flamingo
     
     if avg_projection and max_projection:
             print('Both max and avg projection selected. Only max projection will be used.')
