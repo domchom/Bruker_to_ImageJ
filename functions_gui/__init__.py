@@ -16,4 +16,6 @@ __all__ = ["extract_metadata",
             "get_num_illumination_sides",
             "get_all_img_filenames",
             "Z_project",
+            "process_flamingo_folder",
+            "combine_illumination_sides"
 ]

@@ -2,8 +2,6 @@ import os
 import timeit
 import shutil
 import tifffile
-import numpy as np
-from datetime import datetime
 from functions_gui.gui import BaseGUI
 from functions_gui.functions import (
     make_log, 
@@ -17,7 +15,9 @@ from functions_gui.functions import (
 from functions_gui.flamingo_functions import (
     get_num_channels,
     get_num_frames,
-    Z_project
+    get_num_illumination_sides,
+    process_flamingo_folder,
+    combine_illumination_sides
 )
 
 
@@ -38,11 +38,17 @@ def main():
     ch3_lut = gui.channel3_var
     ch4_lut = gui.channel4_var
     flamingo = gui.flamingo
+    
+    if avg_projection and max_projection:
+            print('Both max and avg projection selected. Only max projection will be used.')
+            avg_projection = False
+    if not avg_projection and not max_projection:
+        print('Neither max nor avg projection selected. Saving full hyperstacks. This might take a while!')
+        
+    # Create a dictionary of imagej metadata tags
+    imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
 
     if not flamingo:
-        # Create the ImageJ tags to load the LUTs
-        imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
-
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
 
@@ -53,13 +59,6 @@ def main():
 
         # Determine the microscope type 
         microscope_type = determine_scope(image_folders[0])
-
-        if avg_projection and max_projection:
-            print('Both max and avg projection selected. Only max projection will be used.')
-            avg_projection = False
-        if not avg_projection and not max_projection:
-            print('Neither max nor avg projection selected. Defaulting to max projection.')
-            max_projection = True
 
         if microscope_type == 'Bruker':
             print('Bruker microscope detected!')
@@ -108,65 +107,48 @@ def main():
         # Get the number of channels and frames
         num_channels, channels = get_num_channels(tif_files)
         num_frames = get_num_frames(tif_files)
+        num_illumination_sides = get_num_illumination_sides(tif_files)
         print(f"Number of channels: {num_channels}")
         print(f"Number of frames: {num_frames}")
+        print(f"Number of illumination sides: {num_illumination_sides}")
 
-        # Store all Z-projected images in a list
-        all_images = []
-        all_images_dict = {}
-
-        for file_path in tif_files:
-            image_path = f'{parent_folder_path}/{file_path}'  
-            # Read the image
-            image = tifffile.imread(image_path)
-            # Z-projection here to reduce the 3D image to 2D and save memory
-            if max_projection:
-                image = Z_project(image, projection_type='max')
-            elif avg_projection:
-                image = Z_project(image, projection_type='avg')
-
-            all_images.append(image)
-            all_images_dict[file_path] = image
+        # Read all TIF files and Z-project them (if desired)
+        all_images = process_flamingo_folder(parent_folder_path, tif_files, max_projection, avg_projection)
 
         # Create the final hyperstack that will hold all frames
-        final_hyperstack = []
-
-        for frame in range(num_frames):
-            # Filter images for the current frame
-            frame_filter = f't{frame:06d}'
-            frame_images = []
-            for channel in range(num_channels):
-                # Filter images for the current frame and channel
-                channel_filter = f'C{channels[channel]}'
-                channel_images = [img for img, file in zip(all_images, tif_files) if frame_filter in file and channel_filter in file]
-                
-                # Combine all images by taking the max pixel value across all illumination sides
-                combined_image = np.max(channel_images, axis=0)
-                # Rotate the combined image 90 degrees counterclockwise
-                rotated_image = np.rot90(combined_image)
-                frame_images.append(rotated_image)
-
-            # Stack the two channels into a hyperstack, and add to the final hyperstack
-            hyperstack = np.stack(frame_images, axis=0)
-            final_hyperstack.append(hyperstack)
+        final_hyperstack = combine_illumination_sides(all_images, tif_files, num_frames, num_channels, channels, max_projection, avg_projection)
 
         # Save the hyperstack as a multi-page TIFF
-        # Get the current date and time
-        current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
-        hyperstack_output_path = f'{parent_folder_path}/hyperstack_{current_datetime}.tif'
-        metadata = {
-            'axes': 'TCYX',
-            'unit': 'um',
-            'mode': 'composite'
-        }
+        folder_name = os.path.basename(parent_folder_path)
+        name_suffix = 'MAX' if max_projection else 'AVG' if avg_projection else 'hyperstack'
+        hyperstack_output_path = f'{parent_folder_path}/{folder_name}_{name_suffix}.tif'
+        if max_projection or avg_projection: 
+            metadata = {
+                'axes': 'TCYX',
+                'unit': 'um',
+                'mode': 'composite'
+            }
+        else:
+            metadata = {
+                'axes': 'TZCYX',
+                'unit': 'um',
+                'mode': 'composite'
+            }
+         
+        # Calculate the size of the final hyperstack in bytes
+        final_hyperstack_size = final_hyperstack.nbytes
+        print(f"Final hyperstack size: {final_hyperstack_size / (1024 ** 3):.2f} GB")
+        if final_hyperstack_size > 2 * (1024 ** 3):
+            print("Warning: The final hyperstack is larger than 2 GB. It may take a while to save.")
+            print("Consider splitting the data into smaller chunks.")
             
-        final_hyperstack = np.stack(final_hyperstack, axis=0)
-
+        print(f"Saving hyperstack to {hyperstack_output_path}...")
         tifffile.imwrite(hyperstack_output_path, 
                             final_hyperstack, 
                             byteorder='>', 
                             imagej=True,
-                            metadata=metadata
+                            metadata=metadata,
+                            extratags=imagej_tags
                         )
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
