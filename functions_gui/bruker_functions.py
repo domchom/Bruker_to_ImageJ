@@ -1,58 +1,11 @@
 import os
 import csv
-import struct
 import shutil
 import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
-def initialize_output_folders(parent_folder_path) -> tuple:
-    '''
-    Create the output folders for the processed images and the scope folders.
-    '''
-    processed_images_path = os.path.join(parent_folder_path, "!processed_images")
-    os.makedirs(processed_images_path, exist_ok=True)
-    scope_folders_path = os.path.join(parent_folder_path, "!scope_folders")
-    os.makedirs(scope_folders_path, exist_ok=True)
-    return processed_images_path, scope_folders_path
-
-def setup_logging(processed_images_path) -> tuple:
-    '''
-    Set up the log file and parameters.
-    '''
-    log_file_path = os.path.join(processed_images_path, "!image_conversion_log.txt")
-    log_details = {'Files Not Processed': [],
-                   'Files Processed': [],
-                   'Issues': []}
-    return log_file_path, log_details
-
-def save_log_file(
-    logPath: str, 
-    logParams: dict
-):
-    '''
-    Creates a log file in the specified directory with the specified parameters.
-
-    Parameters
-    directory : str
-        The directory in which to create the log file.
-    logParams : dict
-        A dictionary containing the parameters to be logged.
-    '''
-    logFile = open(logPath, "w")                                    
-    for key, value in logParams.items():                            
-        logFile.write('%s: %s\n' % (key, value))                    
-    logFile.close()   
-    
-def determine_scope(
-    folder_path: str
-):
-    if '.oif' in folder_path:
-        return 'Olympus'
-    else:
-        return 'Bruker'
-
-def determine_axes(
+def determine_axes_bruker(
     image_type: str) -> tuple:
     '''
     Determine the axes of the image based on the image type.
@@ -68,24 +21,92 @@ def determine_axes(
         
     return axes
 
-def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
-    # Write the hyperstack to a TIFF file
-    saved_metadata = {
-        'axes': axes,
-        'finterval': metadata['framerate'], 
-        'unit': 'um',
-        'mode': 'composite'
-    }
-    tifffile.imwrite(image_output_name, 
-                    hyperstack, 
-                    byteorder='>', 
-                    imagej=True,
-                    resolution=(1 / metadata['X_microns_per_pixel'], 1 / metadata['Y_microns_per_pixel']),
-                    metadata=saved_metadata, 
-                    extratags=imagej_tags
-                )
+def determine_image_type_bruker(folder_path, max_project, avg_project, single_plane):
+     # Get all the tif files in the folder
+    folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
+
+    if single_plane == False:
+        # If last tif file is 'Cycle00001', then just a single frame
+        last_file_name = folder_tif_files[-1]
+        single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
+
+        # Collect all files in the folder for specific image types
+        if single_timepoint:
+            if max_project:
+                image_type = "multi_plane_single_timepoint_max_project"
+            elif avg_project:
+                image_type = "multi_plane_single_timepoint_avg_project"
+            else:
+                image_type = "multi_plane_single_timepoint"
+                
+        else:
+            if max_project:
+                image_type = "multi_plane_multi_timepoint_max_project"
+            elif avg_project:
+                image_type = "multi_plane_multi_timepoint_avg_project"
+            else:
+                image_type = "multi_plane_multi_timepoint"
+    else:
+        image_type = "single_plane"
+        
+    # Sort files to ensure correct order
+    folder_tif_files.sort()
+        
+    return image_type, folder_tif_files
+
+def get_channels_bruker(folder_path):
+    # Collect the files corresponding to each channel and put in dict
+    channel_files = {}
+    for file in folder_path:
+        channel_name = os.path.basename(file).split('_')[-2] 
+        if channel_name not in channel_files:
+            channel_files[channel_name] = []
+        channel_files[channel_name].append(file)
+        
+    return channel_files
+
+def stack_channels_bruker(channel_files):
+    # Read/create images for each channel
+    channel_images = {}
+    for channel_name, files in channel_files.items():
+        try:
+            channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
+        except Exception as e:
+            print(f"Error reading TIFF file for channel {channel_name}: {e}")
+            return None, None
+
+    # Stack the images for each channel
+    stacked_images = {channel_name: np.stack(images) for channel_name, images in channel_images.items()}
+
+    # Stack images across channels
+    merged_images = np.stack(list(stacked_images.values()), axis=1)
     
-def write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details):
+    return merged_images
+
+def adjust_axes_bruker(merged_images, image_type):
+    # Adjust axes based on image type, max projected images do not need to be adjusted
+    if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
+        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
+             
+    if image_type == "single_plane" and len(merged_images.shape) == 5:
+        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
+        image_type = "single_plane_multi_frame"
+        
+    elif image_type == "single_plane" and len(merged_images.shape) == 4:
+        image_type = "single_plane_single_frame"
+        
+    return merged_images, image_type
+
+def project_images_bruker(merged_images, image_type, max_project, avg_project):
+    if max_project == True and "single_plane" not in image_type:
+        merged_images = np.max(merged_images, axis = 2)
+    if avg_project == True and "single_plane" not in image_type:
+        merged_images = np.mean(merged_images, axis = 2)
+        merged_images = np.round(merged_images).astype(np.uint16) 
+        
+    return merged_images
+
+def write_metadata_csv_bruker(metadata, metadata_csv_path, folder_name, log_details):
     # Prepare the column headers and values for laser power
     laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in metadata['laser_power_values'].values()]
     laser_powers = [value.split(':')[1].split(',')[0].strip() for value in metadata['laser_power_values'].values()]
@@ -126,149 +147,7 @@ def write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details):
     print(f"Successfully processed {folder_name}!")
     return log_details
 
-def create_hyperstack(folder_path, avg_project=False, max_project=False, single_plane=False):
-    '''
-    Create a hyperstack from the tiff files in the specified folder.
-
-    Parameters:
-    folder_path : str
-        The folder containing the tiff files to be combined into a hyperstack.
-    max_project : bool
-        Whether or not to create a maximum projection of the hyperstack.
-
-    Returns:
-    numpy.ndarray
-        The hyperstack created from the tiff files in the specified folder.
-    '''
-    # Start without image type
-    image_type = None
-
-    # Get all the tif files in the folder
-    folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
-
-    if single_plane == False:
-        # If last tif file is 'Cycle00001', then just a single frame
-        last_file_name = folder_tif_files[-1]
-        single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
-
-        # Collect all files in the folder for specific image types
-        if single_timepoint:
-            if max_project:
-                image_type = "multi_plane_single_timepoint_max_project"
-            elif avg_project:
-                image_type = "multi_plane_single_timepoint_avg_project"
-            else:
-                image_type = "multi_plane_single_timepoint"
-                
-        else:
-            if max_project:
-                image_type = "multi_plane_multi_timepoint_max_project"
-            elif avg_project:
-                image_type = "multi_plane_multi_timepoint_avg_project"
-            else:
-                image_type = "multi_plane_multi_timepoint"
-    else:
-        image_type = "single_plane"
-
-    # Sort files to ensure correct order
-    folder_tif_files.sort()
-
-    # Collect the files corresponding to each channel and put in dict
-    channel_files = {}
-    for file in folder_tif_files:
-        channel_name = os.path.basename(file).split('_')[-2] 
-        if channel_name not in channel_files:
-            channel_files[channel_name] = []
-        channel_files[channel_name].append(file)
-
-    # Read/create images for each channel
-    channel_images = {}
-    for channel_name, files in channel_files.items():
-        try:
-            channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
-        except Exception as e:
-            print(f"Error reading TIFF file for channel {channel_name}: {e}")
-            return None, None
-
-    # Stack the images for each channel
-    stacked_images = {channel_name: np.stack(images) for channel_name, images in channel_images.items()}
-
-    # Stack images across channels
-    merged_images = np.stack(list(stacked_images.values()), axis=1)
-
-    # Adjust axes based on image type, max projected images do not need to be adjusted
-    if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
-        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
-             
-    if image_type == "single_plane" and len(merged_images.shape) == 5:
-        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
-        image_type = "single_plane_multi_frame"
-        
-    elif image_type == "single_plane" and len(merged_images.shape) == 4:
-        image_type = "single_plane_single_frame"
-
-    # If the user would like a max projected image, max project
-    if max_project == True and "single_plane" not in image_type:
-        merged_images = np.max(merged_images, axis = 2)
-    if avg_project == True and "single_plane" not in image_type:
-        merged_images = np.mean(merged_images, axis = 2)
-        merged_images = np.round(merged_images).astype(np.uint16) 
-    
-    return merged_images, image_type
-
-def imagej_metadata_tags(metadata, byteorder):
-    """Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
-
-    The tags can be passed to the TiffWriter.save function as extratags.
-
-    """
-    header = [{'>': b'IJIJ', '<': b'JIJI'}[byteorder]]
-    bytecounts = [0]
-    body = []
-
-    def writestring(data, byteorder):
-        return data.encode('utf-16' + {'>': 'be', '<': 'le'}[byteorder])
-
-    def writedoubles(data, byteorder):
-        return struct.pack(byteorder+('d' * len(data)), *data)
-
-    def writebytes(data, byteorder):
-        return data.tobytes()
-
-    metadata_types = (
-        ('Info', b'info', 1, writestring),
-        ('Labels', b'labl', None, writestring),
-        ('Ranges', b'rang', 1, writedoubles),
-        ('LUTs', b'luts', None, writebytes),
-        ('Plot', b'plot', 1, writebytes),
-        ('ROI', b'roi ', 1, writebytes),
-        ('Overlays', b'over', None, writebytes))
-
-    for key, mtype, count, func in metadata_types:
-        if key not in metadata:
-            continue
-        if byteorder == '<':
-            mtype = mtype[::-1]
-        values = metadata[key]
-        if count is None:
-            count = len(values)
-        else:
-            values = [values]
-        header.append(mtype + struct.pack(byteorder+'I', count))
-        for value in values:
-            data = func(value, byteorder)
-            body.append(data)
-            bytecounts.append(len(data))
-
-    body = b''.join(body)
-    header = b''.join(header)
-    data = header + body
-    bytecounts[0] = len(header)
-    bytecounts = struct.pack(byteorder+('I' * len(bytecounts)), *bytecounts)
-    return ((50839, 'B', len(data), data, True),
-            (50838, 'I', len(bytecounts)//4, bytecounts, True))
-
-def extract_metadata(xml_file, log_params):
+def extract_metadata_bruker(xml_file, log_params):
     """
     Extracts metadata from an XML file.
 

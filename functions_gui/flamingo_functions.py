@@ -1,9 +1,8 @@
 import numpy as np
 import tifffile
 import tqdm
-import os
 
-def get_num_channels(file_list):
+def get_num_channels_flamingo(file_list):
     # Extract the channel number from the filenames
     channel_numbers = []
     for file in file_list:
@@ -16,7 +15,7 @@ def get_num_channels(file_list):
 
     return len(channel_numbers), channel_numbers
 
-def get_num_frames(file_list):
+def get_num_frames_flamingo(file_list):
     # Extract the frame number from the filenames
     frame_numbers = []
     for file in file_list:
@@ -29,7 +28,7 @@ def get_num_frames(file_list):
 
     return len(frame_numbers)
 
-def get_num_z_planes(file_list):
+def get_num_z_planes_flamingo(file_list):
     # Extract the Z-plane number from the filenames
     for file in file_list:
         file = file.split('.')[0]
@@ -41,7 +40,7 @@ def get_num_z_planes(file_list):
 
     return num_z_planes
 
-def get_num_illumination_sides(file_list):
+def get_num_illumination_sides_flamingo(file_list):
     # Extract the excitation side from the filenames
     excite_sides = []
     for file in file_list:
@@ -54,7 +53,7 @@ def get_num_illumination_sides(file_list):
 
     return len(excite_sides)
 
-def get_all_img_filenames(file_list):
+def get_all_img_filenames_flamingo(file_list):
     # Extract the image filenames from the list
     img_filenames = []
     for file in file_list:
@@ -87,7 +86,7 @@ def process_flamingo_folder(folder_path: str,
     
     return all_images
 
-def Z_project(image: np.array,
+def Z_project_flamingo(image: np.array,
               projection_type: str ='max' #default is max projection
               ) -> np.array:
     if projection_type == 'max':
@@ -97,7 +96,7 @@ def Z_project(image: np.array,
     else:
         raise ValueError("Invalid projection type. Choose 'max', 'avg', or 'sum'.")
 
-def combine_illumination_sides(images: list,
+def combine_illumination_sides_flamingo(images: list,
                                filenames: list,
                                num_frames: int,
                                num_channels: int,

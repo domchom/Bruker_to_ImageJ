@@ -3,25 +3,30 @@ import timeit
 import shutil
 import tifffile
 from functions_gui.gui import BaseGUI, FlamingoGUI
-from functions_gui.bruker_functions import (
-    save_log_file, 
-    determine_scope, 
-    imagej_metadata_tags, 
+from functions_gui.general_functions import (
     initialize_output_folders,
     setup_logging,
-    extract_metadata,
-    create_hyperstack,
+    save_log_file,
+    determine_scope,
     save_hyperstack,
-    write_metadata_csv,
-    determine_axes
-    
+    imagej_metadata_tags
+)
+from functions_gui.bruker_functions import (
+    determine_axes_bruker,
+    determine_image_type_bruker,
+    get_channels_bruker,
+    stack_channels_bruker,
+    adjust_axes_bruker,
+    project_images_bruker,
+    write_metadata_csv_bruker,
+    extract_metadata_bruker,   
 )
 from functions_gui.flamingo_functions import (
-    get_num_channels,
-    get_num_frames,
-    get_num_illumination_sides,
+    get_num_channels_flamingo,
+    get_num_frames_flamingo,
+    get_num_illumination_sides_flamingo,
     process_flamingo_folder,
-    combine_illumination_sides
+    combine_illumination_sides_flamingo
 )
 
 def main():
@@ -95,10 +100,22 @@ def main():
                     raise FileNotFoundError(f"No XML file found in folder {folder_name}")
                 else:
                     xml_file_path = os.path.join(folder_path, xml_files[0])
-                    extracted_metadata = extract_metadata(xml_file_path, log_details)
+                    extracted_metadata = extract_metadata_bruker(xml_file_path, log_details)
                     
-                # Create the hyperstack and get the image type
-                hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
+                # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder
+                image_type, folder_tif_files = determine_image_type_bruker(folder_path, max_projection, avg_projection, single_plane)    
+                
+                # Collect the files corresponding to each channel and put in dict
+                channel_files = get_channels_bruker(folder_tif_files)
+                
+                # Stack the images for each channel, then combine them into a hyperstack
+                hyperstack = stack_channels_bruker(channel_files)
+                
+                # Adjust axes for the hyperstack depending on the image type
+                hyperstack, image_type = adjust_axes_bruker(hyperstack, image_type)
+                
+                # Project the images if max or avg projection is selected
+                hyperstack = project_images_bruker(hyperstack, image_type, max_projection, avg_projection)
                 
                 # Recalculate the frame rate for single plane: divide by number of frames
                 extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
@@ -112,13 +129,13 @@ def main():
                     return log_details
                 
                 # determine the axes for the hyperstack
-                axes = determine_axes(image_type)
+                axes = determine_axes_bruker(image_type)
                 
                 # Save the hyperstack
                 save_hyperstack(hyperstack, axes, extracted_metadata, image_output_name, imagej_tags)
                 
                 # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                log_details = write_metadata_csv(extracted_metadata, metadata_csv_path, folder_name, log_details)
+                log_details = write_metadata_csv_bruker(extracted_metadata, metadata_csv_path, folder_name, log_details)
                     
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
@@ -144,9 +161,9 @@ def main():
         # Y: y position, C: channel, I: illumination side, D: unsure, P: Z-planes
 
         # Get the number of channels and frames
-        num_channels, channels = get_num_channels(tif_files)
-        num_frames = get_num_frames(tif_files)
-        num_illumination_sides = get_num_illumination_sides(tif_files)
+        num_channels, channels = get_num_channels_flamingo(tif_files)
+        num_frames = get_num_frames_flamingo(tif_files)
+        num_illumination_sides = get_num_illumination_sides_flamingo(tif_files)
         print(f"Number of channels: {num_channels}")
         print(f"Number of frames: {num_frames}")
         print(f"Number of illumination sides: {num_illumination_sides}")
@@ -155,13 +172,13 @@ def main():
         all_images = process_flamingo_folder(parent_folder_path, tif_files, max_projection, avg_projection)
 
         # Create the final hyperstack that will hold all frames
-        final_hyperstack = combine_illumination_sides(all_images, 
-                                                      tif_files, 
-                                                      num_frames, 
-                                                      num_channels, 
-                                                      channels, 
-                                                      max_projection, 
-                                                      avg_projection)
+        final_hyperstack = combine_illumination_sides_flamingo(all_images, 
+                                                                tif_files, 
+                                                                num_frames, 
+                                                                num_channels, 
+                                                                channels, 
+                                                                max_projection, 
+                                                                avg_projection)
 
         # Create output path for the final hyperstack
         folder_name = os.path.basename(parent_folder_path)
