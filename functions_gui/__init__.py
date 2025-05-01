@@ -1,5 +1,6 @@
 from functions_gui.bruker_functions import *
 from functions_gui.flamingo_functions import *
+from functions_gui.olympus_fuctions import *
 
 __all__ = ["extract_metadata", 
            "make_log", 

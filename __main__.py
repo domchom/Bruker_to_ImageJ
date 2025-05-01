@@ -21,6 +21,7 @@ from functions_gui.flamingo_functions import (
 )
 
 def main():
+    # Bruker GUI
     gui = BaseGUI()
     gui.mainloop()
 
@@ -56,10 +57,11 @@ def main():
         ch4_lut = gui.channel4_var
         flamingo = gui.flamingo
     
-    # Check if both max and avg projection are selected
+    # Check if both max and avg projection are selected, default to max projection if both are
     if avg_projection and max_projection:
             print('Both max and avg projection selected. Only max projection will be used.')
             avg_projection = False
+    # Check if neither max nor avg projection are selected
     if not avg_projection and not max_projection:
         print('Neither max nor avg projection selected. Saving full hyperstacks. This might take a while!')
         
@@ -71,7 +73,7 @@ def main():
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
 
-        # Initialize output folders, logging, and metadata CSV
+        # Initialize output folders, logging, and metadata CSV outout paths
         processed_images_path, scope_folders_path = initialize_output_folders(parent_folder_path)
         log_file_path, log_details = setup_logging(processed_images_path)
         metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
@@ -98,6 +100,9 @@ def main():
                     log_details['Files Not Processed'].append(f'{folder_name}: {e}')
                     print(f"Error processing {folder_name}!")
                     pass
+                
+            end_time = timeit.default_timer()
+            print(f'Time elapsed: {end_time - start_time:.2f} seconds')
                 
         else:
             # TODO: Finish Olympus microscope conversion
@@ -186,6 +191,9 @@ def main():
                         )
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
+        
+        end_time = timeit.default_timer()
+        print(f'Time elapsed: {end_time - start_time:.2f} seconds')
                             
 if __name__ == '__main__':
     main()
