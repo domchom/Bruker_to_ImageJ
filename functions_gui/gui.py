@@ -170,10 +170,10 @@ class BaseGUI(tk.Tk):
           
         # Load special Fiji LUTs into the dictionary
         # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
-        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+        for lut_file in sorted(os.listdir(os.path.join(os.path.dirname(__file__), '../assets/LUTs/'))):
             if lut_file.endswith('.lut'):
                 lut_name = lut_file.split('.')[0]
-                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join(os.path.dirname(__file__), '../assets/LUTs/', lut_file))
 
         return fiji_luts
         
@@ -348,10 +348,10 @@ class FlamingoGUI(tk.Tk):
         
         # Load special Fiji LUTs into the dictionary
         # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
-        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+        for lut_file in sorted(os.listdir(os.path.join(os.path.dirname(__file__), '../assets/LUTs/'))):
             if lut_file.endswith('.lut'):
                 lut_name = lut_file.split('.')[0]
-                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join(os.path.dirname(__file__), '../assets/LUTs/', lut_file))
 
         return fiji_luts
         
@@ -535,10 +535,10 @@ class OlympusGUI(tk.Tk):
           
         # Load special Fiji LUTs into the dictionary
         # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
-        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+        for lut_file in sorted(os.listdir(os.path.join(os.path.dirname(__file__), '../assets/LUTs/'))):
             if lut_file.endswith('.lut'):
                 lut_name = lut_file.split('.')[0]
-                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join(os.path.dirname(__file__), '../assets/LUTs/', lut_file))
 
         return fiji_luts
         
