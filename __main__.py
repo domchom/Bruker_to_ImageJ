@@ -6,7 +6,6 @@ from functions_gui.general_functions import (
     initialize_output_folders,
     setup_logging,
     save_log_file,
-    determine_scope,
     save_hyperstack,
     imagej_metadata_tags
 )
@@ -43,6 +42,7 @@ def main():
     ch3_lut = gui.channel3_var
     ch4_lut = gui.channel4_var
     microscope_type = gui.microscope_type
+    auto_metadata_extract = gui.auto_metadata_extraction
     
     # If user specifies Flamingo workflow, run Flamingo GUI
     if microscope_type == 'Flamingo':
@@ -101,14 +101,20 @@ def main():
         for folder_name in image_folders:
             print('******'*10)
             try:
-                # Check for XML file and extract relevant metadata
+                print(f'Processing folder: {folder_name}')
+                # get the folder path
                 folder_path = os.path.join(parent_folder_path, folder_name)
-                xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
-                if not xml_files:
-                    raise FileNotFoundError(f"No XML file found in folder {folder_name}")
+                if auto_metadata_extract:
+                    # Check for XML file and extract relevant metadata
+                    xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
+                    if not xml_files:
+                        raise FileNotFoundError(f"No XML file found in folder {folder_name}")
+                    else:
+                        xml_file_path = os.path.join(folder_path, xml_files[0])
+                        extracted_metadata, log_details = extract_metadata_bruker(xml_file_path, log_details)
                 else:
-                    xml_file_path = os.path.join(folder_path, xml_files[0])
-                    extracted_metadata = extract_metadata_bruker(xml_file_path, log_details)
+                    log_details['Other Notes'].append(f'Skipping metadata extraction {folder_name}.')
+                    extracted_metadata = None
                     
                 # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
                 image_type, folder_tif_files = determine_image_type_bruker(folder_path, max_projection, avg_projection, single_plane)    
@@ -119,14 +125,15 @@ def main():
                 # Stack the images for each channel, then combine them into a hyperstack
                 hyperstack = stack_channels_bruker(channel_files)
                 
-                # Adjust axes for the hyperstack depending on the image type
+                # Adjust axes for the hyperstack depending on the image type, and return the adjusted image type
                 hyperstack, image_type = adjust_axes_bruker(hyperstack, image_type)
                 
                 # Project the images if max or avg projection is selected
                 hyperstack = project_images_bruker(hyperstack, image_type, max_projection, avg_projection)
                 
-                # Recalculate the frame rate for single plane: divide by number of frames
-                extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
+                if auto_metadata_extract == True:
+                    # Recalculate the frame rate for single plane: divide by number of frames
+                    extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
                                 
                 # create the output image name
                 prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""

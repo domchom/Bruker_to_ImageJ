@@ -6,7 +6,6 @@ from functions_gui.olympus_fuctions import *
 __all__ = ["initialize_output_folders",
            "setup_logging",
            "save_log_file",
-           "determine_scope",
            "save_hyperstack",
            "imagej_metadata_tags",
            

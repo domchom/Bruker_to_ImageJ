@@ -107,44 +107,48 @@ def project_images_bruker(merged_images, image_type, max_project, avg_project):
     return merged_images
 
 def write_metadata_csv_bruker(metadata, metadata_csv_path, folder_name, log_details):
-    # Prepare the column headers and values for laser power
-    laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in metadata['laser_power_values'].values()]
-    laser_powers = [value.split(':')[1].split(',')[0].strip() for value in metadata['laser_power_values'].values()]
+    if metadata == None:
+        pass
+    else:
+        # Prepare the column headers and values for laser power
+        laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in metadata['laser_power_values'].values()]
+        laser_powers = [value.split(':')[1].split(',')[0].strip() for value in metadata['laser_power_values'].values()]
 
-    # Prepare the column headers and values for ND filters        
-    nd_filter_headers = ['imaging light path', 'PA light path']
-    nd_filter_values = [value.split(':')[-1].strip() for value in metadata['helios_nd_filter_values'].values()]
+        # Prepare the column headers and values for ND filters        
+        nd_filter_headers = ['imaging light path', 'PA light path']
+        nd_filter_values = [value.split(':')[-1].strip() for value in metadata['helios_nd_filter_values'].values()]
 
-    # Check if the file exists and create headers if not
-    try:
-        with open(metadata_csv_path, 'r') as file:
-            existing_headers = file.readline().strip().split(',')
-    except FileNotFoundError:
-        existing_headers = []
+        # Check if the file exists and create headers if not
+        try:
+            with open(metadata_csv_path, 'r') as file:
+                existing_headers = file.readline().strip().split(',')
+        except FileNotFoundError:
+            existing_headers = []
 
-    if not existing_headers:
-        # Write the headers
-        with open(metadata_csv_path, 'w', newline='') as file:
+        if not existing_headers:
+            # Write the headers
+            with open(metadata_csv_path, 'w', newline='') as file:
+                csv_writer = csv.writer(file)
+                headers = ["Folder Name", "X microns per pixel", "Z microns per pixel", 
+                        "Frame Rate", "Bit Depth", "Dwell Time", 
+                        "Objective Lens Description"] + laser_power_headers + nd_filter_headers
+                csv_writer.writerow(headers)
+
+        # Write metadata to CSV
+        with open(metadata_csv_path, 'a', newline='') as file:
             csv_writer = csv.writer(file)
-            headers = ["Folder Name", "X microns per pixel", "Z microns per pixel", 
-                       "Frame Rate", "Bit Depth", "Dwell Time", 
-                       "Objective Lens Description"] + laser_power_headers + nd_filter_headers
-            csv_writer.writerow(headers)
-
-    # Write metadata to CSV
-    with open(metadata_csv_path, 'a', newline='') as file:
-        csv_writer = csv.writer(file)
-        csv_writer.writerow([folder_name, 
-                             metadata['X_microns_per_pixel'], 
-                             metadata['Z_microns_per_pixel'],
-                             metadata['framerate'],
-                                metadata['bit_depth'],
-                                metadata['dwell_time'],
-                                metadata['objective_lens_description']] + laser_powers + nd_filter_values)
-    
+            csv_writer.writerow([folder_name, 
+                                metadata['X_microns_per_pixel'], 
+                                metadata['Z_microns_per_pixel'],
+                                metadata['framerate'],
+                                    metadata['bit_depth'],
+                                    metadata['dwell_time'],
+                                    metadata['objective_lens_description']] + laser_powers + nd_filter_values)
+        
     # Add folder name to log
     log_details['Files Processed'].append(folder_name)
     print(f"Successfully processed {folder_name}!")
+        
     return log_details
 
 def extract_metadata_bruker(xml_file, log_params):
@@ -276,11 +280,10 @@ def extract_metadata_bruker(xml_file, log_params):
         'helios_nd_filter_values': helios_nd_filter_values,
         'laser_power_values': laser_power_values,
         'objective_lens_description': objective_lens_description,
-        'log_params': log_params,
         'framerate': framerate,
         'X_microns_per_pixel': microns_per_pixel['XAxis'],
         'Y_microns_per_pixel': microns_per_pixel['YAxis'],
         'Z_microns_per_pixel': microns_per_pixel['ZAxis']
     }
 
-    return metadata
+    return metadata, log_params

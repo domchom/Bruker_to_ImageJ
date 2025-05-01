@@ -21,6 +21,8 @@ class BaseGUI(tk.Tk):
         self.max_project.set(True)
         self.single_plane = tk.BooleanVar()
         self.single_plane.set(False)
+        self.auto_metadata_extraction = tk.BooleanVar()
+        self.auto_metadata_extraction.set(True)
         # No microscope type is set by default
         self.microscope_type = None
 
@@ -57,13 +59,16 @@ class BaseGUI(tk.Tk):
         self.help = ttk.Label(self, text = 'Select none of the above to save full hyperstack')
         self.help.grid(row=3, column=0, columnspan=2, padx=10, sticky='W')
         
-         # create single-plane button
+        # create single-plane button
         self.single_plane_button = ttk.Checkbutton(
             self, variable=self.single_plane, text=' Must check if data is single plane',
             command=lambda: self.update_checkboxes('single') if self.single_plane.get() else None
         )
         self.single_plane_button.grid(row = 4, column = 0, padx = 10, sticky = 'W')  
         
+        # create button to turn off metadata extraction
+        self.no_metadata_button = ttk.Checkbutton(self, text=' Extract and save metadata', variable=self.auto_metadata_extraction)
+        self.no_metadata_button.grid(row=5, column=0, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -181,6 +186,7 @@ class BaseGUI(tk.Tk):
         self.max_project = self.max_project.get()
         self.avg_project = self.avg_project.get()
         self.single_plane = self.single_plane.get()
+        self.auto_metadata_extraction = self.auto_metadata_extraction.get()
         self.channel1_var = self.lut_dict[self.channel1_var.get()]
         self.channel2_var = self.lut_dict[self.channel2_var.get()]
         self.channel3_var = self.lut_dict[self.channel3_var.get()]

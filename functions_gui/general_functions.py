@@ -19,7 +19,8 @@ def setup_logging(processed_images_path) -> tuple:
     log_file_path = os.path.join(processed_images_path, "!image_conversion_log.txt")
     log_details = {'Files Not Processed': [],
                    'Files Processed': [],
-                   'Issues': []}
+                   'Issues': [],
+                   'Other Notes': [],}
     return log_file_path, log_details
 
 def save_log_file(
@@ -40,17 +41,9 @@ def save_log_file(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
     
-def determine_scope(
-    folder_path: str
-):
-    if '.oif' in folder_path:
-        return 'Olympus'
-    else:
-        return 'Bruker'
-    
 def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
     # Write the hyperstack to a TIFF file
-    if metadata == None: # for the flamingo data for now
+    if metadata == None: # for the flamingo data for now, and if user does not want to save metadata
         saved_metadata = {
             'axes': axes,
             'unit': 'um',
@@ -67,7 +60,7 @@ def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):
                     hyperstack, 
                     byteorder='>', 
                     imagej=True,
-                    resolution=(1 / metadata['X_microns_per_pixel'], 1 / metadata['Y_microns_per_pixel']),
+                    resolution=(1 / metadata['X_microns_per_pixel'], 1 / metadata['Y_microns_per_pixel']) if metadata else None,
                     metadata=saved_metadata, 
                     extratags=imagej_tags
                 )
