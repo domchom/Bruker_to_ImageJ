@@ -1,7 +1,6 @@
 import os
 import timeit
 import shutil
-import tifffile
 from functions_gui.gui import BaseGUI, FlamingoGUI
 from functions_gui.general_functions import (
     initialize_output_folders,
@@ -48,7 +47,7 @@ def main():
     ch4_lut = gui.channel4_var
     flamingo = gui.flamingo
     
-    # If user specifies Flamingo data
+    # If user specifies Flamingo workflow, run Flamingo GUI
     if gui.flamingo:
         gui = FlamingoGUI()
         gui.mainloop()
@@ -66,11 +65,7 @@ def main():
         ch4_lut = gui.channel4_var
         flamingo = gui.flamingo
     
-    # Check if both max and avg projection are selected, default to max projection if both are
-    if avg_projection and max_projection:
-            print('Both max and avg projection selected. Only max projection will be used.')
-            avg_projection = False
-    # Check if neither max nor avg projection are selected
+    # Check if neither max nor avg projection are selected, default to saving full hyperstacks
     if not avg_projection and not max_projection:
         print('Neither max nor avg projection selected. Saving full hyperstacks. This might take a while!')
         
@@ -80,7 +75,7 @@ def main():
     # Determine the microscope type # TODO: need to fully implement this function once olympus function is finished
     # microscope_type = determine_scope(image_folders[0])
 
-    # If Bruker data
+    # BRUKER WORKFLOW
     if not flamingo:
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
@@ -152,7 +147,7 @@ def main():
         # Save the log file
         save_log_file(log_file_path, log_details)
     
-    # If Flamingo data
+    # FLAMINGO WORKFLOW
     else:
         # Get the list of all TIF files in the directory
         tif_files = [f for f in os.listdir(parent_folder_path) if f.endswith('.tif') and f.startswith('S')]

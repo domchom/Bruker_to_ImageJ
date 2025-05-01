@@ -40,16 +40,29 @@ class BaseGUI(tk.Tk):
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
         # create max project button
-        self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' MAX Project z-stacks')
+        self.max_project_button = ttk.Checkbutton(
+            self, variable = self.max_project, text = ' MAX Project z-stacks',
+            command=lambda: self.update_checkboxes('max') if self.max_project.get() else None
+        )
         self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'W')  
 
         # create avg project button
-        self.avg_project_button = ttk.Checkbutton(self, variable = self.avg_project, text = ' AVG Project z-stacks')
+        self.avg_project_button = ttk.Checkbutton(
+            self, variable=self.avg_project, text=' AVG Project z-stacks',
+            command=lambda: self.update_checkboxes('avg') if self.avg_project.get() else None
+        )
         self.avg_project_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
 
         # create single-plane button
-        self.single_plane_button = ttk.Checkbutton(self, variable = self.single_plane, text = ' Single Plane Bruker data')
-        self.single_plane_button.grid(row = 3, column = 0, padx = 10, sticky = 'W')  
+        self.single_plane_button = ttk.Checkbutton(
+            self, variable=self.single_plane, text=' Single Plane (must check if single plane)',
+            command=lambda: self.update_checkboxes('single') if self.single_plane.get() else None
+        )
+        self.single_plane_button.grid(row = 4, column = 0, padx = 10, sticky = 'W')  
+        
+        # create label
+        self.help = ttk.Label(self, text = 'Selecting none of the above will save full hyperstack')
+        self.help.grid(row=3, column=0, columnspan=4, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
@@ -84,6 +97,18 @@ class BaseGUI(tk.Tk):
         self.ch2_label.grid(row=1, column=2)
         self.ch3_label.grid(row=2, column=2)
         self.ch4_label.grid(row=3, column=2)
+
+    def update_checkboxes(self, selected):
+        # Update the checkboxes based on the selected option
+        if selected == 'max':
+            self.avg_project.set(0)
+            self.single_plane.set(0)
+        elif selected == 'avg':
+            self.max_project.set(0)
+            self.single_plane.set(0)
+        elif selected == 'single':
+            self.max_project.set(0)
+            self.avg_project.set(0)
 
     def get_folder_path(self):
         self.folder_path.set(askdirectory())
@@ -187,11 +212,17 @@ class FlamingoGUI(tk.Tk):
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
         # create max project button
-        self.max_project_button = ttk.Checkbutton(self, variable = self.max_project, text = ' MAX Project z-stacks')
+        self.max_project_button = ttk.Checkbutton(
+            self, variable = self.max_project, text = ' MAX Project z-stacks',
+            command=lambda: self.update_checkboxes('max') if self.max_project.get() else None
+        )
         self.max_project_button.grid(row = 1, column = 0, padx = 10, sticky = 'W')  
 
-        # create avg project button
-        self.avg_project_button = ttk.Checkbutton(self, variable = self.avg_project, text = ' AVG Project z-stacks')
+         # create avg project button
+        self.avg_project_button = ttk.Checkbutton(
+            self, variable=self.avg_project, text=' AVG Project z-stacks',
+            command=lambda: self.update_checkboxes('avg') if self.avg_project.get() else None
+        )
         self.avg_project_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
         
         # create start button
@@ -226,6 +257,13 @@ class FlamingoGUI(tk.Tk):
         self.ch2_label.grid(row=1, column=2)
         self.ch3_label.grid(row=2, column=2)
         self.ch4_label.grid(row=3, column=2)
+
+    def update_checkboxes(self, selected):
+        # Update the checkboxes based on the selected option
+        if selected == 'max':
+            self.avg_project.set(0)
+        elif selected == 'avg':
+            self.max_project.set(0)
 
     def get_folder_path(self):
         self.folder_path.set(askdirectory())
