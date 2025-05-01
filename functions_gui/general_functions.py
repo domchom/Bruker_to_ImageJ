@@ -50,12 +50,19 @@ def determine_scope(
     
 def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
     # Write the hyperstack to a TIFF file
-    saved_metadata = {
-        'axes': axes,
-        'finterval': metadata['framerate'], 
-        'unit': 'um',
-        'mode': 'composite'
-    }
+    if metadata == None: # for the flamingo data for now
+        saved_metadata = {
+            'axes': axes,
+            'unit': 'um',
+            'mode': 'composite'
+        }
+    else:  # for the bruker data for now
+        saved_metadata = {
+            'axes': axes,
+            'finterval': metadata['framerate'], 
+            'unit': 'um',
+            'mode': 'composite'
+        }
     tifffile.imwrite(image_output_name, 
                     hyperstack, 
                     byteorder='>', 

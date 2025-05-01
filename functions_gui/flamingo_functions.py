@@ -1,6 +1,6 @@
-import numpy as np
-import tifffile
 import tqdm
+import tifffile
+import numpy as np
 
 def get_num_channels_flamingo(file_list):
     # Extract the channel number from the filenames
@@ -78,9 +78,9 @@ def process_flamingo_folder(folder_path: str,
         image = tifffile.imread(image_path)
         # Z-projection here to reduce the 3D image to 2D and save memory
         if max_projection:
-            image = Z_project(image, projection_type='max')
+            image = Z_project_flamingo(image, projection_type='max')
         elif avg_projection:
-            image = Z_project(image, projection_type='avg')
+            image = Z_project_flamingo(image, projection_type='avg')
 
         all_images.append(image)
     

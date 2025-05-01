@@ -102,7 +102,7 @@ def main():
                     xml_file_path = os.path.join(folder_path, xml_files[0])
                     extracted_metadata = extract_metadata_bruker(xml_file_path, log_details)
                     
-                # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder
+                # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
                 image_type, folder_tif_files = determine_image_type_bruker(folder_path, max_projection, avg_projection, single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
@@ -191,20 +191,9 @@ def main():
             # Remove the existing file
             os.remove(hyperstack_output_path)
         
-        # Create metadata for the hyperstack
-        if max_projection == True or avg_projection == True: 
-            metadata = {
-                'axes': 'TCYX',
-                'unit': 'um',
-                'mode': 'composite'
-            }
-        else:
-            metadata = {
-                'axes': 'TZCYX',
-                'unit': 'um',
-                'mode': 'composite'
-            }
-         
+        # Create axes metadata for the hyperstack
+        axes = 'TCYX' if max_projection == True or avg_projection == True else 'TZCYX'
+            
         # Calculate the size of the final hyperstack in bytes, and warn if it's too large
         # 1 GB = 1024^3 bytes
         final_hyperstack_size = final_hyperstack.nbytes
@@ -214,13 +203,13 @@ def main():
             
         print(f"Saving hyperstack to {hyperstack_output_path}...")
         
-        tifffile.imwrite(hyperstack_output_path, 
-                            final_hyperstack, 
-                            byteorder='>', 
-                            imagej=True,
-                            metadata=metadata,
-                            extratags=imagej_tags
-                        )
+        # Save the hyperstack
+        save_hyperstack(final_hyperstack, 
+                        axes,
+                        metadata = None, # for now, flamingo data doesn't have metadata
+                        image_output_name = hyperstack_output_path, 
+                        imagej_tags = imagej_tags
+                        ) 
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
         
