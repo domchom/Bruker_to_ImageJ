@@ -6,6 +6,52 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
+def initialize_output_folders(parent_folder_path) -> tuple:
+    '''
+    Create the output folders for the processed images and the scope folders.
+    '''
+    processed_images_path = os.path.join(parent_folder_path, "!processed_images")
+    os.makedirs(processed_images_path, exist_ok=True)
+    scope_folders_path = os.path.join(parent_folder_path, "!scope_folders")
+    os.makedirs(scope_folders_path, exist_ok=True)
+    return processed_images_path, scope_folders_path
+
+def setup_logging(processed_images_path) -> tuple:
+    '''
+    Set up the log file and parameters.
+    '''
+    log_file_path = os.path.join(processed_images_path, "!image_conversion_log.txt")
+    log_details = {'Files Not Processed': [],
+                   'Files Processed': [],
+                   'Issues': []}
+    return log_file_path, log_details
+
+def save_log_file(
+    logPath: str, 
+    logParams: dict
+):
+    '''
+    Creates a log file in the specified directory with the specified parameters.
+
+    Parameters
+    directory : str
+        The directory in which to create the log file.
+    logParams : dict
+        A dictionary containing the parameters to be logged.
+    '''
+    logFile = open(logPath, "w")                                    
+    for key, value in logParams.items():                            
+        logFile.write('%s: %s\n' % (key, value))                    
+    logFile.close()   
+    
+def determine_scope(
+    folder_path: str
+):
+    if '.oif' in folder_path:
+        return 'Olympus'
+    else:
+        return 'Bruker'
+
 def determine_axes(
     image_type: str) -> tuple:
     '''
