@@ -29,5 +29,6 @@ __all__ = ["initialize_output_folders",
            
            "get_channels_olympus",
            "stack_channels_olympus"
-           "project_images_olympus"
+           "project_images_olympus",
+           extract_t_number
 ]

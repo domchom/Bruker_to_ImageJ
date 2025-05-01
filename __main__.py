@@ -30,7 +30,8 @@ from functions_gui.flamingo_functions import (
 from functions_gui.olympus_functions import (
     get_channels_olympus,
     stack_channels_olympus,
-    project_images_olympus
+    project_images_olympus,
+    extract_t_number
 )
 
 def main():
@@ -260,21 +261,30 @@ def main():
             tif_files = [f for f in os.listdir(folder_path) if f.endswith('.tif') and f.startswith('s') and '-R001' not in f and '-R002' not in f and '-R003' not in f and '-R004' not in f]     
             folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif') and file.startswith('s') and '-R001' not in file and '-R002' not in file and '-R003' not in file and '-R004' not in file]
             
+            # organize the files into channels
             channel_files = get_channels_olympus(folder_tif_files)
             
+            # Sort the files in each channel by T number
+            # This is done to ensure that the projection is done in the correct order
+            for key in channel_files:
+                channel_files[key].sort(key=extract_t_number) 
+            
+            # organize and project the images for each channel
             final_channel_files = project_images_olympus(channel_files, projection)
                         
             # Stack the images for each channel, then combine them into a hyperstack
             hyperstack = stack_channels_olympus(final_channel_files)
-                        
+            
+            # Create the output path for the final hyperstack
             hyperstack_output_path = os.path.join(parent_folder_path, f"{folder_name}_raw.tif")
             
+            # reshape the hyperstack to be in the correct format for imagej
             if projection == None:
-                hyperstack = hyperstack.reshape(hyperstack.shape[0], hyperstack.shape[2], hyperstack.shape[1], hyperstack.shape[3], hyperstack.shape[4])
+                hyperstack = hyperstack.transpose(0, 2, 1, 3, 4)
             
             # Save the hyperstack
             save_hyperstack(hyperstack, 
-                            axes = 'TZCYX' if max_projection == None else 'TCYX',
+                            axes = 'TZCYX' if projection == None else 'TCYX',
                             metadata = None, # for now, flamingo data doesn't have metadata
                             image_output_name = hyperstack_output_path, 
                             imagej_tags = imagej_tags

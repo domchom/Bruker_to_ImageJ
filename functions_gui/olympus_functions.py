@@ -15,32 +15,42 @@ def get_channels_olympus(folder_path):
     return channel_files    
 
 def project_images_olympus(channel_files, projection_type='max'):
-    # Sort the files in each channel by T number
-    # This is done to ensure that the projection is done in the correct order
-    for key in channel_files:
-        channel_files[key].sort(key=extract_t_number) 
     
     final_channel_files = {}
     for channel_name, files in channel_files.items():
         for file in files:
-            if 'T' in file:
-                # Extract the frame number from the filename
-                frame_number = os.path.basename(file).split('T')[1][:3]
-            if 'Z' in file:
-                # Extract the z-plane number from the filename
-                z_plane_number = os.path.basename(file).split('Z')[1][:3]
-            if 'C' in file:
-                # Extract the channel number from the filename
-                channel_number = os.path.basename(file).split('C')[1][:3]
             # Find all files with the same frame number and channel, but unique Z
-            matching_files = [
-                f for f in files
-                if f"T{frame_number}" in f and
-                f"C{channel_number}" in f
-            ]
+            # Extract the frame number from the filename
+            frame_number = os.path.basename(file).split('T')[1][:3] if 'T' in file else None
+            # Extract the z-plane number from the filename
+            z_plane_number = os.path.basename(file).split('Z')[1][:3] if 'Z' in file else None 
+            # Extract the channel number from the filename
+            channel_number = os.path.basename(file).split('C')[1][:3] if 'C' in file else None
+            if frame_number and channel_number and z_plane_number:
+                matching_files = [
+                    f for f in files if f"T{frame_number}" in f and f"C{channel_number}" in f
+                ]
+                image_type = 'multiplane_multiframe'
+            elif frame_number and channel_number and not z_plane_number:
+                matching_files = [
+                    f for f in files if f"T{frame_number}" in f and f"C{channel_number}" in f
+                ]
+                image_type = 'singleplane_multiframe'
+            elif not frame_number and channel_number and z_plane_number:
+                matching_files = [
+                    f for f in files if f"C{channel_number}" in f
+                ]
+                image_type = 'multiplane_singleframe'
+            elif not frame_number and channel_number and not z_plane_number:
+                matching_files = [
+                    f for f in files if f"C{channel_number}" in f
+                ]
+                image_type = 'singleplane_singleframe'
+            
             # Remove the matching files from the original list to avoid processing them again
             for f in matching_files:
                 files.remove(f)
+                
             # sort the matching files by Z number
             matching_files = sorted(matching_files, key=extract_z_number)
             # Read the images from the matching files
@@ -48,19 +58,21 @@ def project_images_olympus(channel_files, projection_type='max'):
             # Stack the images along the Z axis
             images = np.stack(images, axis=0)
             # Perform the projection 
-            if projection_type == 'max':
+            if projection_type == 'max' and 'singleplane' not in image_type:
                 projected_image = np.max(images, axis=0)
                 # add projected images to the new dict
                 if channel_name not in final_channel_files:
                     final_channel_files[channel_name] = []
                 final_channel_files[channel_name].append(projected_image)
-            elif projection_type == 'avg':
+                image_type = image_type + '_maxproject'
+            elif projection_type == 'avg' and 'singleplane' not in image_type:
                 projected_image = np.mean(images, axis=0)
                 projected_image = np.round(projected_image).astype(np.uint16) 
                 # add projected images to the new dict
                 if channel_name not in final_channel_files:
                     final_channel_files[channel_name] = []
                 final_channel_files[channel_name].append(projected_image)
+                image_type = image_type + '_avgproject'
             else:
                 if channel_name not in final_channel_files:
                     final_channel_files[channel_name] = []
