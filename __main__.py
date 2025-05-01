@@ -1,7 +1,7 @@
 import os
 import timeit
 import shutil
-from functions_gui.gui import BaseGUI, FlamingoGUI
+from functions_gui.gui import BaseGUI, FlamingoGUI, OlympusGUI
 from functions_gui.general_functions import (
     initialize_output_folders,
     setup_logging,
@@ -32,10 +32,7 @@ def main():
     # Bruker GUI
     gui = BaseGUI()
     gui.mainloop()
-
-    # Performance tracker
-    start_time = timeit.default_timer()
-
+    
     # Get GUI variables
     parent_folder_path = gui.folder_path
     avg_projection = gui.avg_project
@@ -45,16 +42,13 @@ def main():
     ch2_lut = gui.channel2_var
     ch3_lut = gui.channel3_var
     ch4_lut = gui.channel4_var
-    flamingo = gui.flamingo
+    microscope_type = gui.microscope_type
     
     # If user specifies Flamingo workflow, run Flamingo GUI
-    if gui.flamingo:
+    if microscope_type == 'Flamingo':
         gui = FlamingoGUI()
         gui.mainloop()
         
-        # Performance tracker
-        start_time = timeit.default_timer()
-
         # Get GUI variables
         parent_folder_path = gui.folder_path
         avg_projection = gui.avg_project
@@ -63,8 +57,27 @@ def main():
         ch2_lut = gui.channel2_var
         ch3_lut = gui.channel3_var
         ch4_lut = gui.channel4_var
-        flamingo = gui.flamingo
-    
+        microscope_type = gui.microscope_type
+        
+    # If user specifies Olympus workflow, run Olympus GUI
+    if microscope_type == 'Olympus':
+        gui = OlympusGUI()
+        gui.mainloop()
+
+        # Get GUI variables
+        parent_folder_path = gui.folder_path
+        avg_projection = gui.avg_project
+        max_projection = gui.max_project
+        single_plane = gui.single_plane
+        ch1_lut = gui.channel1_var
+        ch2_lut = gui.channel2_var
+        ch3_lut = gui.channel3_var
+        ch4_lut = gui.channel4_var
+        microscope_type = gui.microscope_type
+        
+    # Performance tracker
+    start_time = timeit.default_timer()
+
     # Check if neither max nor avg projection are selected, default to saving full hyperstacks
     if not avg_projection and not max_projection:
         print('Neither max nor avg projection selected. Saving full hyperstacks. This might take a while!')
@@ -76,7 +89,7 @@ def main():
     # microscope_type = determine_scope(image_folders[0])
 
     # BRUKER WORKFLOW
-    if not flamingo:
+    if microscope_type == 'Bruker':
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
 
@@ -148,7 +161,7 @@ def main():
         save_log_file(log_file_path, log_details)
     
     # FLAMINGO WORKFLOW
-    else:
+    elif microscope_type == 'Flamingo':
         # Get the list of all TIF files in the directory
         tif_files = [f for f in os.listdir(parent_folder_path) if f.endswith('.tif') and f.startswith('S')]
         # for reference filename structure: S000_t000000_V000_R0000_X000_Y000_C00_I0_D0_P00366
@@ -210,6 +223,9 @@ def main():
         
         end_time = timeit.default_timer()
         print(f'Time elapsed: {end_time - start_time:.2f} seconds')
+        
+    elif microscope_type == 'Olympus':
+        print('Olympus workflow not yet implemented!')
                             
 if __name__ == '__main__':
     main()
