@@ -174,8 +174,8 @@ class BaseGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            #'Fire': fire,
-            #'Ice': ice
+            'Fire': fire,
+            'Ice': ice
         }
 
     def cancel_analysis(self):
@@ -224,7 +224,7 @@ class FlamingoGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6')
+        # self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -327,8 +327,8 @@ class FlamingoGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            #'Fire': fire,
-            #'Ice': ice
+            'Fire': fire,
+            'Ice': ice
         }
 
     def cancel_analysis(self):
@@ -379,7 +379,7 @@ class OlympusGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'W')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data')
+        # self.folder_path.set('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -494,8 +494,8 @@ class OlympusGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            #'Fire': fire,
-            #'Ice': ice
+            'Fire': fire,
+            'Ice': ice
         }
 
     def cancel_analysis(self):
