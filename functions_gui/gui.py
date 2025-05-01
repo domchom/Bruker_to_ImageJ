@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import tkinter as tk
@@ -156,17 +157,8 @@ class BaseGUI(tk.Tk):
         yellow = np.zeros((3, 256), dtype='uint8')
         yellow[0] = np.arange(256, dtype='uint8')
         yellow[1] = np.arange(256, dtype='uint8')
-
-        fire = np.zeros((3, 256), dtype='uint8')
-        fire[0] = np.clip(np.arange(256) * 4, 0, 255)
-        fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)
-        fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)
-
-        ice = np.zeros((3, 256), dtype='uint8')
-        ice[1] = np.clip(np.arange(256) * 4, 0, 255)
-        ice[2] = np.clip(np.arange(256) * 4, 0, 255)
-
-        return {
+        
+        fiji_luts = {
             'Grays': grays,
             'Red': red,
             'Green': green,
@@ -174,9 +166,38 @@ class BaseGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            'Fire': fire,
-            'Ice': ice
         }
+          
+        # Load special Fiji LUTs into the dictionary
+        # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
+        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+            if lut_file.endswith('.lut'):
+                lut_name = lut_file.split('.')[0]
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+
+        return fiji_luts
+        
+    def load_fiji_lut(self, filepath):
+        with open(filepath, 'rb') as f:
+            raw = np.frombuffer(f.read(), dtype=np.uint8)
+
+        # If 768 or 800 bytes, assume single LUT and trim header if needed
+        if raw.size in [768, 800]:
+            lut_data = raw[-768:]  # Trim to last 768 bytes
+            r = lut_data[0:256]
+            g = lut_data[256:512]
+            b = lut_data[512:768]
+            return np.stack((r, g, b))
+
+        # If size is larger than 800, assume it's a concatenated or category LUT (like Glasbey or unionjack)
+        # We'll try to extract the first RGB triplet only
+        if raw.size >= 768 and raw.size % 3 == 0:
+            num_colors = raw.size // 3
+            r = raw[0:num_colors]
+            g = raw[num_colors:2*num_colors]
+            b = raw[2*num_colors:3*num_colors]
+            max_len = min(256, len(r), len(g), len(b))
+            return np.stack((r[:max_len], g[:max_len], b[:max_len]))
 
     def cancel_analysis(self):
         sys.exit('You have cancelled the analysis')
@@ -224,7 +245,7 @@ class FlamingoGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        # self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6')
+        self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_121024_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell4')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -313,17 +334,9 @@ class FlamingoGUI(tk.Tk):
         yellow = np.zeros((3, 256), dtype='uint8')
         yellow[0] = np.arange(256, dtype='uint8')
         yellow[1] = np.arange(256, dtype='uint8')
-
-        fire = np.zeros((3, 256), dtype='uint8')
-        fire[0] = np.clip(np.arange(256) * 4, 0, 255)
-        fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)
-        fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)
-
-        ice = np.zeros((3, 256), dtype='uint8')
-        ice[1] = np.clip(np.arange(256) * 4, 0, 255)
-        ice[2] = np.clip(np.arange(256) * 4, 0, 255)
-
-        return {
+        
+        # add luts to dictionary
+        fiji_luts = {
             'Grays': grays,
             'Red': red,
             'Green': green,
@@ -331,9 +344,38 @@ class FlamingoGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            'Fire': fire,
-            'Ice': ice
         }
+        
+        # Load special Fiji LUTs into the dictionary
+        # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
+        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+            if lut_file.endswith('.lut'):
+                lut_name = lut_file.split('.')[0]
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+
+        return fiji_luts
+        
+    def load_fiji_lut(self, filepath):
+        with open(filepath, 'rb') as f:
+            raw = np.frombuffer(f.read(), dtype=np.uint8)
+
+        # If 768 or 800 bytes, assume single LUT and trim header if needed
+        if raw.size in [768, 800]:
+            lut_data = raw[-768:]  # Trim to last 768 bytes
+            r = lut_data[0:256]
+            g = lut_data[256:512]
+            b = lut_data[512:768]
+            return np.stack((r, g, b))
+
+        # If size is larger than 800, assume it's a concatenated or category LUT (like Glasbey or unionjack)
+        # We'll try to extract the first RGB triplet only
+        if raw.size >= 768 and raw.size % 3 == 0:
+            num_colors = raw.size // 3
+            r = raw[0:num_colors]
+            g = raw[num_colors:2*num_colors]
+            b = raw[2*num_colors:3*num_colors]
+            max_len = min(256, len(r), len(g), len(b))
+            return np.stack((r[:max_len], g[:max_len], b[:max_len]))
 
     def cancel_analysis(self):
         sys.exit('You have cancelled the analysis')
@@ -481,16 +523,7 @@ class OlympusGUI(tk.Tk):
         yellow[0] = np.arange(256, dtype='uint8')
         yellow[1] = np.arange(256, dtype='uint8')
 
-        fire = np.zeros((3, 256), dtype='uint8')
-        fire[0] = np.clip(np.arange(256) * 4, 0, 255)
-        fire[1] = np.clip(np.arange(256) * 4 - 255, 0, 255)
-        fire[2] = np.clip(np.arange(256) * 4 - 510, 0, 255)
-
-        ice = np.zeros((3, 256), dtype='uint8')
-        ice[1] = np.clip(np.arange(256) * 4, 0, 255)
-        ice[2] = np.clip(np.arange(256) * 4, 0, 255)
-
-        return {
+        fiji_luts = {
             'Grays': grays,
             'Red': red,
             'Green': green,
@@ -498,9 +531,38 @@ class OlympusGUI(tk.Tk):
             'Magenta': magenta,
             'Cyan': cyan,
             'Yellow': yellow,
-            'Fire': fire,
-            'Ice': ice
         }
+          
+        # Load special Fiji LUTs into the dictionary
+        # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
+        for lut_file in sorted(os.listdir('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/')):
+            if lut_file.endswith('.lut'):
+                lut_name = lut_file.split('.')[0]
+                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/assets/LUTs/', lut_file))
+
+        return fiji_luts
+        
+    def load_fiji_lut(self, filepath):
+        with open(filepath, 'rb') as f:
+            raw = np.frombuffer(f.read(), dtype=np.uint8)
+
+        # If 768 or 800 bytes, assume single LUT and trim header if needed
+        if raw.size in [768, 800]:
+            lut_data = raw[-768:]  # Trim to last 768 bytes
+            r = lut_data[0:256]
+            g = lut_data[256:512]
+            b = lut_data[512:768]
+            return np.stack((r, g, b))
+
+        # If size is larger than 800, assume it's a concatenated or category LUT (like Glasbey or unionjack)
+        # We'll try to extract the first RGB triplet only
+        if raw.size >= 768 and raw.size % 3 == 0:
+            num_colors = raw.size // 3
+            r = raw[0:num_colors]
+            g = raw[num_colors:2*num_colors]
+            b = raw[2*num_colors:3*num_colors]
+            max_len = min(256, len(r), len(g), len(b))
+            return np.stack((r[:max_len], g[:max_len], b[:max_len]))
 
     def cancel_analysis(self):
         sys.exit('You have cancelled the analysis')
