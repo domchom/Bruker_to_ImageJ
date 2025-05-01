@@ -14,13 +14,13 @@ def get_channels_olympus(folder_path):
         
     return channel_files    
 
-def project_images_olympus(channel_files, projection_type='max'):
+def project_images_olympus(channel_files, max_projection=False, avg_projection=False):
     # Sort the files in each channel by T number
     # This is done to ensure that the projection is done in the correct order
     for key in channel_files:
         channel_files[key].sort(key=extract_t_number) 
     
-    projected_channel_files = {}
+    final_channel_files = {}
     for channel_name, files in channel_files.items():
         for file in files:
             if 'T' in file:
@@ -41,22 +41,40 @@ def project_images_olympus(channel_files, projection_type='max'):
             # Remove the matching files from the original list to avoid processing them again
             for f in matching_files:
                 files.remove(f)
+            # sort the matching files by Z number
+            matching_files = sorted(matching_files, key=extract_z_number)
             # Read the images from the matching files
             images = [tifffile.imread(file, is_ome=False) for file in matching_files]
             # Stack the images along the Z axis
             images = np.stack(images, axis=0)
             # Perform the projection 
-            if projection_type == 'max':
+            if max_projection == True:
                 projected_image = np.max(images, axis=0)
-            # add projected images to the new dict
-            if channel_name not in projected_channel_files:
-                projected_channel_files[channel_name] = []
-            projected_channel_files[channel_name].append(projected_image)
-    return projected_channel_files
+                # add projected images to the new dict
+                if channel_name not in final_channel_files:
+                    final_channel_files[channel_name] = []
+                final_channel_files[channel_name].append(projected_image)
+            elif avg_projection == True:
+                projected_image = np.mean(images, axis=0)
+                projected_image = np.round(projected_image).astype(np.uint16) 
+                # add projected images to the new dict
+                if channel_name not in final_channel_files:
+                    final_channel_files[channel_name] = []
+                final_channel_files[channel_name].append(projected_image)
+            else:
+                if channel_name not in final_channel_files:
+                    final_channel_files[channel_name] = []
+                final_channel_files[channel_name].append(images)
+            
+    return final_channel_files
            
 def extract_t_number(filename):
     match = re.search(r'T(\d+)', filename)
     return int(match.group(1)) if match else float('inf')    
+
+def extract_z_number(filename):
+    match = re.search(r'Z(\d+)', filename)
+    return int(match.group(1)) if match else float('inf')
     
 def stack_channels_olympus(channel_images):
     # Ensure all channel image lists have the same length

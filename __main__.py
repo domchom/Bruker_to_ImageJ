@@ -255,18 +255,19 @@ def main():
             
             channel_files = get_channels_olympus(folder_tif_files)
             
-            projected_channel_files = project_images_olympus(channel_files, projection_type='max')
+            final_channel_files = project_images_olympus(channel_files, max_projection, avg_projection)
                         
             # Stack the images for each channel, then combine them into a hyperstack
-            hyperstack = stack_channels_olympus(projected_channel_files)
-            
-            print(f"Shape of hyperstack: {hyperstack.shape}")
-            
+            hyperstack = stack_channels_olympus(final_channel_files)
+                        
             hyperstack_output_path = os.path.join(parent_folder_path, f"{folder_name}_raw.tif")
+            
+            if max_projection == False and avg_projection == False:
+                hyperstack = hyperstack.reshape(hyperstack.shape[0], hyperstack.shape[2], hyperstack.shape[1], hyperstack.shape[3], hyperstack.shape[4])
             
             # Save the hyperstack
             save_hyperstack(hyperstack, 
-                            axes = 'TCYX',
+                            axes = 'TZCYX' if max_projection == False and avg_projection == False else 'TCYX',
                             metadata = None, # for now, flamingo data doesn't have metadata
                             image_output_name = hyperstack_output_path, 
                             imagej_tags = imagej_tags
