@@ -58,25 +58,19 @@ def project_images_olympus(channel_files, projection_type='max'):
             # Stack the images along the Z axis
             images = np.stack(images, axis=0)
             # Perform the projection 
-            if projection_type == 'max' and 'singleplane' not in image_type:
-                projected_image = np.max(images, axis=0)
-                # add projected images to the new dict
-                if channel_name not in final_channel_files:
-                    final_channel_files[channel_name] = []
-                final_channel_files[channel_name].append(projected_image)
-                image_type = image_type + '_maxproject'
-            elif projection_type == 'avg' and 'singleplane' not in image_type:
-                projected_image = np.mean(images, axis=0)
-                projected_image = np.round(projected_image).astype(np.uint16) 
-                # add projected images to the new dict
-                if channel_name not in final_channel_files:
-                    final_channel_files[channel_name] = []
-                final_channel_files[channel_name].append(projected_image)
-                image_type = image_type + '_avgproject'
-            else:
-                if channel_name not in final_channel_files:
-                    final_channel_files[channel_name] = []
-                final_channel_files[channel_name].append(images)
+            if 'single_plane' not in image_type:
+                if projection_type == 'max':
+                    images = np.max(images, axis=0)
+                    image_type = image_type + '_maxproject'
+                elif projection_type == 'avg':
+                    images = np.mean(images, axis=0)
+                    images = np.round(images).astype(np.uint16) 
+                    image_type = image_type + '_avgproject'
+                else:
+                    image_type = image_type + '_raw'
+            if channel_name not in final_channel_files:
+                final_channel_files[channel_name] = []
+            final_channel_files[channel_name].append(images)
             
     return final_channel_files
            
