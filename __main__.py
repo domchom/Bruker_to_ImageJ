@@ -27,6 +27,12 @@ from functions_gui.flamingo_functions import (
     combine_illumination_sides_flamingo
 )
 
+from functions_gui.olympus_functions import (
+    get_channels_olympus,
+    stack_channels_olympus,
+    project_images_olympus
+)
+
 def main():
     # Bruker GUI
     gui = BaseGUI()
@@ -232,8 +238,45 @@ def main():
         print(f'Time elapsed: {end_time - start_time:.2f} seconds')
         
     elif microscope_type == 'Olympus':
-        print('Olympus workflow not yet implemented!')
-                            
+        image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
+        
+        # Initialize output folders, logging, and metadata CSV outout paths
+        #processed_images_path, scope_folders_path = initialize_output_folders(parent_folder_path)
+
+        for folder_name in image_folders:
+            print('******'*10)
+            print(f'Processing folder: {folder_name}')
+            # get the folder path
+            folder_path = os.path.join(parent_folder_path, folder_name)
+            
+            # get all tiff files in the folder
+            tif_files = [f for f in os.listdir(folder_path) if f.endswith('.tif') and f.startswith('s') and '-R001' not in f and '-R002' not in f and '-R003' not in f and '-R004' not in f]     
+            folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif') and file.startswith('s') and '-R001' not in file and '-R002' not in file and '-R003' not in file and '-R004' not in file]
+            
+            channel_files = get_channels_olympus(folder_tif_files)
+            
+            projected_channel_files = project_images_olympus(channel_files, projection_type='max')
+                        
+            # Stack the images for each channel, then combine them into a hyperstack
+            hyperstack = stack_channels_olympus(projected_channel_files)
+            
+            print(f"Shape of hyperstack: {hyperstack.shape}")
+            
+            hyperstack_output_path = os.path.join(parent_folder_path, f"{folder_name}_raw.tif")
+            
+            # Save the hyperstack
+            save_hyperstack(hyperstack, 
+                            axes = 'TCYX',
+                            metadata = None, # for now, flamingo data doesn't have metadata
+                            image_output_name = hyperstack_output_path, 
+                            imagej_tags = imagej_tags
+                            ) 
+            
+            
+           
+            
+            
+              
 if __name__ == '__main__':
     main()
 

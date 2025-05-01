@@ -1,7 +1,7 @@
 from functions_gui.general_functions import *
 from functions_gui.bruker_functions import *
 from functions_gui.flamingo_functions import *
-from functions_gui.olympus_fuctions import *
+from functions_gui.olympus_functions import *
 
 __all__ = ["initialize_output_folders",
            "setup_logging",
@@ -27,5 +27,7 @@ __all__ = ["initialize_output_folders",
            "Z_project_flamingo",
            "combine_illumination_sides_flamingo",
            
-           "create_hyperstack_olympus",      
+           "get_channels_olympus",
+           "stack_channels_olympus"
+           "project_images_olympus"
 ]

@@ -89,7 +89,7 @@ class BaseGUI(tk.Tk):
         # create button to launch rolling analysis gui
         self.olympus_button = ttk.Button(self, text = 'Launch olympus conversion (NOT IMPLEMENTED)')
         self.olympus_button['command'] = self.launch_olympus_conversion
-        #self.olympus_button.grid(row = 10, column = 3, padx = 10, sticky = 'W')
+        self.olympus_button.grid(row = 10, column = 3, padx = 10, sticky = 'W')
 
         # create LUT selection widgets
         self.channel1_menu = ttk.Combobox(self, textvariable=self.channel1_var, values=list(self.lut_dict.keys()))
@@ -425,7 +425,7 @@ class OlympusGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'W')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        # self.folder_path.set('/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data')
+        self.folder_path.set('/Users/domchom/Desktop/lab/FV_test')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
