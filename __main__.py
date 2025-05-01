@@ -258,8 +258,8 @@ def main():
             folder_path = os.path.join(parent_folder_path, folder_name)
             
             # get all tiff files in the folder
-            tif_files = [f for f in os.listdir(folder_path) if f.endswith('.tif') and f.startswith('s') and '-R001' not in f and '-R002' not in f and '-R003' not in f and '-R004' not in f]     
-            folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif') and file.startswith('s') and '-R001' not in file and '-R002' not in file and '-R003' not in file and '-R004' not in file]
+            tif_files = [f for f in os.listdir(folder_path) if f.endswith('.tif') and f.startswith('s') and not any(r in f for r in ['-R001', '-R002', '-R003', '-R004'])]
+            folder_tif_files = [os.path.join(folder_path, file) for file in tif_files]
             
             # organize the files into channels
             channel_files = get_channels_olympus(folder_tif_files)
@@ -276,11 +276,15 @@ def main():
             hyperstack = stack_channels_olympus(final_channel_files)
             
             # Create the output path for the final hyperstack
-            hyperstack_output_path = os.path.join(parent_folder_path, f"{folder_name}_raw.tif")
+            filename = os.path.basename(folder_path).replace(".oif.files", "")
+            hyperstack_output_path = os.path.join(parent_folder_path, f"{filename}_raw.tif")
             
             # reshape the hyperstack to be in the correct format for imagej
             if projection == None:
                 hyperstack = hyperstack.transpose(0, 2, 1, 3, 4)
+            
+            print(f"Hyperstack shape: {hyperstack.shape}")
+            print(f"Saving hyperstack to {hyperstack_output_path}...")
             
             # Save the hyperstack
             save_hyperstack(hyperstack, 

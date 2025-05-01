@@ -14,17 +14,17 @@ def get_channels_olympus(folder_path):
         
     return channel_files    
 
-def project_images_olympus(channel_files, projection_type='max'):
-    
+def project_images_olympus(channel_files, projection_type='max'):    
     final_channel_files = {}
     for channel_name, files in channel_files.items():
+        remaining_files = files[:]
+        processed_files = set()
         for file in files:
-            # Find all files with the same frame number and channel, but unique Z
-            # Extract the frame number from the filename
+            if file in processed_files:
+                continue  # Skip files we've already processed
+            # Extract identifiers
             frame_number = os.path.basename(file).split('T')[1][:3] if 'T' in file else None
-            # Extract the z-plane number from the filename
             z_plane_number = os.path.basename(file).split('Z')[1][:3] if 'Z' in file else None 
-            # Extract the channel number from the filename
             channel_number = os.path.basename(file).split('C')[1][:3] if 'C' in file else None
             if frame_number and channel_number and z_plane_number:
                 matching_files = [
@@ -46,11 +46,10 @@ def project_images_olympus(channel_files, projection_type='max'):
                     f for f in files if f"C{channel_number}" in f
                 ]
                 image_type = 'singleplane_singleframe'
-            
-            # Remove the matching files from the original list to avoid processing them again
-            for f in matching_files:
-                files.remove(f)
                 
+            # Mark files as processed
+            processed_files.update(matching_files)
+            
             # sort the matching files by Z number
             matching_files = sorted(matching_files, key=extract_z_number)
             # Read the images from the matching files
@@ -68,6 +67,7 @@ def project_images_olympus(channel_files, projection_type='max'):
                     image_type = image_type + '_avgproject'
                 else:
                     image_type = image_type + '_raw'
+                    
             if channel_name not in final_channel_files:
                 final_channel_files[channel_name] = []
             final_channel_files[channel_name].append(images)
