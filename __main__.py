@@ -4,13 +4,17 @@ import shutil
 import tifffile
 from functions_gui.gui import BaseGUI, FlamingoGUI
 from functions_gui.bruker_functions import (
-    make_log, 
+    save_log_file, 
     determine_scope, 
-    create_hyperstack_olympus, 
     imagej_metadata_tags, 
-    process_folder, 
     initialize_output_folders,
-    setup_logging
+    setup_logging,
+    extract_metadata,
+    create_hyperstack,
+    save_hyperstack,
+    write_metadata_csv,
+    determine_axes
+    
 )
 from functions_gui.flamingo_functions import (
     get_num_channels,
@@ -67,6 +71,9 @@ def main():
         
     # Create a dictionary of imagej metadata tags
     imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
+    
+    # Determine the microscope type # TODO: need to fully implement this function once olympus function is finished
+    microscope_type = determine_scope(image_folders[0])
 
     # If Bruker data
     if not flamingo:
@@ -78,47 +85,55 @@ def main():
         log_file_path, log_details = setup_logging(processed_images_path)
         metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
 
-        # Determine the microscope type 
-        microscope_type = determine_scope(image_folders[0])
-
-        if microscope_type == 'Bruker':
-            print('Bruker microscope detected!')
-            
-            for folder_name in image_folders:
-                print('******'*10)
-                try:
-                    log_details = process_folder(folder_name, 
-                                                 parent_folder_path, 
-                                                 processed_images_path, 
-                                                 imagej_tags, 
-                                                 avg_projection, 
-                                                 max_projection, 
-                                                 log_details, 
-                                                 metadata_csv_path, 
-                                                 single_plane)
-                except Exception as e:
-                    log_details['Files Not Processed'].append(f'{folder_name}: {e}')
-                    print(f"Error processing {folder_name}!")
-                    pass
+        for folder_name in image_folders:
+            print('******'*10)
+            try:
+                # Check for XML file and extract relevant metadata
+                folder_path = os.path.join(parent_folder_path, folder_name)
+                xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
+                if not xml_files:
+                    raise FileNotFoundError(f"No XML file found in folder {folder_name}")
+                else:
+                    xml_file_path = os.path.join(folder_path, xml_files[0])
+                    extracted_metadata = extract_metadata(xml_file_path, log_details)
+                    
+                # Create the hyperstack and get the image type
+                hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
                 
-            end_time = timeit.default_timer()
-            print(f'Time elapsed: {end_time - start_time:.2f} seconds')
+                # Recalculate the frame rate for single plane: divide by number of frames
+                frame_rate = frame_rate / hyperstack.shape[0] if 'single_plane' in image_type else frame_rate
                 
-        else:
-            # TODO: Finish Olympus microscope conversion
-            print('Olympus microscope detected! Olympus conversion is not yet implemented.')
-            
-            files_in_parent_folder = [os.path.join(parent_folder_path, file) for file in os.listdir(parent_folder_path)]
-
-            for file_path in files_in_parent_folder:
-                image = create_hyperstack_olympus(file_path)    
-
+                # create the output image name
+                prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
+                image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
+                if os.path.exists(image_output_name):
+                    print(f"{folder_name} already exists!")
+                    log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
+                    return log_details
+                
+                # determine the axes for the hyperstack
+                axes = determine_axes(image_type)
+                
+                # Save the hyperstack
+                save_hyperstack(hyperstack, axes, extracted_metadata, image_output_name, imagej_tags)
+                
+                # Create metadata for the hyperstack, and update the log file to save after all folders are processed
+                log_details = write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details)
+                    
+            except Exception as e:
+                log_details['Files Not Processed'].append(f'{folder_name}: {e}')
+                print(f"Error processing {folder_name}!")
+                pass
+                                
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
 
         end_time = timeit.default_timer()
         log_details["Time Elapsed"] = f"{end_time - start_time:.2f} seconds"
-        make_log(log_file_path, log_details)
+        print(f'Time elapsed: {end_time - start_time:.2f} seconds')
+        
+        # Save the log file
+        save_log_file(log_file_path, log_details)
     
     # If Flamingo data
     else:

@@ -3,7 +3,7 @@ from functions_gui.flamingo_functions import *
 from functions_gui.olympus_fuctions import *
 
 __all__ = ["extract_metadata", 
-           "make_log", 
+           "save_log_file", 
            "create_hyperstack",
            "determine_scope", 
            "create_hyperstack_olympus",
@@ -18,5 +18,10 @@ __all__ = ["extract_metadata",
             "get_all_img_filenames",
             "Z_project",
             "process_flamingo_folder",
-            "combine_illumination_sides"
+            "combine_illumination_sides",
+            "determine_axes",
+            "save_hyperstack",
+            "write_metadata_csv",
+            "determine_axes",
+            "save_hyperstack_olympus",
 ]

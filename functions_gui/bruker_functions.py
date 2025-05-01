@@ -6,88 +6,11 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
-def initialize_output_folders(parent_folder_path) -> tuple:
+def determine_axes(
+    image_type: str) -> tuple:
     '''
-    Create the output folders for the processed images and the scope folders.
+    Determine the axes of the image based on the image type.
     '''
-    processed_images_path = os.path.join(parent_folder_path, "!processed_images")
-    os.makedirs(processed_images_path, exist_ok=True)
-    scope_folders_path = os.path.join(parent_folder_path, "!scope_folders")
-    os.makedirs(scope_folders_path, exist_ok=True)
-    return processed_images_path, scope_folders_path
-
-def setup_logging(processed_images_path) -> tuple:
-    '''
-    Set up the log file and parameters.
-    '''
-    log_file_path = os.path.join(processed_images_path, "!image_conversion_log.txt")
-    log_details = {'Files Not Processed': [],
-                   'Files Processed': [],
-                   'Issues': []}
-    return log_file_path, log_details
-
-def make_log(
-    logPath: str, 
-    logParams: dict
-):
-    '''
-    Creates a log file in the specified directory with the specified parameters.
-
-    Parameters
-    directory : str
-        The directory in which to create the log file.
-    logParams : dict
-        A dictionary containing the parameters to be logged.
-    '''
-    logFile = open(logPath, "w")                                    
-    for key, value in logParams.items():                            
-        logFile.write('%s: %s\n' % (key, value))                    
-    logFile.close()   
-    
-def determine_scope(
-    folder_path: str
-):
-    if '.oif' in folder_path:
-        return 'Olympus'
-    else:
-        return 'Bruker'
-
-def process_folder(folder_name, 
-                   parent_folder_path, 
-                   processed_images_path, 
-                   imagej_tags, 
-                   avg_projection,
-                   max_projection, 
-                   log_details, 
-                   metadata_csv_path,
-                   single_plane=False
-                   ) -> dict:
-    '''
-    Process the folder and create the hyperstack. Also extract metadata and write to CSV.
-    '''
-    # Check for XML file and get relevant metadata
-    folder_path = os.path.join(parent_folder_path, folder_name)
-    xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
-    if not xml_files:
-        raise FileNotFoundError(f"No XML file found in folder {folder_name}")
-    else:
-        xml_file_path = os.path.join(folder_path, xml_files[0])
-        bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_details, frame_rate, X_microns_per_pixel, Y_microns_per_pixel, Z_microns_per_pixel = extract_metadata(xml_file_path, log_details)
-
-    # Create the hyperstack and get the image type
-    hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
-
-    # Recalculate the frame rate for single plane: divide by number of frames
-    frame_rate = frame_rate / hyperstack.shape[0] if 'single_plane' in image_type else frame_rate
-    
-    # create the output image name
-    prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
-    image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
-    if os.path.exists(image_output_name):
-        print(f"{folder_name} already exists!")
-        log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
-        return log_details
-    
     if 'max_project' in image_type:
         axes = 'TCYX' 
     elif 'avg_project' in image_type:
@@ -97,28 +20,33 @@ def process_folder(folder_name,
     elif image_type == 'single_plane_multi_frame':
         axes = 'TZCYX'
         
+    return axes
+
+def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
     # Write the hyperstack to a TIFF file
-    metadata = {
+    saved_metadata = {
         'axes': axes,
-        'finterval': frame_rate, 'unit': 'um',
+        'finterval': metadata['framerate'], 
+        'unit': 'um',
         'mode': 'composite'
     }
     tifffile.imwrite(image_output_name, 
                     hyperstack, 
                     byteorder='>', 
                     imagej=True,
-                    resolution=(1 / X_microns_per_pixel, 1 / Y_microns_per_pixel),
-                    metadata=metadata, 
+                    resolution=(1 / metadata['X_microns_per_pixel'], 1 / metadata['Y_microns_per_pixel']),
+                    metadata=saved_metadata, 
                     extratags=imagej_tags
                 )
     
+def write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details):
     # Prepare the column headers and values for laser power
-    laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in laser_power_values.values()]
-    laser_powers = [value.split(':')[1].split(',')[0].strip() for value in laser_power_values.values()]
+    laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in metadata['laser_power_values'].values()]
+    laser_powers = [value.split(':')[1].split(',')[0].strip() for value in metadata['laser_power_values'].values()]
 
     # Prepare the column headers and values for ND filters        
     nd_filter_headers = ['imaging light path', 'PA light path']
-    nd_filter_values = [value.split(':')[-1].strip() for value in helios_nd_filter_values.values()]
+    nd_filter_values = [value.split(':')[-1].strip() for value in metadata['helios_nd_filter_values'].values()]
 
     # Check if the file exists and create headers if not
     try:
@@ -139,14 +67,18 @@ def process_folder(folder_name,
     # Write metadata to CSV
     with open(metadata_csv_path, 'a', newline='') as file:
         csv_writer = csv.writer(file)
-        csv_writer.writerow([folder_name, X_microns_per_pixel, Z_microns_per_pixel, frame_rate, 
-                             bit_depth, dwell_time, objective_lens_description] + laser_powers + nd_filter_values)
+        csv_writer.writerow([folder_name, 
+                             metadata['X_microns_per_pixel'], 
+                             metadata['Z_microns_per_pixel'],
+                             metadata['frame_rate'],
+                                metadata['bit_depth'],
+                                metadata['dwell_time'],
+                                metadata['objective_lens_description']] + laser_powers + nd_filter_values)
     
     # Add folder name to log
     log_details['Files Processed'].append(folder_name)
     print(f"Successfully processed {folder_name}!")
     return log_details
-
 
 def create_hyperstack(folder_path, avg_project=False, max_project=False, single_plane=False):
     '''
@@ -307,7 +239,7 @@ def extract_metadata(xml_file, log_params):
     - log_params (dict): The updated log_params dictionary with any issues encountered during extraction.
     """
 
-    # Step 1: Make a copy of the XML file
+    # Step 1: Make a copy of the XML file so we can update the xml version
     backup_file = xml_file + ".backup"
     try:
         shutil.copy(xml_file, backup_file)
@@ -336,6 +268,7 @@ def extract_metadata(xml_file, log_params):
         log_params['Issues'] = f"Error updating XML version in backup: {str(e)}"
         return None, log_params
     
+    #Step 3: Parse the XML file
     tree = ET.parse(backup_file)
     root = tree.getroot()
 
@@ -411,5 +344,18 @@ def extract_metadata(xml_file, log_params):
         os.remove(backup_file)
     except Exception as e:
         log_params['Issues'] = f"Error deleting backup file: {str(e)}"
+        
+    metadata = {
+        'bit_depth': bit_depth,
+        'dwell_time': dwell_time,
+        'helios_nd_filter_values': helios_nd_filter_values,
+        'laser_power_values': laser_power_values,
+        'objective_lens_description': objective_lens_description,
+        'log_params': log_params,
+        'framerate': framerate,
+        'X_microns_per_pixel': microns_per_pixel['XAxis'],
+        'Y_microns_per_pixel': microns_per_pixel['YAxis'],
+        'Z_microns_per_pixel': microns_per_pixel['ZAxis']
+    }
 
-    return bit_depth, dwell_time, helios_nd_filter_values, laser_power_values, objective_lens_description, log_params, framerate, microns_per_pixel['XAxis'], microns_per_pixel['YAxis'], microns_per_pixel['ZAxis']
+    return metadata
