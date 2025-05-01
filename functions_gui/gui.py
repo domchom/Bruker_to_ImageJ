@@ -242,6 +242,10 @@ class FlamingoGUI(tk.Tk):
         )
         self.avg_project_button.grid(row = 2, column = 0, padx = 10, sticky = 'W')  
         
+        # create label to explain the checkboxes above
+        self.help = ttk.Label(self, text = 'Select none of the above to save full hyperstack')
+        self.help.grid(row=3, column=0, columnspan=2, padx=10, sticky='W')
+        
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
         self.start_button['command'] = self.start_analysis
