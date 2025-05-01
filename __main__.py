@@ -87,6 +87,13 @@ def main():
     # Check if neither max nor avg projection are selected, default to saving full hyperstacks
     if not avg_projection and not max_projection:
         print('Neither max nor avg projection selected. Saving full hyperstacks. This might take a while!')
+        projection = None
+    elif max_projection:
+        print('Max projection selected. Saving max projections.')
+        projection = 'max'
+    elif avg_projection:
+        print('Avg projection selected. Saving avg projections.')
+        projection = 'avg'
         
     # Create a dictionary of imagej metadata tags
     imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
@@ -123,7 +130,7 @@ def main():
                     extracted_metadata = None
                     
                 # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
-                image_type, folder_tif_files = determine_image_type_bruker(folder_path, max_projection, avg_projection, single_plane)    
+                image_type, folder_tif_files = determine_image_type_bruker(folder_path, projection, single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
                 channel_files = get_channels_bruker(folder_tif_files)
@@ -135,7 +142,7 @@ def main():
                 hyperstack, image_type = adjust_axes_bruker(hyperstack, image_type)
                 
                 # Project the images if max or avg projection is selected
-                hyperstack = project_images_bruker(hyperstack, image_type, max_projection, avg_projection)
+                hyperstack = project_images_bruker(hyperstack, image_type, projection)
                 
                 if auto_metadata_extract == True:
                     # Recalculate the frame rate for single plane: divide by number of frames
@@ -190,7 +197,7 @@ def main():
         print(f"Number of illumination sides: {num_illumination_sides}")
 
         # Read all TIF files and Z-project them (if desired)
-        all_images = process_flamingo_folder(parent_folder_path, tif_files, max_projection, avg_projection)
+        all_images = process_flamingo_folder(parent_folder_path, tif_files, projection)
 
         # Create the final hyperstack that will hold all frames
         final_hyperstack = combine_illumination_sides_flamingo(all_images, 
@@ -198,12 +205,12 @@ def main():
                                                                 num_frames, 
                                                                 num_channels, 
                                                                 channels, 
-                                                                max_projection, 
-                                                                avg_projection)
+                                                                projection
+                                                                )
 
         # Create output path for the final hyperstack
         folder_name = os.path.basename(parent_folder_path)
-        name_suffix = 'MAX' if max_projection else 'AVG' if avg_projection else 'hyperstack'
+        name_suffix = 'MAX' if projection == 'max' else 'AVG' if projection == 'avg' else 'hyperstack'
         hyperstack_output_path = f'{parent_folder_path}/{folder_name}_{name_suffix}.tif'
         
         # Check if the output file already exists
@@ -213,7 +220,7 @@ def main():
             os.remove(hyperstack_output_path)
         
         # Create axes metadata for the hyperstack
-        axes = 'TCYX' if max_projection == True or avg_projection == True else 'TZCYX'
+        axes = 'TCYX' if projection == 'max' or projection == 'avg' else 'TZCYX'
             
         # Calculate the size of the final hyperstack in bytes, and warn if it's too large
         # 1 GB = 1024^3 bytes
@@ -255,19 +262,19 @@ def main():
             
             channel_files = get_channels_olympus(folder_tif_files)
             
-            final_channel_files = project_images_olympus(channel_files, max_projection, avg_projection)
+            final_channel_files = project_images_olympus(channel_files, projection)
                         
             # Stack the images for each channel, then combine them into a hyperstack
             hyperstack = stack_channels_olympus(final_channel_files)
                         
             hyperstack_output_path = os.path.join(parent_folder_path, f"{folder_name}_raw.tif")
             
-            if max_projection == False and avg_projection == False:
+            if projection == None:
                 hyperstack = hyperstack.reshape(hyperstack.shape[0], hyperstack.shape[2], hyperstack.shape[1], hyperstack.shape[3], hyperstack.shape[4])
             
             # Save the hyperstack
             save_hyperstack(hyperstack, 
-                            axes = 'TZCYX' if max_projection == False and avg_projection == False else 'TCYX',
+                            axes = 'TZCYX' if max_projection == None else 'TCYX',
                             metadata = None, # for now, flamingo data doesn't have metadata
                             image_output_name = hyperstack_output_path, 
                             imagej_tags = imagej_tags

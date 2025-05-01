@@ -21,7 +21,7 @@ def determine_axes_bruker(
         
     return axes
 
-def determine_image_type_bruker(folder_path, max_project, avg_project, single_plane):
+def determine_image_type_bruker(folder_path, projection, single_plane):
      # Get all the tif files in the folder
     folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
@@ -32,17 +32,17 @@ def determine_image_type_bruker(folder_path, max_project, avg_project, single_pl
 
         # Collect all files in the folder for specific image types
         if single_timepoint:
-            if max_project:
+            if projection == 'max':
                 image_type = "multi_plane_single_timepoint_max_project"
-            elif avg_project:
+            elif projection == 'avg':
                 image_type = "multi_plane_single_timepoint_avg_project"
             else:
                 image_type = "multi_plane_single_timepoint"
                 
         else:
-            if max_project:
+            if projection == 'max':
                 image_type = "multi_plane_multi_timepoint_max_project"
-            elif avg_project:
+            elif projection == 'avg':
                 image_type = "multi_plane_multi_timepoint_avg_project"
             else:
                 image_type = "multi_plane_multi_timepoint"
@@ -97,10 +97,10 @@ def adjust_axes_bruker(merged_images, image_type):
         
     return merged_images, image_type
 
-def project_images_bruker(merged_images, image_type, max_project, avg_project):
-    if max_project == True and "single_plane" not in image_type:
+def project_images_bruker(merged_images, image_type, projection):
+    if projection == 'max' and "single_plane" not in image_type:
         merged_images = np.max(merged_images, axis = 2)
-    if avg_project == True and "single_plane" not in image_type:
+    if projection == 'avg' and "single_plane" not in image_type:
         merged_images = np.mean(merged_images, axis = 2)
         merged_images = np.round(merged_images).astype(np.uint16) 
         

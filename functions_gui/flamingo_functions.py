@@ -67,8 +67,7 @@ def get_all_img_filenames_flamingo(file_list):
 
 def process_flamingo_folder(folder_path: str, 
                             tif_files: list, 
-                            max_projection: bool = False, 
-                            avg_projection: bool = False
+                            projection_type: str = 'max',
                             ) -> list:
     all_images = []
 
@@ -77,9 +76,9 @@ def process_flamingo_folder(folder_path: str,
         # Read the image
         image = tifffile.imread(image_path)
         # Z-projection here to reduce the 3D image to 2D and save memory
-        if max_projection:
+        if projection_type == 'max':
             image = Z_project_flamingo(image, projection_type='max')
-        elif avg_projection:
+        elif projection_type == 'avg':
             image = Z_project_flamingo(image, projection_type='avg')
 
         all_images.append(image)
@@ -101,8 +100,7 @@ def combine_illumination_sides_flamingo(images: list,
                                num_frames: int,
                                num_channels: int,
                                channels: list,
-                               max_projection: bool = False,
-                               avg_projection: bool = False   
+                               projection: str = 'max',
                                ) -> np.array:
     final_hyperstack = []
 
@@ -123,7 +121,7 @@ def combine_illumination_sides_flamingo(images: list,
 
         # Stack the two channels into a hyperstack, and add to the final hyperstack
         hyperstack = np.stack(frame_images, axis=0)
-        if not max_projection and not avg_projection:
+        if projection == None:
             hyperstack = np.moveaxis(hyperstack, 1, 2) 
             hyperstack = np.moveaxis(hyperstack, 0, 1)  
         

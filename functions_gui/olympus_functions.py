@@ -14,7 +14,7 @@ def get_channels_olympus(folder_path):
         
     return channel_files    
 
-def project_images_olympus(channel_files, max_projection=False, avg_projection=False):
+def project_images_olympus(channel_files, projection_type='max'):
     # Sort the files in each channel by T number
     # This is done to ensure that the projection is done in the correct order
     for key in channel_files:
@@ -48,13 +48,13 @@ def project_images_olympus(channel_files, max_projection=False, avg_projection=F
             # Stack the images along the Z axis
             images = np.stack(images, axis=0)
             # Perform the projection 
-            if max_projection == True:
+            if projection_type == 'max':
                 projected_image = np.max(images, axis=0)
                 # add projected images to the new dict
                 if channel_name not in final_channel_files:
                     final_channel_files[channel_name] = []
                 final_channel_files[channel_name].append(projected_image)
-            elif avg_projection == True:
+            elif projection_type == 'avg':
                 projected_image = np.mean(images, axis=0)
                 projected_image = np.round(projected_image).astype(np.uint16) 
                 # add projected images to the new dict
