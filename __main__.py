@@ -73,7 +73,7 @@ def main():
     imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
     
     # Determine the microscope type # TODO: need to fully implement this function once olympus function is finished
-    microscope_type = determine_scope(image_folders[0])
+    # microscope_type = determine_scope(image_folders[0])
 
     # If Bruker data
     if not flamingo:
@@ -101,8 +101,8 @@ def main():
                 hyperstack, image_type = create_hyperstack(folder_path, avg_projection, max_projection, single_plane)
                 
                 # Recalculate the frame rate for single plane: divide by number of frames
-                frame_rate = frame_rate / hyperstack.shape[0] if 'single_plane' in image_type else frame_rate
-                
+                extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
+                                
                 # create the output image name
                 prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
                 image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
@@ -118,7 +118,7 @@ def main():
                 save_hyperstack(hyperstack, axes, extracted_metadata, image_output_name, imagej_tags)
                 
                 # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                log_details = write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details)
+                log_details = write_metadata_csv(extracted_metadata, metadata_csv_path, folder_name, log_details)
                     
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')

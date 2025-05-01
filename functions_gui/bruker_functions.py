@@ -116,7 +116,7 @@ def write_metadata_csv(metadata, metadata_csv_path, folder_name, log_details):
         csv_writer.writerow([folder_name, 
                              metadata['X_microns_per_pixel'], 
                              metadata['Z_microns_per_pixel'],
-                             metadata['frame_rate'],
+                             metadata['framerate'],
                                 metadata['bit_depth'],
                                 metadata['dwell_time'],
                                 metadata['objective_lens_description']] + laser_powers + nd_filter_values)
