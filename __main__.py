@@ -29,11 +29,11 @@ from functions_gui.flamingo_functions import (
 )
 
 from functions_gui.olympus_functions import (
-    get_channels_olympus,
-    stack_channels_olympus,
-    project_images_olympus,
-    extract_t_number,
-    extract_metadata_olympus
+    organizeFilesByChannelOlympus,
+    stackChannelsGenHyperstackOlympus,
+    generateChannelProjectionsOlympus,
+    extractTNumber,
+    extractMetadataFromPTYOlympus
 )
 
 def main():
@@ -267,25 +267,25 @@ def main():
             folder_path = os.path.join(parent_folder_path, folder_name)
             
             # extract metadata from the folder name
-            extract_metadata_olympus(folder_path)
+            extractMetadataFromPTYOlympus(folder_path)
             
             # get all tiff files in the folder
             tif_files = [f for f in os.listdir(folder_path) if f.endswith('.tif') and f.startswith('s') and not any(r in f for r in ['-R001', '-R002', '-R003', '-R004'])]
             folder_tif_files = [os.path.join(folder_path, file) for file in tif_files]
             
             # organize the files into channels
-            channel_files = get_channels_olympus(folder_tif_files)
+            channel_files = organizeFilesByChannelOlympus(folder_tif_files)
             
             # Sort the files in each channel by T number
             # This is done to ensure that the projection is done in the correct order
             for key in channel_files:
-                channel_files[key].sort(key=extract_t_number) 
+                channel_files[key].sort(key=extractTNumber) 
             
             # organize and project the images for each channel
-            final_channel_files = project_images_olympus(channel_files, projection)
+            final_channel_files = generateChannelProjectionsOlympus(channel_files, projection)
                         
             # Stack the images for each channel, then combine them into a hyperstack
-            hyperstack = stack_channels_olympus(final_channel_files)
+            hyperstack = stackChannelsGenHyperstackOlympus(final_channel_files)
             
             # Create the output path for the final hyperstack
             filename = os.path.basename(folder_path).replace(".oif.files", "")

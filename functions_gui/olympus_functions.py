@@ -3,7 +3,7 @@ import re
 import numpy as np
 import tifffile
 
-def get_channels_olympus(folder_path):
+def organizeFilesByChannelOlympus(folder_path):
     # Collect the files corresponding to each channel and put in dict
     channel_files = {}
     for file in folder_path:
@@ -14,10 +14,9 @@ def get_channels_olympus(folder_path):
         
     return channel_files    
 
-def project_images_olympus(channel_files, projection_type='max'):    
+def generateChannelProjectionsOlympus(channel_files, projection_type='max'):    
     final_channel_files = {}
     for channel_name, files in channel_files.items():
-        remaining_files = files[:]
         processed_files = set()
         for file in files:
             if file in processed_files:
@@ -51,7 +50,7 @@ def project_images_olympus(channel_files, projection_type='max'):
             processed_files.update(matching_files)
             
             # sort the matching files by Z number
-            matching_files = sorted(matching_files, key=extract_z_number)
+            matching_files = sorted(matching_files, key=extractZNumber)
             # Read the images from the matching files
             images = [tifffile.imread(file, is_ome=False) for file in matching_files]
             # Stack the images along the Z axis
@@ -74,15 +73,15 @@ def project_images_olympus(channel_files, projection_type='max'):
             
     return final_channel_files
            
-def extract_t_number(filename):
+def extractTNumber(filename):
     match = re.search(r'T(\d+)', filename)
     return int(match.group(1)) if match else float('inf')    
 
-def extract_z_number(filename):
+def extractZNumber(filename):
     match = re.search(r'Z(\d+)', filename)
     return int(match.group(1)) if match else float('inf')
     
-def stack_channels_olympus(channel_images):
+def stackChannelsGenHyperstackOlympus(channel_images):
     # Ensure all channel image lists have the same length
     num_frames = 10000000 # Arbitrarily large number
     for channel_name, values in channel_images.items():
@@ -97,7 +96,7 @@ def stack_channels_olympus(channel_images):
     
     return merged_images
 
-def extract_metadata_olympus(folder_path):
+def extractMetadataFromPTYOlympus(folder_path):
     pty_files = [
         f for f in os.listdir(folder_path)
         if f.endswith('.pty') and f.startswith('s') and not any(r in f for r in ['-R001', '-R002', '-R003', '-R004', 'Thumb'])
@@ -106,8 +105,8 @@ def extract_metadata_olympus(folder_path):
         raise FileNotFoundError("No matching .pty files found in the folder.")
 
     pty_files = sorted(pty_files)
-    pty_files = sorted(pty_files, key=extract_z_number)
-    pty_files = sorted(pty_files, key=extract_t_number)
+    pty_files = sorted(pty_files, key=extractZNumber)
+    pty_files = sorted(pty_files, key=extractTNumber)
 
     final_pty = pty_files[-1]
 
