@@ -30,17 +30,17 @@ def determineImageTypeBruker(folder_path: str,
 
         # Collect all files in the folder for specific image types
         if single_timepoint:
-            if projection_type is 'max':
+            if projection_type == 'max':
                 image_type = "multi_plane_single_timepoint_max_project"
-            elif projection_type is 'avg':
+            elif projection_type == 'avg':
                 image_type = "multi_plane_single_timepoint_avg_project"
             else:
                 image_type = "multi_plane_single_timepoint"
                 
         else:
-            if projection_type is 'max':
+            if projection_type == 'max':
                 image_type = "multi_plane_multi_timepoint_max_project"
-            elif projection_type is 'avg':
+            elif projection_type == 'avg':
                 image_type = "multi_plane_multi_timepoint_avg_project"
             else:
                 image_type = "multi_plane_multi_timepoint"
@@ -134,9 +134,9 @@ def projectNumpyArraysBruker(hyperstack: np.array,
     Returns:
     np.array: The projected numpy array.
     """
-    if projection_type is 'max' and "single_plane" not in image_type:
+    if projection_type == 'max' and "single_plane" not in image_type:
         hyperstack = np.max(hyperstack, axis = 2)
-    if projection_type is 'avg' and "single_plane" not in image_type:
+    if projection_type == 'avg' and "single_plane" not in image_type:
         hyperstack = np.mean(hyperstack, axis = 2)
         hyperstack = np.round(hyperstack).astype(np.uint16) 
         

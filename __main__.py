@@ -102,16 +102,18 @@ def main():
     imagej_tags = createImageJMetadataTags(LUTs = {'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]},
                                            byteorder = '>')
     
-    if microscope_type != 'Flamingo' and microscope_type != 'Olympus': # not doing olympus for testing for now
-        # Initialize output folders, logging, and metadata CSV outout paths
-        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
-        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
-        metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
+    if microscope_type != 'Flamingo': # not doing olympus for testing for now
+        # Get the Bruker image folders
+        image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
+        
+        if microscope_type != 'Olympus': # skip olympus for now
+            # Initialize output folders, logging, and metadata CSV outout paths
+            processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
+            log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
+            metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
 
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
-        # Get the Bruker image folders
-        image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
         
         for folder_name in image_folders:
             print('******'*10)
@@ -232,7 +234,7 @@ def main():
             os.remove(hyperstack_output_path)
         
         # Create axes metadata for the hyperstack
-        imageJ_axes = 'TCYX' if projection_type is 'max' or projection_type is 'avg' else 'TZCYX'
+        imageJ_axes = 'TCYX' if projection_type == 'max' or projection_type == 'avg' else 'TZCYX'
             
         # Calculate the size of the final hyperstack in bytes, and warn if it's too large
         # 1 GB = 1024^3 bytes
@@ -254,10 +256,6 @@ def main():
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
         
     elif microscope_type == 'Olympus':
-        image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
-        
-        # Initialize output folders, logging, and metadata CSV outout paths
-        #processed_images_path, scope_folders_path = initialize_output_folders(parent_folder_path)
 
         for image_folder in image_folders:
             print('******'*10)
