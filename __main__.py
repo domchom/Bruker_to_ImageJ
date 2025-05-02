@@ -139,7 +139,8 @@ def main():
                                                                             single_plane=single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
-                channel_filenames = organizeFilesByChannel(folder_path=folder_tif_file_ames)
+                channel_filenames = organizeFilesByChannel(folder_tif_filenames=folder_tif_file_ames,
+                                                           microscope_type=microscope_type)
                 
                 # Stack the images for each channel, then combine them into a hyperstack
                 channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames=channel_filenames)
@@ -209,7 +210,8 @@ def main():
             folder_tif_filenames = [os.path.join(image_folder_path, file) for file in tif_filenames]
             
             # organize the files into channels
-            channel_filenames = organizeFilesByChannel(folder_tif_filenames)
+            channel_filenames = organizeFilesByChannel(folder_tif_filenames=folder_tif_filenames,
+                                                       microscope_type=microscope_type)
             
             # Sort the files in each channel by T number
             # This is done to ensure that the projection is done in the correct order

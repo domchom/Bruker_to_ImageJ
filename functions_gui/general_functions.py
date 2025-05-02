@@ -42,19 +42,20 @@ def adjustImageJAxes(image_type: str) -> str:
         
     return axes
 
-def organizeFilesByChannel(folder_path: str, microscope_type: str) -> dict:
+def organizeFilesByChannel(folder_tif_filenames: list, microscope_type: str) -> dict:
     """
     Organize files by channel based on the folder contents.
     
     Parameters:
-    folder_path (str): Path to the folder containing the images.
+    folder_path (list): List of file paths in the folder.
+    microscope_type (str): Type of microscope ('Bruker' or 'Olympus').
     
     Returns:
     dict: A dictionary where keys are channel names and values are lists of file paths.
     """
     # Collect the files corresponding to each channel and put in dict
     channel_filenames = {}
-    for file in folder_path:
+    for file in folder_tif_filenames:
         if microscope_type == 'Bruker':
             channel_name = os.path.basename(file).split('_')[-2]
         elif microscope_type == 'Olympus':
