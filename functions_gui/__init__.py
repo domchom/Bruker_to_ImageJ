@@ -9,9 +9,9 @@ __all__ = ["initializeOutputFolders",
            "saveLogFile",
            "saveImageJHyperstack",
            "createImageJMetadataTags",
+           "organizeFilesByChannel",
            
            "determineImageTypeBruker",
-           "organizeFilesByChannelBruker",
            "convertImagesToNumpyArraysBruker",
            "adjustNumpyArrayAxesBruker",
            "projectNumpyArraysBruker",
@@ -26,7 +26,6 @@ __all__ = ["initializeOutputFolders",
            "zProject",
            "mergeNumpyArrayIlluminationSidesFlamingo",
            
-           "organizeFilesByChannelOlympus",
            "stackChannelsGenHyperstackOlympus"
            "generateChannelProjectionsOlympus",
            "extractTNumber",

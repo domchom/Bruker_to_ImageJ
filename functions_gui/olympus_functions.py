@@ -3,17 +3,6 @@ import re
 import numpy as np
 import tifffile
 
-def organizeFilesByChannelOlympus(folder_path):
-    # Collect the files corresponding to each channel and put in dict
-    channel_files = {}
-    for file in folder_path:
-        channel_name = os.path.basename(file).split('_')[1][:4] 
-        if channel_name not in channel_files:
-            channel_files[channel_name] = []
-        channel_files[channel_name].append(file)
-        
-    return channel_files    
-
 def generateChannelProjectionsOlympus(channel_files, projection_type='max'):    
     final_channel_files = {}
     for channel_name, files in channel_files.items():

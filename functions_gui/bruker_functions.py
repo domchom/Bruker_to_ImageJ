@@ -52,26 +52,6 @@ def determineImageTypeBruker(folder_path: str,
         
     return image_type, folder_tif_filenames
 
-def organizeFilesByChannelBruker(folder_path: str) -> dict:
-    """
-    Organize files by channel based on the folder contents.
-    
-    Parameters:
-    folder_path (str): Path to the folder containing the images.
-    
-    Returns:
-    dict: A dictionary where keys are channel names and values are lists of file paths.
-    """
-    # Collect the files corresponding to each channel and put in dict
-    channel_filenames = {}
-    for file in folder_path:
-        channel_name = os.path.basename(file).split('_')[-2] 
-        if channel_name not in channel_filenames:
-            channel_filenames[channel_name] = []
-        channel_filenames[channel_name].append(file)
-        
-    return channel_filenames
-
 def convertImagesToNumpyArraysBruker(channel_filenames: dict) -> dict:
     """ 
     Convert images to numpy arrays for each channel.

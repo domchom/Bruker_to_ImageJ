@@ -42,6 +42,29 @@ def adjustImageJAxes(image_type: str) -> str:
         
     return axes
 
+def organizeFilesByChannel(folder_path: str, microscope_type: str) -> dict:
+    """
+    Organize files by channel based on the folder contents.
+    
+    Parameters:
+    folder_path (str): Path to the folder containing the images.
+    
+    Returns:
+    dict: A dictionary where keys are channel names and values are lists of file paths.
+    """
+    # Collect the files corresponding to each channel and put in dict
+    channel_filenames = {}
+    for file in folder_path:
+        if microscope_type == 'Bruker':
+            channel_name = os.path.basename(file).split('_')[-2]
+        elif microscope_type == 'Olympus':
+            channel_name = os.path.basename(file).split('_')[1][:4]
+        if channel_name not in channel_filenames:
+            channel_filenames[channel_name] = []
+        channel_filenames[channel_name].append(file)
+        
+    return channel_filenames
+
 def saveLogFile(
     logPath: str, 
     logParams: dict

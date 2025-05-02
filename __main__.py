@@ -9,11 +9,11 @@ from functions_gui.general_functions import (
     adjustImageJAxes,
     saveLogFile,
     saveImageJHyperstack,
-    createImageJMetadataTags
+    createImageJMetadataTags,
+    organizeFilesByChannel
 )
 from functions_gui.bruker_functions import (
     determineImageTypeBruker,
-    organizeFilesByChannelBruker,
     convertImagesToNumpyArraysBruker,
     adjustNumpyArrayAxesBruker,
     projectNumpyArraysBruker,
@@ -29,7 +29,6 @@ from functions_gui.flamingo_functions import (
 )
 
 from functions_gui.olympus_functions import (
-    organizeFilesByChannelOlympus,
     stackChannelsGenHyperstackOlympus,
     generateChannelProjectionsOlympus,
     extractTNumber,
@@ -140,7 +139,7 @@ def main():
                                                                             single_plane=single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
-                channel_filenames = organizeFilesByChannelBruker(folder_path=folder_tif_file_ames)
+                channel_filenames = organizeFilesByChannel(folder_path=folder_tif_file_ames)
                 
                 # Stack the images for each channel, then combine them into a hyperstack
                 channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames=channel_filenames)
@@ -210,7 +209,7 @@ def main():
             folder_tif_filenames = [os.path.join(image_folder_path, file) for file in tif_filenames]
             
             # organize the files into channels
-            channel_filenames = organizeFilesByChannelOlympus(folder_tif_filenames)
+            channel_filenames = organizeFilesByChannel(folder_tif_filenames)
             
             # Sort the files in each channel by T number
             # This is done to ensure that the projection is done in the correct order
