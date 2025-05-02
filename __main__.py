@@ -1,23 +1,24 @@
 import os
 import timeit
 import shutil
+import numpy as np
 from functions_gui.gui import BaseGUI, FlamingoGUI, OlympusGUI
 from functions_gui.general_functions import (
-    initialize_output_folders,
-    setup_logging,
-    save_log_file,
-    save_hyperstack,
-    imagej_metadata_tags
+    initializeOutputFolders,
+    initializeLogFile,
+    adjustImageJAxes,
+    saveLogFile,
+    saveImageJHyperstack,
+    createImageJMetadataTags
 )
 from functions_gui.bruker_functions import (
-    determine_axes_bruker,
-    determine_image_type_bruker,
-    get_channels_bruker,
-    stack_channels_bruker,
-    adjust_axes_bruker,
-    project_images_bruker,
-    write_metadata_csv_bruker,
-    extract_metadata_bruker,   
+    determineImageTypeBruker,
+    organizeFilesByChannelBruker,
+    convertImagesToNumpyArraysBruker,
+    adjustNumpyArrayAxesBruker,
+    projectNumpyArraysBruker,
+    writeMetadataCsvBruker,
+    extractMetadataFromXMLBruker,   
 )
 from functions_gui.flamingo_functions import (
     get_num_channels_flamingo,
@@ -98,7 +99,7 @@ def main():
         projection = 'avg'
         
     # Create a dictionary of imagej metadata tags
-    imagej_tags = imagej_metadata_tags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
+    imagej_tags = createImageJMetadataTags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
     
     # Determine the microscope type # TODO: need to fully implement this function once olympus function is finished
     # microscope_type = determine_scope(image_folders[0])
@@ -108,9 +109,10 @@ def main():
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
 
+        # TODO: MOVE OUTSIDE OF MAIN FUNCTION when done testing olympus functions
         # Initialize output folders, logging, and metadata CSV outout paths
-        processed_images_path, scope_folders_path = initialize_output_folders(parent_folder_path)
-        log_file_path, log_details = setup_logging(processed_images_path)
+        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path)
+        log_file_path, log_details = initializeLogFile(processed_images_path)
         metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
 
         for folder_name in image_folders:
@@ -126,25 +128,31 @@ def main():
                         raise FileNotFoundError(f"No XML file found in folder {folder_name}")
                     else:
                         xml_file_path = os.path.join(folder_path, xml_files[0])
-                        extracted_metadata, log_details = extract_metadata_bruker(xml_file_path, log_details)
+                        extracted_metadata, log_details = extractMetadataFromXMLBruker(xml_file_path, log_details)
                 else:
                     log_details['Other Notes'].append(f'Skipping metadata extraction {folder_name}.')
                     extracted_metadata = None
                     
                 # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
-                image_type, folder_tif_files = determine_image_type_bruker(folder_path, projection, single_plane)    
+                image_type, folder_tif_files = determineImageTypeBruker(folder_path, projection, single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
-                channel_files = get_channels_bruker(folder_tif_files)
+                channel_files = organizeFilesByChannelBruker(folder_tif_files)
                 
                 # Stack the images for each channel, then combine them into a hyperstack
-                hyperstack = stack_channels_bruker(channel_files)
+                channel_images = convertImagesToNumpyArraysBruker(channel_files)
                 
+                # Stack the images for each channel
+                stacked_images = {channel_name: np.stack(images) for channel_name, images in channel_images.items()}
+
+                # Stack images across channels
+                hyperstack = np.stack(list(stacked_images.values()), axis=1)
+    
                 # Adjust axes for the hyperstack depending on the image type, and return the adjusted image type
-                hyperstack, image_type = adjust_axes_bruker(hyperstack, image_type)
+                hyperstack, image_type = adjustNumpyArrayAxesBruker(hyperstack, image_type)
                 
                 # Project the images if max or avg projection is selected
-                hyperstack = project_images_bruker(hyperstack, image_type, projection)
+                hyperstack = projectNumpyArraysBruker(hyperstack, image_type, projection)
                 
                 if auto_metadata_extract == True:
                     # Recalculate the frame rate for single plane: divide by number of frames
@@ -159,13 +167,13 @@ def main():
                     return log_details
                 
                 # determine the axes for the hyperstack
-                axes = determine_axes_bruker(image_type)
+                axes = adjustImageJAxes(image_type)
                 
                 # Save the hyperstack
-                save_hyperstack(hyperstack, axes, extracted_metadata, image_output_name, imagej_tags)
+                saveImageJHyperstack(hyperstack, axes, extracted_metadata, image_output_name, imagej_tags)
                 
                 # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                log_details = write_metadata_csv_bruker(extracted_metadata, metadata_csv_path, folder_name, log_details)
+                log_details = writeMetadataCsvBruker(extracted_metadata, metadata_csv_path, folder_name, log_details)
                     
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
@@ -180,7 +188,7 @@ def main():
         print(f'Time elapsed: {end_time - start_time:.2f} seconds')
         
         # Save the log file
-        save_log_file(log_file_path, log_details)
+        saveLogFile(log_file_path, log_details)
     
     # FLAMINGO WORKFLOW
     elif microscope_type == 'Flamingo':
@@ -234,7 +242,7 @@ def main():
         print(f"Saving hyperstack to {hyperstack_output_path}...")
         
         # Save the hyperstack
-        save_hyperstack(final_hyperstack, 
+        saveImageJHyperstack(final_hyperstack, 
                         axes,
                         metadata = None, # for now, flamingo data doesn't have metadata
                         image_output_name = hyperstack_output_path, 
@@ -292,7 +300,7 @@ def main():
             print(f"Saving hyperstack to {hyperstack_output_path}...")
             
             # Save the hyperstack
-            save_hyperstack(hyperstack, 
+            saveImageJHyperstack(hyperstack, 
                             axes = 'TZCYX' if projection == None else 'TCYX',
                             metadata = None, # for now, flamingo data doesn't have metadata
                             image_output_name = hyperstack_output_path, 

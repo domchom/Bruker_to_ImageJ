@@ -2,7 +2,7 @@ import os
 import struct
 import tifffile
 
-def initialize_output_folders(parent_folder_path) -> tuple:
+def initializeOutputFolders(parent_folder_path) -> tuple:
     '''
     Create the output folders for the processed images and the scope folders.
     '''
@@ -12,7 +12,7 @@ def initialize_output_folders(parent_folder_path) -> tuple:
     os.makedirs(scope_folders_path, exist_ok=True)
     return processed_images_path, scope_folders_path
 
-def setup_logging(processed_images_path) -> tuple:
+def initializeLogFile(processed_images_path) -> tuple:
     '''
     Set up the log file and parameters.
     '''
@@ -23,7 +23,23 @@ def setup_logging(processed_images_path) -> tuple:
                    'Other Notes': [],}
     return log_file_path, log_details
 
-def save_log_file(
+def adjustImageJAxes(
+    image_type: str) -> tuple:
+    '''
+    Determine the axes of the image based on the image type.
+    '''
+    if 'max_project' in image_type:
+        axes = 'TCYX' 
+    elif 'avg_project' in image_type:
+        axes = 'TCYX' 
+    elif image_type == 'single_plane_single_frame': 
+        axes = 'ZCYX' 
+    elif image_type == 'single_plane_multi_frame':
+        axes = 'TZCYX'
+        
+    return axes
+
+def saveLogFile(
     logPath: str, 
     logParams: dict
 ):
@@ -41,7 +57,7 @@ def save_log_file(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
     
-def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
+def saveImageJHyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
     # Write the hyperstack to a TIFF file
     if metadata == None: # for the flamingo data for now, and if user does not want to save metadata
         saved_metadata = {
@@ -66,7 +82,7 @@ def save_hyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):
                 )
     
 
-def imagej_metadata_tags(metadata, byteorder):
+def createImageJMetadataTags(metadata, byteorder):
     """Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
 
     The tags can be passed to the TiffWriter.save function as extratags.

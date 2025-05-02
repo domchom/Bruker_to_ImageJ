@@ -5,24 +5,8 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
-def determine_axes_bruker(
-    image_type: str) -> tuple:
-    '''
-    Determine the axes of the image based on the image type.
-    '''
-    if 'max_project' in image_type:
-        axes = 'TCYX' 
-    elif 'avg_project' in image_type:
-        axes = 'TCYX' 
-    elif image_type == 'single_plane_single_frame': 
-        axes = 'ZCYX' 
-    elif image_type == 'single_plane_multi_frame':
-        axes = 'TZCYX'
-        
-    return axes
-
-def determine_image_type_bruker(folder_path, projection, single_plane):
-     # Get all the tif files in the folder
+def determineImageTypeBruker(folder_path, projection, single_plane):
+    # Get all the tif files in the folder
     folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
     if single_plane == False:
@@ -54,7 +38,7 @@ def determine_image_type_bruker(folder_path, projection, single_plane):
         
     return image_type, folder_tif_files
 
-def get_channels_bruker(folder_path):
+def organizeFilesByChannelBruker(folder_path):
     # Collect the files corresponding to each channel and put in dict
     channel_files = {}
     for file in folder_path:
@@ -65,7 +49,7 @@ def get_channels_bruker(folder_path):
         
     return channel_files
 
-def stack_channels_bruker(channel_files):
+def convertImagesToNumpyArraysBruker(channel_files):
     # Read/create images for each channel
     channel_images = {}
     for channel_name, files in channel_files.items():
@@ -75,15 +59,9 @@ def stack_channels_bruker(channel_files):
             print(f"Error reading TIFF file for channel {channel_name}: {e}")
             return None, None
 
-    # Stack the images for each channel
-    stacked_images = {channel_name: np.stack(images) for channel_name, images in channel_images.items()}
+    return channel_images
 
-    # Stack images across channels
-    merged_images = np.stack(list(stacked_images.values()), axis=1)
-    
-    return merged_images
-
-def adjust_axes_bruker(merged_images, image_type):
+def adjustNumpyArrayAxesBruker(merged_images, image_type):
     # Adjust axes based on image type, max projected images do not need to be adjusted
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
         merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
@@ -97,7 +75,7 @@ def adjust_axes_bruker(merged_images, image_type):
         
     return merged_images, image_type
 
-def project_images_bruker(merged_images, image_type, projection):
+def projectNumpyArraysBruker(merged_images, image_type, projection):
     if projection == 'max' and "single_plane" not in image_type:
         merged_images = np.max(merged_images, axis = 2)
     if projection == 'avg' and "single_plane" not in image_type:
@@ -106,10 +84,10 @@ def project_images_bruker(merged_images, image_type, projection):
         
     return merged_images
 
-def write_metadata_csv_bruker(metadata, metadata_csv_path, folder_name, log_details):
-    if metadata == None:
-        pass
-    else:
+def writeMetadataCsvBruker(metadata, metadata_csv_path, folder_name, log_details):
+    if metadata is not None:
+        # Prepare laser power headers and values
+        laser_power_headers = [f"{value.split(':')[-1].strip()} power" for value in metadata['laser_power_values'].values()]
         # Prepare the column headers and values for laser power
         laser_power_headers = [f'{value.split(":")[-1].strip()} power' for value in metadata['laser_power_values'].values()]
         laser_powers = [value.split(':')[1].split(',')[0].strip() for value in metadata['laser_power_values'].values()]
@@ -151,7 +129,7 @@ def write_metadata_csv_bruker(metadata, metadata_csv_path, folder_name, log_deta
         
     return log_details
 
-def extract_metadata_bruker(xml_file, log_params):
+def extractMetadataFromXMLBruker(xml_file, log_params):
     """
     Extracts metadata from an XML file.
 
