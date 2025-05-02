@@ -5,28 +5,42 @@ import tifffile
 import numpy as np
 import xml.etree.ElementTree as ET
 
-def determineImageTypeBruker(folder_path, projection, single_plane):
+def determineImageTypeBruker(folder_path: str, 
+                             projection_type: str, 
+                             single_plane: bool = False
+                             ) -> tuple:
+    """
+    Determine the image type based on the folder contents.
+    
+    Parameters:
+    folder_path (str): Path to the folder containing the images.
+    projection_type (str): Type of projection ('max' or 'avg').
+    single_plane (bool): Whether the images are single plane or not.
+    
+    Returns:
+    tuple: A tuple containing the image type and a list of file paths.
+    """
     # Get all the tif files in the folder
-    folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
+    folder_tif_filenames = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
     if single_plane is False:
         # If last tif file is 'Cycle00001', then just a single frame
-        last_file_name = folder_tif_files[-1]
+        last_file_name = folder_tif_filenames[-1]
         single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False
 
         # Collect all files in the folder for specific image types
         if single_timepoint:
-            if projection == 'max':
+            if projection_type is 'max':
                 image_type = "multi_plane_single_timepoint_max_project"
-            elif projection == 'avg':
+            elif projection_type is 'avg':
                 image_type = "multi_plane_single_timepoint_avg_project"
             else:
                 image_type = "multi_plane_single_timepoint"
                 
         else:
-            if projection == 'max':
+            if projection_type is 'max':
                 image_type = "multi_plane_multi_timepoint_max_project"
-            elif projection == 'avg':
+            elif projection_type is 'avg':
                 image_type = "multi_plane_multi_timepoint_avg_project"
             else:
                 image_type = "multi_plane_multi_timepoint"
@@ -34,57 +48,117 @@ def determineImageTypeBruker(folder_path, projection, single_plane):
         image_type = "single_plane"
         
     # Sort files to ensure correct order
-    folder_tif_files.sort()
+    folder_tif_filenames.sort()
         
-    return image_type, folder_tif_files
+    return image_type, folder_tif_filenames
 
-def organizeFilesByChannelBruker(folder_path):
+def organizeFilesByChannelBruker(folder_path: str) -> dict:
+    """
+    Organize files by channel based on the folder contents.
+    
+    Parameters:
+    folder_path (str): Path to the folder containing the images.
+    
+    Returns:
+    dict: A dictionary where keys are channel names and values are lists of file paths.
+    """
     # Collect the files corresponding to each channel and put in dict
-    channel_files = {}
+    channel_filenames = {}
     for file in folder_path:
         channel_name = os.path.basename(file).split('_')[-2] 
-        if channel_name not in channel_files:
-            channel_files[channel_name] = []
-        channel_files[channel_name].append(file)
+        if channel_name not in channel_filenames:
+            channel_filenames[channel_name] = []
+        channel_filenames[channel_name].append(file)
         
-    return channel_files
+    return channel_filenames
 
-def convertImagesToNumpyArraysBruker(channel_files):
+def convertImagesToNumpyArraysBruker(channel_filenames: dict) -> dict:
+    """ 
+    Convert images to numpy arrays for each channel.
+    
+    Parameters:
+    channel_filenames (dict): A dictionary where keys are channel names and values are lists of file paths.
+    
+    Returns:
+    dict: A dictionary where keys are channel names and values are lists of numpy arrays.
+    """
     # Read/create images for each channel
-    channel_images = {}
-    for channel_name, files in channel_files.items():
+    channel_image_arrays = {}
+    for channel_name, files in channel_filenames.items():
         try:
-            channel_images[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
+            channel_image_arrays[channel_name] = [tifffile.imread(file, is_ome=False) for file in files]
         except Exception as e:
             print(f"Error reading TIFF file for channel {channel_name}: {e}")
             return None, None
 
-    return channel_images
+    return channel_image_arrays
 
-def adjustNumpyArrayAxesBruker(merged_images, image_type):
+def adjustNumpyArrayAxesBruker(hyperstack: np.array, 
+                               image_type: str
+                               ) -> tuple:
+    """
+    Adjust the axes of the numpy array based on the image type.
+    
+    Parameters:
+    hyperstack (np.array): The numpy array representing the image stack.
+    image_type (str): The type of the image stack.
+    
+    Returns:
+    tuple: A tuple containing the adjusted hyperstack and the updated image type.
+    """
     # Adjust axes based on image type, max projected images do not need to be adjusted
     if image_type == "multi_plane_multi_timepoint" or image_type == "multi_plane_single_timepoint":
-        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
+        hyperstack = np.moveaxis(hyperstack, [0, 1, 2, 3, 4], [0, 2, 1, 3, 4])   
              
-    if image_type == "single_plane" and len(merged_images.shape) == 5:
-        merged_images = np.moveaxis(merged_images, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
+    if image_type == "single_plane" and len(hyperstack.shape) == 5:
+        hyperstack = np.moveaxis(hyperstack, [0, 1, 2, 3, 4], [1, 2, 0, 3, 4])
         image_type = "single_plane_multi_frame"
         
-    elif image_type == "single_plane" and len(merged_images.shape) == 4:
+    elif image_type == "single_plane" and len(hyperstack.shape) == 4:
         image_type = "single_plane_single_frame"
         
-    return merged_images, image_type
+    return hyperstack, image_type
 
-def projectNumpyArraysBruker(merged_images, image_type, projection):
-    if projection == 'max' and "single_plane" not in image_type:
-        merged_images = np.max(merged_images, axis = 2)
-    if projection == 'avg' and "single_plane" not in image_type:
-        merged_images = np.mean(merged_images, axis = 2)
-        merged_images = np.round(merged_images).astype(np.uint16) 
+def projectNumpyArraysBruker(hyperstack: np.array, 
+                             image_type: str, 
+                             projection_type: str
+                             ) -> np.array:
+    """
+    Project the numpy arrays based on the image type and projection type.
+    
+    Parameters:
+    hyperstack (np.array): The numpy array representing the image stack.
+    image_type (str): The type of the image stack.
+    projection_type (str): The type of projection ('max' or 'avg').
+    
+    Returns:
+    np.array: The projected numpy array.
+    """
+    if projection_type is 'max' and "single_plane" not in image_type:
+        hyperstack = np.max(hyperstack, axis = 2)
+    if projection_type is 'avg' and "single_plane" not in image_type:
+        hyperstack = np.mean(hyperstack, axis = 2)
+        hyperstack = np.round(hyperstack).astype(np.uint16) 
         
-    return merged_images
+    return hyperstack
 
-def writeMetadataCsvBruker(metadata, metadata_csv_path, folder_name, log_details):
+def writeMetadataCsvBruker(metadata: dict, 
+                           metadata_csv_path: str, 
+                           folder_name: str, 
+                           log_details: dict
+                           ) -> dict:
+    """
+    Write metadata to a CSV file.
+    
+    Parameters:
+    metadata (dict): A dictionary containing the metadata to be written.
+    metadata_csv_path (str): The path to the CSV file.
+    folder_name (str): The name of the folder being processed.
+    log_details (dict): A dictionary to store log details.
+    
+    Returns:
+    dict: The updated log details.
+    """
     if metadata is not None:
         # Prepare laser power headers and values
         laser_power_headers = [f"{value.split(':')[-1].strip()} power" for value in metadata['laser_power_values'].values()]
@@ -129,7 +203,9 @@ def writeMetadataCsvBruker(metadata, metadata_csv_path, folder_name, log_details
         
     return log_details
 
-def extractMetadataFromXMLBruker(xml_file, log_params):
+def extractMetadataFromXMLBruker(xml_file_path: str, 
+                                 log_params: dict
+                                 ) -> tuple:
     """
     Extracts metadata from an XML file.
 
@@ -147,9 +223,9 @@ def extractMetadataFromXMLBruker(xml_file, log_params):
     """
 
     # Step 1: Make a copy of the XML file so we can update the xml version
-    backup_file = xml_file + ".backup"
+    backup_file = xml_file_path + ".backup"
     try:
-        shutil.copy(xml_file, backup_file)
+        shutil.copy(xml_file_path, backup_file)
     except Exception as e:
         log_params['Issues'] = f"Error creating a backup of the XML file: {str(e)}"
         return None, None, None, None, None, log_params

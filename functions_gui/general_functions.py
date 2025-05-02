@@ -1,18 +1,21 @@
 import os
 import struct
 import tifffile
+import numpy as np
 
-def initializeOutputFolders(parent_folder_path) -> tuple:
+def initializeOutputFolders(parent_folder_path: str) -> tuple:
     '''
     Create the output folders for the processed images and the scope folders.
     '''
     processed_images_path = os.path.join(parent_folder_path, "!processed_images")
     os.makedirs(processed_images_path, exist_ok=True)
+    
     scope_folders_path = os.path.join(parent_folder_path, "!scope_folders")
     os.makedirs(scope_folders_path, exist_ok=True)
+    
     return processed_images_path, scope_folders_path
 
-def initializeLogFile(processed_images_path) -> tuple:
+def initializeLogFile(processed_images_path: str) -> tuple:
     '''
     Set up the log file and parameters.
     '''
@@ -21,12 +24,12 @@ def initializeLogFile(processed_images_path) -> tuple:
                    'Files Processed': [],
                    'Issues': [],
                    'Other Notes': [],}
+    
     return log_file_path, log_details
 
-def adjustImageJAxes(
-    image_type: str) -> tuple:
+def adjustImageJAxes(image_type: str) -> str:
     '''
-    Determine the axes of the image based on the image type.
+    Determine the ImageJ axes of the image based on the image type.
     '''
     if 'max_project' in image_type:
         axes = 'TCYX' 
@@ -42,7 +45,7 @@ def adjustImageJAxes(
 def saveLogFile(
     logPath: str, 
     logParams: dict
-):
+) -> None:
     '''
     Creates a log file in the specified directory with the specified parameters.
 
@@ -57,7 +60,27 @@ def saveLogFile(
         logFile.write('%s: %s\n' % (key, value))                    
     logFile.close()   
     
-def saveImageJHyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
+def saveImageJHyperstack(hyperstack: np.array,
+                         axes: str, 
+                         metadata: dict, 
+                         image_output_name: str, 
+                         imagej_tags: list = None
+                         ) -> None:   
+    """
+    Save a hyperstack as a TIFF file with ImageJ metadata.
+    
+    Parameters
+    hyperstack : np.array
+        The hyperstack to be saved.
+    axes : str
+        The axes of the hyperstack (e.g., 'TCYX').
+    metadata : dict
+        Metadata to be included in the TIFF file.
+    image_output_name : str
+        The name of the output TIFF file.
+    imagej_tags : list, optional
+        Additional ImageJ metadata tags to be included in the TIFF file.
+    """
     # Write the hyperstack to a TIFF file
     if metadata is None: # for the flamingo data for now, and if user does not want to save metadata
         saved_metadata = {
@@ -82,11 +105,13 @@ def saveImageJHyperstack(hyperstack, axes, metadata, image_output_name, imagej_t
                 )
     
 
-def createImageJMetadataTags(metadata, byteorder):
-    """Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
+def createImageJMetadataTags(LUTs: dict, 
+                             byteorder: str = '>'
+                             ) -> tuple:
+    """
+    Return IJMetadata and IJMetadataByteCounts tags from metadata dict.
 
     The tags can be passed to the TiffWriter.save function as extratags.
-
     """
     header = [{'>': b'IJIJ', '<': b'JIJI'}[byteorder]]
     bytecounts = [0]
@@ -111,11 +136,11 @@ def createImageJMetadataTags(metadata, byteorder):
         ('Overlays', b'over', None, writebytes))
 
     for key, mtype, count, func in metadata_types:
-        if key not in metadata:
+        if key not in LUTs:
             continue
         if byteorder == '<':
             mtype = mtype[::-1]
-        values = metadata[key]
+        values = LUTs[key]
         if count is None:
             count = len(values)
         else:

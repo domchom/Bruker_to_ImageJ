@@ -99,12 +99,13 @@ def main():
         projection_type = 'avg'
         
     # Create a dictionary of imagej metadata tags, with the LUTs for each channel. Will be used for all workflows.
-    imagej_tags = createImageJMetadataTags({'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]}, '>')
+    imagej_tags = createImageJMetadataTags(LUTs = {'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]},
+                                           byteorder = '>')
     
     if microscope_type != 'Flamingo' and microscope_type != 'Olympus': # not doing olympus for testing for now
         # Initialize output folders, logging, and metadata CSV outout paths
-        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path)
-        log_file_path, log_details = initializeLogFile(processed_images_path)
+        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
+        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
         metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
 
     # BRUKER WORKFLOW
@@ -125,19 +126,22 @@ def main():
                         raise FileNotFoundError(f"No XML file found in folder {folder_name}")
                     else:
                         xml_file_path = os.path.join(folder_path, xml_files[0])
-                        extracted_metadata, log_details = extractMetadataFromXMLBruker(xml_file_path, log_details)
+                        extracted_metadata, log_details = extractMetadataFromXMLBruker(xml_file_path = xml_file_path, 
+                                                                                       log_params = log_details)
                 else:
                     log_details['Other Notes'].append(f'Skipping metadata extraction {folder_name}.')
                     extracted_metadata = None
                     
                 # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
-                image_type, folder_tif_file_ames = determineImageTypeBruker(folder_path, projection_type, single_plane)    
+                image_type, folder_tif_file_ames = determineImageTypeBruker(folder_path=folder_path, 
+                                                                            projection_type=projection_type, 
+                                                                            single_plane=single_plane)    
                 
                 # Collect the files corresponding to each channel and put in dict
-                channel_filenames = organizeFilesByChannelBruker(folder_tif_file_ames)
+                channel_filenames = organizeFilesByChannelBruker(folder_path=folder_tif_file_ames)
                 
                 # Stack the images for each channel, then combine them into a hyperstack
-                channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames)
+                channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames=channel_filenames)
                 
                 # Stack the images for each channel
                 stacked_image_arrays = {channel_name: np.stack(arrays) for channel_name, arrays in channel_image_arrays.items()}
@@ -146,10 +150,12 @@ def main():
                 hyperstack = np.stack(list(stacked_image_arrays.values()), axis=1)
     
                 # Adjust axes for the hyperstack depending on the image type, and return the adjusted image type
-                hyperstack, image_type = adjustNumpyArrayAxesBruker(hyperstack, image_type)
+                hyperstack, image_type = adjustNumpyArrayAxesBruker(hyperstack=hyperstack, image_type=image_type)
                 
                 # Project the images if max or avg projection is selected
-                hyperstack = projectNumpyArraysBruker(hyperstack, image_type, projection_type)
+                hyperstack = projectNumpyArraysBruker(hyperstack=hyperstack, 
+                                                      image_type=image_type, 
+                                                      projection_type=projection_type)
                 
                 if auto_metadata_extract is True:
                     # Recalculate the frame rate for single plane: divide by number of frames
@@ -164,13 +170,22 @@ def main():
                     return log_details
                 
                 # determine the axes for the hyperstack
-                imageJ_axes = adjustImageJAxes(image_type)
+                imageJ_axes = adjustImageJAxes(image_type=image_type)
                 
                 # Save the hyperstack
-                saveImageJHyperstack(hyperstack, imageJ_axes, extracted_metadata, image_output_name, imagej_tags)
+                saveImageJHyperstack(hyperstack=hyperstack, 
+                                     axes=imageJ_axes, 
+                                     metadata=extracted_metadata, 
+                                     image_output_name=image_output_name, 
+                                     imagej_tags=imagej_tags
+                                     )
                 
                 # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                log_details = writeMetadataCsvBruker(extracted_metadata, metadata_csv_path, folder_name, log_details)
+                log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
+                                                     metadata_csv_path=metadata_csv_path, 
+                                                     folder_name=folder_name, 
+                                                     log_details=log_details
+                                                     )
                     
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
