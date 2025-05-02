@@ -2,7 +2,7 @@ import tqdm
 import tifffile
 import numpy as np
 
-def get_num_channels_flamingo(file_list):
+def organizeFilesByChannelFlamingo(file_list):
     # Extract the channel number from the filenames
     channel_numbers = []
     for file in file_list:
@@ -15,7 +15,7 @@ def get_num_channels_flamingo(file_list):
 
     return len(channel_numbers), channel_numbers
 
-def get_num_frames_flamingo(file_list):
+def getNumFramesFlamingo(file_list):
     # Extract the frame number from the filenames
     frame_numbers = []
     for file in file_list:
@@ -28,7 +28,7 @@ def get_num_frames_flamingo(file_list):
 
     return len(frame_numbers)
 
-def get_num_z_planes_flamingo(file_list):
+def getNumZPlanesFlamingo(file_list):
     # Extract the Z-plane number from the filenames
     for file in file_list:
         file = file.split('.')[0]
@@ -40,7 +40,7 @@ def get_num_z_planes_flamingo(file_list):
 
     return num_z_planes
 
-def get_num_illumination_sides_flamingo(file_list):
+def getNumIlluminationSidesFlamingo(file_list):
     # Extract the excitation side from the filenames
     excite_sides = []
     for file in file_list:
@@ -53,19 +53,7 @@ def get_num_illumination_sides_flamingo(file_list):
 
     return len(excite_sides)
 
-def get_all_img_filenames_flamingo(file_list):
-    # Extract the image filenames from the list
-    img_filenames = []
-    for file in file_list:
-        parts = file.split('_')
-        for part in parts:
-            if part.startswith('I') and part[1:].isdigit():
-                img_filenames.append(file)
-                break
-
-    return img_filenames
-
-def process_flamingo_folder(folder_path: str, 
+def convertImagesToNumpyArraysAndProjectFlamingo(folder_path: str, 
                             tif_files: list, 
                             projection_type: str = 'max',
                             ) -> list:
@@ -77,15 +65,15 @@ def process_flamingo_folder(folder_path: str,
         image = tifffile.imread(image_path)
         # Z-projection here to reduce the 3D image to 2D and save memory
         if projection_type == 'max':
-            image = Z_project_flamingo(image, projection_type='max')
+            image = zProject(image, projection_type='max')
         elif projection_type == 'avg':
-            image = Z_project_flamingo(image, projection_type='avg')
+            image = zProject(image, projection_type='avg')
 
         all_images.append(image)
     
     return all_images
 
-def Z_project_flamingo(image: np.array,
+def zProject(image: np.array,
               projection_type: str ='max' #default is max projection
               ) -> np.array:
     if projection_type == 'max':
@@ -95,7 +83,7 @@ def Z_project_flamingo(image: np.array,
     else:
         raise ValueError("Invalid projection type. Choose 'max', 'avg', or 'sum'.")
 
-def combine_illumination_sides_flamingo(images: list,
+def mergeNumpyArrayIlluminationSidesFlamingo(images: list,
                                filenames: list,
                                num_frames: int,
                                num_channels: int,

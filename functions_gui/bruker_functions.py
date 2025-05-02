@@ -9,7 +9,7 @@ def determineImageTypeBruker(folder_path, projection, single_plane):
     # Get all the tif files in the folder
     folder_tif_files = [os.path.join(folder_path, file) for file in os.listdir(folder_path) if file.endswith('.tif')]
 
-    if single_plane == False:
+    if single_plane is False:
         # If last tif file is 'Cycle00001', then just a single frame
         last_file_name = folder_tif_files[-1]
         single_timepoint = True if last_file_name.split('_')[-3] == 'Cycle00001' else False

@@ -59,7 +59,7 @@ def saveLogFile(
     
 def saveImageJHyperstack(hyperstack, axes, metadata, image_output_name, imagej_tags):   
     # Write the hyperstack to a TIFF file
-    if metadata == None: # for the flamingo data for now, and if user does not want to save metadata
+    if metadata is None: # for the flamingo data for now, and if user does not want to save metadata
         saved_metadata = {
             'axes': axes,
             'unit': 'um',

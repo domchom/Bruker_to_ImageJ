@@ -21,11 +21,11 @@ from functions_gui.bruker_functions import (
     extractMetadataFromXMLBruker,   
 )
 from functions_gui.flamingo_functions import (
-    get_num_channels_flamingo,
-    get_num_frames_flamingo,
-    get_num_illumination_sides_flamingo,
-    process_flamingo_folder,
-    combine_illumination_sides_flamingo
+    organizeFilesByChannelFlamingo,
+    getNumFramesFlamingo,
+    getNumIlluminationSidesFlamingo,
+    convertImagesToNumpyArraysAndProjectFlamingo,
+    mergeNumpyArrayIlluminationSidesFlamingo
 )
 
 from functions_gui.olympus_functions import (
@@ -154,7 +154,7 @@ def main():
                 # Project the images if max or avg projection is selected
                 hyperstack = projectNumpyArraysBruker(hyperstack, image_type, projection)
                 
-                if auto_metadata_extract == True:
+                if auto_metadata_extract is True:
                     # Recalculate the frame rate for single plane: divide by number of frames
                     extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
                                 
@@ -199,18 +199,18 @@ def main():
         # Y: y position, C: channel, I: illumination side, D: unsure, P: Z-planes
 
         # Get the number of channels and frames
-        num_channels, channels = get_num_channels_flamingo(tif_files)
-        num_frames = get_num_frames_flamingo(tif_files)
-        num_illumination_sides = get_num_illumination_sides_flamingo(tif_files)
+        num_channels, channels = organizeFilesByChannelFlamingo(tif_files)
+        num_frames = getNumFramesFlamingo(tif_files)
+        num_illumination_sides = getNumIlluminationSidesFlamingo(tif_files)
         print(f"Number of channels: {num_channels}")
         print(f"Number of frames: {num_frames}")
         print(f"Number of illumination sides: {num_illumination_sides}")
 
         # Read all TIF files and Z-project them (if desired)
-        all_images = process_flamingo_folder(parent_folder_path, tif_files, projection)
+        all_images = convertImagesToNumpyArraysAndProjectFlamingo(parent_folder_path, tif_files, projection)
 
         # Create the final hyperstack that will hold all frames
-        final_hyperstack = combine_illumination_sides_flamingo(all_images, 
+        final_hyperstack = mergeNumpyArrayIlluminationSidesFlamingo(all_images, 
                                                                 tif_files, 
                                                                 num_frames, 
                                                                 num_channels, 
@@ -293,7 +293,7 @@ def main():
             hyperstack_output_path = "MAX_" + hyperstack_output_path if projection == 'max' else "AVG_" + hyperstack_output_path if projection == 'avg' else hyperstack_output_path
             
             # reshape the hyperstack to be in the correct format for imagej
-            if projection == None:
+            if projection is None:
                 hyperstack = hyperstack.transpose(0, 2, 1, 3, 4)
             
             print(f"Hyperstack shape: {hyperstack.shape}")
@@ -301,7 +301,7 @@ def main():
             
             # Save the hyperstack
             saveImageJHyperstack(hyperstack, 
-                            axes = 'TZCYX' if projection == None else 'TCYX',
+                            axes = 'TZCYX' if projection is None else 'TCYX',
                             metadata = None, # for now, flamingo data doesn't have metadata
                             image_output_name = hyperstack_output_path, 
                             imagej_tags = imagej_tags
