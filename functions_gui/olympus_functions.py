@@ -96,3 +96,26 @@ def stack_channels_olympus(channel_images):
     merged_images = np.stack(list(channel_images.values()), axis=1)
     
     return merged_images
+
+def extract_metadata_olympus(folder_path):
+    pty_files = [
+        f for f in os.listdir(folder_path)
+        if f.endswith('.pty') and f.startswith('s') and not any(r in f for r in ['-R001', '-R002', '-R003', '-R004', 'Thumb'])
+    ]
+    if not pty_files:
+        raise FileNotFoundError("No matching .pty files found in the folder.")
+
+    pty_files = sorted(pty_files)
+    pty_files = sorted(pty_files, key=extract_z_number)
+    pty_files = sorted(pty_files, key=extract_t_number)
+
+    final_pty = pty_files[-1]
+
+    with open(os.path.join(folder_path, final_pty), 'r') as file:
+        for line in file:
+            if 'Time Per Series' in line:
+                total_time = float(line.split('=')[1].strip().replace('"', ''))
+                print(total_time)
+                return total_time
+
+    raise ValueError("'Time Per Series' not found in the file.")
