@@ -202,7 +202,7 @@ def main():
             # get the folder path
             image_folder_path = os.path.join(parent_folder_path, image_folder)
             
-            # extract metadata from the folder name, still need to be done
+            # extract metadata from the folder name, still need to be finished
             extractMetadataFromPTYOlympus(image_folder_path)
             
             # get all tiff files in the folder
@@ -219,10 +219,11 @@ def main():
                 channel_filenames[key].sort(key=extractTNumber) 
             
             # organize and project the images for each channel
-            channel_image_arrays = generateChannelProjectionsOlympus(channel_filenames, projection_type)
+            channel_image_arrays = generateChannelProjectionsOlympus(channel_filenames=channel_filenames, 
+                                                                     projection_type=projection_type)
                         
             # Stack the images for each channel, then combine them into a hyperstack
-            hyperstack = stackChannelsGenHyperstackOlympus(channel_image_arrays)
+            hyperstack = stackChannelsGenHyperstackOlympus(channel_image_arrays=channel_image_arrays)
             
             # Create the output path for the final hyperstack
             base_filename = os.path.basename(folder_path).replace(".oif.files", "")
