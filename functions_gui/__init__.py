@@ -18,7 +18,7 @@ __all__ = ["initializeOutputFolders",
            "writeMetadataCsvBruker",
            "extractMetadataFromXMLBruker",
            
-           "organizeFilesByChannelFlamingo",
+           "getNumChannelsFlamingo",
            "getNumFramesFlamingo",
            "getNumZPlanesFlamingo",
            "getNumIlluminationSidesFlamingo",

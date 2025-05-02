@@ -2,7 +2,7 @@ import tqdm
 import tifffile
 import numpy as np
 
-def organizeFilesByChannelFlamingo(file_list):
+def getNumChannelsFlamingo(file_list):
     # Extract the channel number from the filenames
     channel_numbers = []
     for file in file_list:
