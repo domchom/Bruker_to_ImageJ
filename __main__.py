@@ -245,6 +245,8 @@ def main():
                 imageJAxes = 'TCYX'
             
             # print(f"Saving hyperstack to {hyperstack_output_path}...")
+            print(f"Hyperstack shape: {hyperstack.shape}")
+            print(f"ImageJ axes: {imageJAxes}")
             
             # Save the hyperstack
             saveImageJHyperstack(hyperstack, 

@@ -31,9 +31,10 @@ def generateChannelProjectionsOlympus(channel_filenames: dict,
             if filename in processed_files:
                 continue  # Skip files we've already processed
             # Extract identifiers
-            frame_number = os.path.basename(filename).split('T')[1][:3] if 'T' in filename else None
-            z_plane_number = os.path.basename(filename).split('Z')[1][:3] if 'Z' in filename else None 
-            channel_number = os.path.basename(filename).split('C')[1][:3] if 'C' in filename else None
+            basename = os.path.basename(filename).replace('.tif',"")
+            frame_number = os.path.basename(filename).split('T')[1][:3] if 'T' in basename else None
+            z_plane_number = os.path.basename(filename).split('Z')[1][:3] if 'Z' in basename else None 
+            channel_number = os.path.basename(filename).split('C')[1][:3] if 'C' in basename else None
             # Find the matching files based on whether identifiers are present
             if frame_number and channel_number and z_plane_number:
                 matching_files = [
