@@ -5,7 +5,7 @@ import tifffile
 
 def generateChannelProjectionsOlympus(channel_filenames: dict, 
                                       projection_type: str ='max'
-                                      ) -> dict:
+                                      ) -> tuple:
     """
     Generate channel projections for Olympus images based on the provided filenames.
     
@@ -15,12 +15,18 @@ def generateChannelProjectionsOlympus(channel_filenames: dict,
     
     Returns:
     dict: A dictionary where keys are channel names and values are lists of numpy arrays.
+    str: The type of image generated based on the projection.
     """    
     final_channel_image_arrays = {}
     for channel_name, filenames in channel_filenames.items():
         # create a set to keep track of processed files to avoid duplicates
         # and to ensure we only process each file once
         processed_files = set()
+        # Find the highest Z number in the whole list of filenames
+        all_z_numbers = [
+            extractZNumber(f) for f in filenames if extractZNumber(f) != float('inf')
+        ]
+        z_planes_per_frame = max(all_z_numbers) if all_z_numbers else 0
         for filename in filenames:
             if filename in processed_files:
                 continue  # Skip files we've already processed
@@ -49,12 +55,15 @@ def generateChannelProjectionsOlympus(channel_filenames: dict,
                     f for f in filenames if f"C{channel_number}" in f
                 ]
                 image_type = 'singleplane_singleframe'
-                
+                        
             # Mark files as processed
             processed_files.update(matching_files)
             
             # sort the matching files by Z number to ensure correct stacking
             matching_files = sorted(matching_files, key=extractZNumber)
+            if len(matching_files) != z_planes_per_frame and z_planes_per_frame != 0:
+                continue  # Skip if the number of matching files is not consistent
+            
             # Read the images from the matching files
             images = [tifffile.imread(file, is_ome=False) for file in matching_files]
             # Stack the images along the Z axis
@@ -77,7 +86,7 @@ def generateChannelProjectionsOlympus(channel_filenames: dict,
                 final_channel_image_arrays[channel_name] = []
             final_channel_image_arrays[channel_name].append(images)
             
-    return final_channel_image_arrays
+    return final_channel_image_arrays, image_type
            
 def extractTNumber(filename: str) -> int:
     """
@@ -124,7 +133,7 @@ def stackChannelsGenHyperstackOlympus(channel_image_arrays: dict) -> np.ndarray:
     
     for channel_name, image_arrays in channel_image_arrays.items():
         channel_image_arrays[channel_name] = image_arrays[:num_frames]
-    
+        
     merged_images = np.stack(list(channel_image_arrays.values()), axis=1)
     
     return merged_images

@@ -425,7 +425,7 @@ class OlympusGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'W')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Desktop/lab/FV_test')
+        self.folder_path.set('/Users/domchom/Random Movies/anilyzer_test_data/FV_t-series')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -447,12 +447,12 @@ class OlympusGUI(tk.Tk):
         self.help = ttk.Label(self, text = 'Select none of the above to save full hyperstack')
         self.help.grid(row=3, column=0, columnspan=2, padx=10, sticky='W')
         
-         # create single-plane button
-        self.single_plane_button = ttk.Checkbutton(
-            self, variable=self.single_plane, text=' Must check if data is single plane',
-            command=lambda: self.update_checkboxes('single') if self.single_plane.get() else None
-        )
-        self.single_plane_button.grid(row = 4, column = 0, padx = 10, sticky = 'W')  
+        # create single-plane button
+        #self.single_plane_button = ttk.Checkbutton(
+        #    self, variable=self.single_plane, text=' Must check if data is single plane',
+        #    command=lambda: self.update_checkboxes('single') if self.single_plane.get() else None
+        #)
+        # self.single_plane_button.grid(row = 4, column = 0, padx = 10, sticky = 'W')  
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
