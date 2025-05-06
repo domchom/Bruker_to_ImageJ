@@ -1,6 +1,6 @@
-## Bruker to ImageJ Batch Import Workflow
+## Domilyzer
 
-This workflow is designed to batch import files from the four primary microscopes (Bock Confocal, SFC, Olympus FV1000, and the Flamingo) that are used in the Bement Lab. 
+Inspired by the anilyzer, this workflow is designed to batch import files from the four primary microscopes (Bock Confocal, SFC, Olympus FV1000, and the Flamingo) that are used in the Bement Lab. 
 
 If you encounter any issues or have suggestions for additional features, please reach out to Dom Chomchai at [chomchai@wisc.edu](mailto:chomchai@wisc.edu).
 
