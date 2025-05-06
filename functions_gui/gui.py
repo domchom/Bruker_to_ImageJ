@@ -245,7 +245,7 @@ class FlamingoGUI(tk.Tk):
         self.file_path_entry = ttk.Entry(self, textvariable = self.folder_path)
         self.file_path_entry.grid(row = 0, column = 0, padx = 10, sticky = 'E')
         self.file_path_button = ttk.Button(self, text = 'Select folder')
-        self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_121024_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell4')
+        # self.folder_path.set('/Users/domchom/Desktop/lab/test_data_flamingo/20250418_121024_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell4')
         self.file_path_button['command'] = self.get_folder_path
         self.file_path_button.grid(row = 0, column = 1, padx = 10, sticky = 'W')
 
@@ -447,12 +447,9 @@ class OlympusGUI(tk.Tk):
         self.help = ttk.Label(self, text = 'Select none of the above to save full hyperstack')
         self.help.grid(row=3, column=0, columnspan=2, padx=10, sticky='W')
         
-        # create single-plane button
-        #self.single_plane_button = ttk.Checkbutton(
-        #    self, variable=self.single_plane, text=' Must check if data is single plane',
-        #    command=lambda: self.update_checkboxes('single') if self.single_plane.get() else None
-        #)
-        # self.single_plane_button.grid(row = 4, column = 0, padx = 10, sticky = 'W')  
+        # create label to explain the checkboxes above
+        self.help2 = ttk.Label(self, text = 'No need to specify single plane data')
+        self.help2.grid(row=4, column=0, columnspan=2, padx=10, sticky='W')
         
         # create start button
         self.start_button = ttk.Button(self, text = 'Start conversion')
