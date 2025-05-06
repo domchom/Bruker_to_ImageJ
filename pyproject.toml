@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "Bruker_to_ImageJ"
+name = "Domilyzer"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
