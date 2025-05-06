@@ -8,8 +8,8 @@ If you encounter any issues or have suggestions for additional features, please 
 
 To use this workflow, follow these steps:
 
-1. **Open the `__main__.py` file and run the script.**
-2. **The GUI will default open to the Bruker Conversion:**
+- **Open the `__main__.py` file and run the script.**
+- **The GUI will default open to the Bruker Conversion:**
 ![Bruker GUI](./assets/readme/BrukerGUI.png)
 
 1. Select the parent folder path containing a set of images saved from the microscope. This folder must include the raw folders from the microscope. Selecting the path to a single image will not work. Below is an example from a Bruker microscope, showing a folder structure containing 12 separate image folders:  
@@ -27,7 +27,7 @@ To use this workflow, follow these steps:
 
 7. Launch the GUI for the Olympus FV1000 conversion
 
-3. **The Flamingo conversion GUI will open if selected:**
+- **The Flamingo conversion GUI will open if selected:**
 ![Flamingo GUI](./assets/readme/FlamingoGUI.png)
 
 1. Select the folder path containing a single image saved from the microscope. This folder must contain only a single image saved from the microscope. This program does not currently support processing a set of folders. Below is an example of the expected folder structure for Flamingo microscope data:  
@@ -37,7 +37,7 @@ To use this workflow, follow these steps:
 
 3. Select the LUT (Lookup Table) to be applied to each channel. If your image does not include all channels, focus only on the channels that are saved. Images will always be saved in the order of Ch1, Ch2, Ch3, and Ch4. For example, if you used channels 1 and 4 in the Prairie View software, they will be saved as channels 1 and 2 in this program.
 
-4. **The Olympus FV1000 conversion GUI will open if selected:**
+- **The Olympus FV1000 conversion GUI will open if selected:**
 ![Olympus GUI](./assets/readme/OlympusGUI.png)
 
 1. Select the parent folder path containing a set of images saved from the microscope. This folder must include the raw folders from the microscope. Selecting the path to a single image will not work. Below is an example from a Olympus microscope, showing a folder structure containing 16 separate image folders:  
@@ -47,4 +47,4 @@ To use this workflow, follow these steps:
 
 3. Select the LUT (Lookup Table) to be applied to each channel. If your image does not include all channels, focus only on the channels that are saved. Images will always be saved in the order of Ch1, Ch2, Ch3, and Ch4. For example, if you used channels 1 and 4 in the Prairie View software, they will be saved as channels 1 and 2 in this program.
 
-5. **For all of the GUIs, press "Start Conversion" to start the script, or click "Cancel" to close the GUI.**
+- **For all of the GUIs, press "Start Conversion" to start the script, or click "Cancel" to close the GUI.**
