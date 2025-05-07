@@ -105,12 +105,11 @@ def main():
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
         
-        if microscope_type != 'Olympus': # skip olympus for now
-            # Initialize output folders, logging, and metadata CSV outout paths
-            processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
-            log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
-            metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
-
+        # Initialize output folders, logging, and metadata CSV outout paths
+        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
+        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
+        metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
+    
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
         
