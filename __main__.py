@@ -6,37 +6,16 @@ from functions_gui.gui import BaseGUI, FlamingoGUI, OlympusGUI
 from functions_gui.general_functions import (
     initializeOutputFolders,
     initializeLogFile,
-    adjustImageJAxes,
     saveLogFile,
-    saveImageJHyperstack,
     createImageJMetadataTags,
-    organizeFilesByChannel
-)
-from functions_gui.bruker_functions import (
-    determineImageTypeBruker,
-    convertImagesToNumpyArraysBruker,
-    adjustNumpyArrayAxesBruker,
-    projectNumpyArraysBruker,
-    writeMetadataCsvBruker,
-    extractMetadataFromXMLBruker,   
-)
-from functions_gui.flamingo_functions import (
-    getNumChannelsFlamingo,
-    getNumFramesFlamingo,
-    getNumIlluminationSidesFlamingo,
-    convertImagesToNumpyArraysAndProjectFlamingo,
-    mergeNumpyArrayIlluminationSidesFlamingo
 )
 
-from functions_gui.olympus_functions import (
-    stackChannelsGenHyperstackOlympus,
-    generateChannelProjectionsOlympus,
-    extractTNumber,
-    extractMetadataFromPTYOlympus
-)
+from workflows.bruker_workflow import processBrukerImages
+from workflows.olympus_workflow import processOlympusImages
+from workflows.flamingo_workflow import processFlamingoImages
 
 def main():
-    test = False # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
+    test = True # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
     if not test:
         # Bruker GUI
@@ -101,8 +80,9 @@ def main():
         magenta[0] = np.arange(256, dtype='uint8')
         magenta[2] = np.arange(256, dtype='uint8')
         
-        parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
-        # parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
+        #parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
+        #parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
+        parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
         avg_projection = False
         max_projection = True
         single_plane = False
@@ -110,7 +90,7 @@ def main():
         ch2_lut = green
         ch3_lut = blue
         ch4_lut = magenta
-        microscope_type = 'Olympus' # 'Flamingo' or 'Bruker'
+        microscope_type = 'Flamingo' # 'Flamingo' or 'Bruker'
         auto_metadata_extract = True
         
     # Performance tracker
@@ -134,224 +114,48 @@ def main():
     if microscope_type != 'Flamingo':
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
-        
-        if test==False:
-            # Initialize output folders, logging, and metadata CSV outout paths
+    
+        # Initialize output folders, logging, and metadata CSV outout paths
+        if not test:
             processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
-            log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
             metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
         else:
             processed_images_path = parent_folder_path
+            metadata_csv_path = None
+        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)        
     
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
-        
-        for folder_name in image_folders:
-            print('******'*10)
-            try:
-                print(f'Processing folder: {folder_name}')
-                # get the folder path
-                folder_path = os.path.join(parent_folder_path, folder_name)
-                if auto_metadata_extract:
-                    # Check for XML file and extract relevant metadata
-                    xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
-                    if not xml_files:
-                        raise FileNotFoundError(f"No XML file found in folder {folder_name}")
-                    else:
-                        xml_file_path = os.path.join(folder_path, xml_files[0])
-                        extracted_metadata, log_details = extractMetadataFromXMLBruker(xml_file_path = xml_file_path, 
-                                                                                       log_params = log_details)
-                else:
-                    log_details['Other Notes'].append(f'Skipping metadata extraction {folder_name}.')
-                    extracted_metadata = None
-                    
-                # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
-                image_type, folder_tif_file_ames = determineImageTypeBruker(folder_path=folder_path, 
-                                                                            projection_type=projection_type, 
-                                                                            single_plane=single_plane)    
-                
-                # Collect the files corresponding to each channel and put in dict
-                channel_filenames = organizeFilesByChannel(folder_tif_filenames=folder_tif_file_ames,
-                                                           microscope_type=microscope_type)
-                
-                # Stack the images for each channel, then combine them into a hyperstack
-                channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames=channel_filenames)
-                
-                # Stack the images for each channel
-                stacked_image_arrays = {channel_name: np.stack(arrays) for channel_name, arrays in channel_image_arrays.items()}
-
-                # Stack images across channels
-                hyperstack = np.stack(list(stacked_image_arrays.values()), axis=1)
-    
-                # Adjust axes for the hyperstack depending on the image type, and return the adjusted image type
-                hyperstack, image_type = adjustNumpyArrayAxesBruker(hyperstack=hyperstack, image_type=image_type)
-                
-                # Project the images if max or avg projection is selected
-                hyperstack = projectNumpyArraysBruker(hyperstack=hyperstack, 
-                                                      image_type=image_type, 
-                                                      projection_type=projection_type)
-                
-                if auto_metadata_extract is True:
-                    # Recalculate the frame rate for single plane: divide by number of frames
-                    extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
-                                
-                # create the output image name
-                prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
-                image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
-                if os.path.exists(image_output_name):
-                    print(f"{folder_name} already exists!")
-                    log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
-                    return log_details
-                
-                # determine the axes for the hyperstack
-                imageJ_axes = adjustImageJAxes(image_type=image_type)
-                
-                # Save the hyperstack
-                saveImageJHyperstack(hyperstack=hyperstack, 
-                                     axes=imageJ_axes, 
-                                     metadata=extracted_metadata, 
-                                     image_output_name=image_output_name, 
-                                     imagej_tags=imagej_tags
-                                     )
-                
-                # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                if test == False:
-                    log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
-                                                        metadata_csv_path=metadata_csv_path, 
-                                                        folder_name=folder_name, 
-                                                        log_details=log_details
-                                                        )
-                    
-            except Exception as e:
-                log_details['Files Not Processed'].append(f'{folder_name}: {e}')
-                print(f"Error processing {folder_name}!")
-                pass
+        log_details = processBrukerImages(parent_folder_path = parent_folder_path,
+                                           image_folders = image_folders,
+                                           processed_images_path = processed_images_path,
+                                           metadata_csv_path = metadata_csv_path,
+                                           microscope_type = microscope_type,
+                                           projection_type = projection_type,
+                                           single_plane = single_plane,
+                                           auto_metadata_extract = auto_metadata_extract,
+                                           test = test,
+                                           imagej_tags = imagej_tags,
+                                           log_details = log_details
+                                           )
+                                          
             
     # OLYMPUS WORKFLOW
     elif microscope_type == 'Olympus':
-        for image_folder in image_folders:
-            print('******'*10)
-            print(f'Processing folder: {image_folder}')
-            # get the folder path
-            image_folder_path = os.path.join(parent_folder_path, image_folder)
-            
-            # extract metadata from the folder name, still need to be finished
-            # extractMetadataFromPTYOlympus(image_folder_path)
-            
-            # get all tiff files in the folder
-            tif_filenames = [file for file in os.listdir(image_folder_path) if file.endswith('.tif') and file.startswith('s') and not any(r in file for r in ['-R001', '-R002', '-R003', '-R004'])]
-            folder_tif_filenames = [os.path.join(image_folder_path, file) for file in tif_filenames]
-            
-            # organize the files into channels
-            channel_filenames = organizeFilesByChannel(folder_tif_filenames=folder_tif_filenames,
-                                                       microscope_type=microscope_type)
-            
-            # Sort the files in each channel by T number
-            # This is done to ensure that the projection is done in the correct order
-            for key in channel_filenames:
-                channel_filenames[key].sort(key=extractTNumber) 
-            
-            # organize and project the images for each channel
-            channel_image_arrays, image_type = generateChannelProjectionsOlympus(channel_filenames=channel_filenames, 
-                                                                     projection_type=projection_type)
-                        
-            # Stack the images for each channel, then combine them into a hyperstack
-            hyperstack = stackChannelsGenHyperstackOlympus(channel_image_arrays=channel_image_arrays)
-            
-            # Create the output path for the final hyperstack
-            base_filename = os.path.basename(image_folder_path).replace(".oif.files", "")
-            base_filename = "MAX_" + base_filename if projection_type == 'max' else "AVG_" + base_filename if projection_type == 'avg' else base_filename
-            hyperstack_output_path = os.path.join(processed_images_path, f"{base_filename}_raw.tif")
-            
-            # reshape the hyperstack to be in the correct format for imagej
-            if projection_type is None:
-                hyperstack = hyperstack.transpose(0, 2, 1, 3, 4)
-                imageJAxes = 'TZCYX'
-                
-            if 'singleframe' in image_type and projection_type is not None:
-                imageJAxes = 'ZCYX'
-                
-            elif 'multiframe' in image_type and projection_type is None:
-                imageJAxes = 'TZCYX'
-                
-            elif 'multiframe' in image_type and projection_type is not None:
-                imageJAxes = 'TCYX'
-            
-            # print(f"Saving hyperstack to {hyperstack_output_path}...")
-            print(f"Hyperstack shape: {hyperstack.shape}")
-            print(f"ImageJ axes: {imageJAxes}")
-            
-            # Save the hyperstack
-            saveImageJHyperstack(hyperstack, 
-                            axes = imageJAxes,
-                            metadata = None, # for now, flamingo data doesn't have metadata
-                            image_output_name = hyperstack_output_path, 
-                            imagej_tags = imagej_tags
-                            )     
-            
-            print(f'Successfully processed {base_filename}')
-          
+        processOlympusImages(parent_folder_path=parent_folder_path,
+                            processed_images_path=processed_images_path,
+                            microscope_type=microscope_type,
+                            projection_type=projection_type,
+                            imagej_tags=imagej_tags,
+                            image_folders=image_folders
+                            )
                                     
     # FLAMINGO WORKFLOW
     elif microscope_type == 'Flamingo':
-        # Get the list of all TIF files in the directory
-        tif_filenames = [f for f in os.listdir(parent_folder_path) if f.endswith('.tif') and f.startswith('S')]
-        # for reference filename structure: S000_t000000_V000_R0000_X000_Y000_C00_I0_D0_P00366
-        # S: unsure, t: time point, V: unsure, R: rotation, X: x position, 
-        # Y: y position, C: channel, I: illumination side, D: unsure, P: Z-planes
-
-        # Get the number of channels and frames
-        num_channels, channel_names = getNumChannelsFlamingo(tif_filenames)
-        num_frames = getNumFramesFlamingo(tif_filenames)
-        num_illumination_sides = getNumIlluminationSidesFlamingo(tif_filenames)
-        print(f"Number of channels: {num_channels}")
-        print(f"Number of frames: {num_frames}")
-        print(f"Number of illumination sides: {num_illumination_sides}")
-
-        # Read all TIF files and Z-project them (if desired)
-        image_arrays = convertImagesToNumpyArraysAndProjectFlamingo(parent_folder_path, tif_filenames, projection_type)
-
-        # Create the final hyperstack that will hold all frames
-        final_hyperstack = mergeNumpyArrayIlluminationSidesFlamingo(image_arrays, 
-                                                                tif_filenames, 
-                                                                num_frames, 
-                                                                num_channels, 
-                                                                channel_names, 
-                                                                projection_type
-                                                                )
-
-        # Create output path for the final hyperstack
-        image_folder = os.path.basename(parent_folder_path)
-        name_suffix = 'MAX' if projection_type == 'max' else 'AVG' if projection_type == 'avg' else 'hyperstack'
-        hyperstack_output_path = f'{parent_folder_path}/{image_folder}_{name_suffix}.tif'
-        
-        # Check if the output file already exists
-        if os.path.exists(hyperstack_output_path):
-            print(f"Output file {hyperstack_output_path} already exists. Overwriting...")
-            # Remove the existing file
-            os.remove(hyperstack_output_path)
-        
-        # Create axes metadata for the hyperstack
-        imageJ_axes = 'TCYX' if projection_type == 'max' or projection_type == 'avg' else 'TZCYX'
-            
-        # Calculate the size of the final hyperstack in bytes, and warn if it's too large
-        # 1 GB = 1024^3 bytes
-        final_hyperstack_size = final_hyperstack.nbytes
-        if final_hyperstack_size > (1024 ** 3):
-            print(f"Warning: The final hyperstack is {final_hyperstack_size / (1024 ** 3):.2f} GB. It may take a while to save.")
-            print("Consider splitting the data into smaller chunks.")
-            
-        print(f"Saving hyperstack to {hyperstack_output_path}...")
-        
-        # Save the hyperstack
-        saveImageJHyperstack(final_hyperstack, 
-                        imageJ_axes,
-                        metadata = None, # for now, flamingo data doesn't have metadata
-                        image_output_name = hyperstack_output_path, 
-                        imagej_tags = imagej_tags
-                        ) 
-
-        print(f'Successfully saved hyperstack to {hyperstack_output_path}')
+        processFlamingoImages(parent_folder_path=parent_folder_path,
+                                projection_type=projection_type,
+                                imagej_tags=imagej_tags
+                                )
           
     if microscope_type != 'Flamingo' and test == False: # not doing olympus for testing for now  
         for folder_name in image_folders:
