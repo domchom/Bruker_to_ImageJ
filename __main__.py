@@ -227,7 +227,7 @@ def main():
             # Create the output path for the final hyperstack
             base_filename = os.path.basename(image_folder_path).replace(".oif.files", "")
             base_filename = "MAX_" + base_filename if projection_type == 'max' else "AVG_" + base_filename if projection_type == 'avg' else base_filename
-            hyperstack_output_path = os.path.join(parent_folder_path, f"{base_filename}_raw.tif")
+            hyperstack_output_path = os.path.join(processed_images_path, f"{base_filename}_raw.tif")
             
             # reshape the hyperstack to be in the correct format for imagej
             if projection_type is None:
