@@ -15,7 +15,7 @@ from workflows.olympus_workflow import processOlympusImages
 from workflows.flamingo_workflow import processFlamingoImages
 
 def main():
-    test = True # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
+    test = False # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
     if not test:
         # Bruker GUI
