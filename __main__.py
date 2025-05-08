@@ -36,42 +36,13 @@ from functions_gui.olympus_functions import (
 )
 
 def main():
-    # Bruker GUI
-    gui = BaseGUI()
-    gui.mainloop()
+    test = False # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
-    # Get GUI variables
-    parent_folder_path = gui.folder_path
-    avg_projection = gui.avg_project
-    max_projection = gui.max_project
-    single_plane = gui.single_plane
-    ch1_lut = gui.channel1_var
-    ch2_lut = gui.channel2_var
-    ch3_lut = gui.channel3_var
-    ch4_lut = gui.channel4_var
-    microscope_type = gui.microscope_type
-    auto_metadata_extract = gui.auto_metadata_extraction
-    
-    # If user specifies Flamingo workflow, run Flamingo GUI
-    if microscope_type == 'Flamingo':
-        gui = FlamingoGUI()
+    if not test:
+        # Bruker GUI
+        gui = BaseGUI()
         gui.mainloop()
         
-        # Get GUI variables
-        parent_folder_path = gui.folder_path
-        avg_projection = gui.avg_project
-        max_projection = gui.max_project
-        ch1_lut = gui.channel1_var
-        ch2_lut = gui.channel2_var
-        ch3_lut = gui.channel3_var
-        ch4_lut = gui.channel4_var
-        microscope_type = gui.microscope_type
-        
-    # If user specifies Olympus workflow, run Olympus GUI
-    if microscope_type == 'Olympus':
-        gui = OlympusGUI()
-        gui.mainloop()
-
         # Get GUI variables
         parent_folder_path = gui.folder_path
         avg_projection = gui.avg_project
@@ -82,6 +53,65 @@ def main():
         ch3_lut = gui.channel3_var
         ch4_lut = gui.channel4_var
         microscope_type = gui.microscope_type
+        auto_metadata_extract = gui.auto_metadata_extraction
+        
+        # If user specifies Flamingo workflow, run Flamingo GUI
+        if microscope_type == 'Flamingo':
+            gui = FlamingoGUI()
+            gui.mainloop()
+            
+            # Get GUI variables
+            parent_folder_path = gui.folder_path
+            avg_projection = gui.avg_project
+            max_projection = gui.max_project
+            ch1_lut = gui.channel1_var
+            ch2_lut = gui.channel2_var
+            ch3_lut = gui.channel3_var
+            ch4_lut = gui.channel4_var
+            microscope_type = gui.microscope_type
+            
+        # If user specifies Olympus workflow, run Olympus GUI
+        if microscope_type == 'Olympus':
+            gui = OlympusGUI()
+            gui.mainloop()
+
+            # Get GUI variables
+            parent_folder_path = gui.folder_path
+            avg_projection = gui.avg_project
+            max_projection = gui.max_project
+            single_plane = gui.single_plane
+            ch1_lut = gui.channel1_var
+            ch2_lut = gui.channel2_var
+            ch3_lut = gui.channel3_var
+            ch4_lut = gui.channel4_var
+            microscope_type = gui.microscope_type
+            
+    else: 
+        # For testing purposes, set the parameters directly
+        red = np.zeros((3, 256), dtype='uint8')
+        red[0] = np.arange(256, dtype='uint8')
+
+        green = np.zeros((3, 256), dtype='uint8')
+        green[1] = np.arange(256, dtype='uint8')
+
+        blue = np.zeros((3, 256), dtype='uint8')
+        blue[2] = np.arange(256, dtype='uint8')
+
+        magenta = np.zeros((3, 256), dtype='uint8')
+        magenta[0] = np.arange(256, dtype='uint8')
+        magenta[2] = np.arange(256, dtype='uint8')
+        
+        parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
+        # parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
+        avg_projection = False
+        max_projection = True
+        single_plane = False
+        ch1_lut = red
+        ch2_lut = green
+        ch3_lut = blue
+        ch4_lut = magenta
+        microscope_type = 'Olympus' # 'Flamingo' or 'Bruker'
+        auto_metadata_extract = True
         
     # Performance tracker
     start_time = timeit.default_timer()
@@ -101,14 +131,17 @@ def main():
     imagej_tags = createImageJMetadataTags(LUTs = {'LUTs': [ch1_lut, ch2_lut, ch3_lut, ch4_lut]},
                                            byteorder = '>')
     
-    if microscope_type != 'Flamingo': # not doing olympus for testing for now
+    if microscope_type != 'Flamingo':
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
         
-        # Initialize output folders, logging, and metadata CSV outout paths
-        processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
-        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
-        metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
+        if test==False:
+            # Initialize output folders, logging, and metadata CSV outout paths
+            processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
+            log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
+            metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
+        else:
+            processed_images_path = parent_folder_path
     
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
@@ -182,11 +215,12 @@ def main():
                                      )
                 
                 # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
-                                                     metadata_csv_path=metadata_csv_path, 
-                                                     folder_name=folder_name, 
-                                                     log_details=log_details
-                                                     )
+                if test == False:
+                    log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
+                                                        metadata_csv_path=metadata_csv_path, 
+                                                        folder_name=folder_name, 
+                                                        log_details=log_details
+                                                        )
                     
             except Exception as e:
                 log_details['Files Not Processed'].append(f'{folder_name}: {e}')
@@ -319,7 +353,7 @@ def main():
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
           
-    if microscope_type != 'Flamingo': # not doing olympus for testing for now  
+    if microscope_type != 'Flamingo' and test == False: # not doing olympus for testing for now  
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
 
