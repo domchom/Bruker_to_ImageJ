@@ -1,0 +1,2 @@
+def processFlamingoImages():
+    return None

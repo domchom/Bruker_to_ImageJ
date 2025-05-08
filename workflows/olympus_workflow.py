@@ -1,0 +1,2 @@
+def processOlympusImages():
+    return None

@@ -12,14 +12,8 @@ from functions_gui.general_functions import (
     createImageJMetadataTags,
     organizeFilesByChannel
 )
-from functions_gui.bruker_functions import (
-    determineImageTypeBruker,
-    convertImagesToNumpyArraysBruker,
-    adjustNumpyArrayAxesBruker,
-    projectNumpyArraysBruker,
-    writeMetadataCsvBruker,
-    extractMetadataFromXMLBruker,   
-)
+
+from workflows.bruker_workflow import processBrukerImages
 from functions_gui.flamingo_functions import (
     getNumChannelsFlamingo,
     getNumFramesFlamingo,
@@ -101,16 +95,16 @@ def main():
         magenta[0] = np.arange(256, dtype='uint8')
         magenta[2] = np.arange(256, dtype='uint8')
         
-        parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
-        # parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
+        # parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
+        parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
         avg_projection = False
-        max_projection = True
+        max_projection = False
         single_plane = False
         ch1_lut = red
         ch2_lut = green
         ch3_lut = blue
         ch4_lut = magenta
-        microscope_type = 'Olympus' # 'Flamingo' or 'Bruker'
+        microscope_type = 'Bruker' # 'Flamingo' or 'Bruker'
         auto_metadata_extract = True
         
     # Performance tracker
@@ -134,98 +128,31 @@ def main():
     if microscope_type != 'Flamingo':
         # Get the Bruker image folders
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
-        
-        if test==False:
-            # Initialize output folders, logging, and metadata CSV outout paths
+    
+        # Initialize output folders, logging, and metadata CSV outout paths
+        if not test:
             processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
-            log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)
             metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
         else:
             processed_images_path = parent_folder_path
+            metadata_csv_path = None
+        log_file_path, log_details = initializeLogFile(processed_images_path = processed_images_path)        
     
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
-        
-        for folder_name in image_folders:
-            print('******'*10)
-            try:
-                print(f'Processing folder: {folder_name}')
-                # get the folder path
-                folder_path = os.path.join(parent_folder_path, folder_name)
-                if auto_metadata_extract:
-                    # Check for XML file and extract relevant metadata
-                    xml_files = [file for file in os.listdir(folder_path) if os.path.splitext(file)[1] == ".xml"]   
-                    if not xml_files:
-                        raise FileNotFoundError(f"No XML file found in folder {folder_name}")
-                    else:
-                        xml_file_path = os.path.join(folder_path, xml_files[0])
-                        extracted_metadata, log_details = extractMetadataFromXMLBruker(xml_file_path = xml_file_path, 
-                                                                                       log_params = log_details)
-                else:
-                    log_details['Other Notes'].append(f'Skipping metadata extraction {folder_name}.')
-                    extracted_metadata = None
-                    
-                # Determine the image type (single plane, max projection, or avg projection) and return all the TIF files in the folder as a list
-                image_type, folder_tif_file_ames = determineImageTypeBruker(folder_path=folder_path, 
-                                                                            projection_type=projection_type, 
-                                                                            single_plane=single_plane)    
-                
-                # Collect the files corresponding to each channel and put in dict
-                channel_filenames = organizeFilesByChannel(folder_tif_filenames=folder_tif_file_ames,
-                                                           microscope_type=microscope_type)
-                
-                # Stack the images for each channel, then combine them into a hyperstack
-                channel_image_arrays = convertImagesToNumpyArraysBruker(channel_filenames=channel_filenames)
-                
-                # Stack the images for each channel
-                stacked_image_arrays = {channel_name: np.stack(arrays) for channel_name, arrays in channel_image_arrays.items()}
-
-                # Stack images across channels
-                hyperstack = np.stack(list(stacked_image_arrays.values()), axis=1)
-    
-                # Adjust axes for the hyperstack depending on the image type, and return the adjusted image type
-                hyperstack, image_type = adjustNumpyArrayAxesBruker(hyperstack=hyperstack, image_type=image_type)
-                
-                # Project the images if max or avg projection is selected
-                hyperstack = projectNumpyArraysBruker(hyperstack=hyperstack, 
-                                                      image_type=image_type, 
-                                                      projection_type=projection_type)
-                
-                if auto_metadata_extract is True:
-                    # Recalculate the frame rate for single plane: divide by number of frames
-                    extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
-                                
-                # create the output image name
-                prefix = "MAX_" if "max_project" in image_type else "AVG_" if "avg_project" in image_type else ""
-                image_output_name = os.path.join(processed_images_path, f"{prefix}{folder_name}_raw.tif")
-                if os.path.exists(image_output_name):
-                    print(f"{folder_name} already exists!")
-                    log_details['Files Not Processed'].append(f'{folder_name}: Already exists!')
-                    return log_details
-                
-                # determine the axes for the hyperstack
-                imageJ_axes = adjustImageJAxes(image_type=image_type)
-                
-                # Save the hyperstack
-                saveImageJHyperstack(hyperstack=hyperstack, 
-                                     axes=imageJ_axes, 
-                                     metadata=extracted_metadata, 
-                                     image_output_name=image_output_name, 
-                                     imagej_tags=imagej_tags
-                                     )
-                
-                # Create metadata for the hyperstack, and update the log file to save after all folders are processed
-                if test == False:
-                    log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
-                                                        metadata_csv_path=metadata_csv_path, 
-                                                        folder_name=folder_name, 
-                                                        log_details=log_details
-                                                        )
-                    
-            except Exception as e:
-                log_details['Files Not Processed'].append(f'{folder_name}: {e}')
-                print(f"Error processing {folder_name}!")
-                pass
+        log_details = processBrukerImages(parent_folder_path = parent_folder_path,
+                                           image_folders = image_folders,
+                                           processed_images_path = processed_images_path,
+                                           metadata_csv_path = metadata_csv_path,
+                                           microscope_type = microscope_type,
+                                           projection_type = projection_type,
+                                           single_plane = single_plane,
+                                           auto_metadata_extract = auto_metadata_extract,
+                                           test = test,
+                                           imagej_tags = imagej_tags,
+                                           log_details = log_details
+                                           )
+                                          
             
     # OLYMPUS WORKFLOW
     elif microscope_type == 'Olympus':
