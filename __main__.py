@@ -319,7 +319,7 @@ def main():
 
         print(f'Successfully saved hyperstack to {hyperstack_output_path}')
           
-    if microscope_type != 'Flamingo' and microscope_type != 'Olympus': # not doing olympus for testing for now  
+    if microscope_type != 'Flamingo': # not doing olympus for testing for now  
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
 
