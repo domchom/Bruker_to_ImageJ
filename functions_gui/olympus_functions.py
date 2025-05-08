@@ -18,77 +18,143 @@ def generateChannelProjectionsOlympus(channel_filenames: dict,
     str: The type of image generated based on the projection.
     """    
     final_channel_image_arrays = {}
+    
     for channel_name, filenames in channel_filenames.items():
-        # create a set to keep track of processed files to avoid duplicates
-        # and to ensure we only process each file once
+        # create a set to keep track of processed files to avoid duplicates and to ensure we only process each file once
         processed_files = set()
-        # Find the highest Z number in the whole list of filenames
-        all_z_numbers = [
-            extractZNumber(f) for f in filenames if extractZNumber(f) != float('inf')
-        ]
-        z_planes_per_frame = max(all_z_numbers) if all_z_numbers else 0
+        # Find the highest Z number in the whole list of filenames to determine the number of Z planes per frame
+        z_planes_per_frame = getMaxZPlanes(filenames)
         for filename in filenames:
             if filename in processed_files:
                 continue  # Skip files we've already processed
             # Extract identifiers
-            basename = os.path.basename(filename).replace('.tif',"")
-            frame_number = os.path.basename(filename).split('T')[1][:3] if 'T' in basename else None
-            z_plane_number = os.path.basename(filename).split('Z')[1][:3] if 'Z' in basename else None 
-            channel_number = os.path.basename(filename).split('C')[1][:3] if 'C' in basename else None
+            frame_number, z_plane_number, channel_number = extractIdentifiers(filename)
             # Find the matching files based on whether identifiers are present
-            if frame_number and channel_number and z_plane_number:
-                matching_files = [
-                    f for f in filenames if f"T{frame_number}" in f and f"C{channel_number}" in f
-                ]
-                image_type = 'multiplane_multiframe' 
-            elif frame_number and channel_number and not z_plane_number:
-                matching_files = [
-                    f for f in filenames if f"T{frame_number}" in f and f"C{channel_number}" in f
-                ]
-                image_type = 'singleplane_multiframe'
-            elif not frame_number and channel_number and z_plane_number:
-                matching_files = [
-                    f for f in filenames if f"C{channel_number}" in f
-                ]
-                image_type = 'multiplane_singleframe'
-            elif not frame_number and channel_number and not z_plane_number:
-                matching_files = [
-                    f for f in filenames if f"C{channel_number}" in f
-                ]
-                image_type = 'singleplane_singleframe'
+            matching_files, image_type = getMatchingFiles(filenames, frame_number, z_plane_number, channel_number)
                         
             # Mark files as processed
             processed_files.update(matching_files)
             
-            # sort the matching files by Z number to ensure correct stacking
+            # Sort the matching files by Z number to ensure correct stacking
             matching_files = sorted(matching_files, key=extractZNumber)
-            if len(matching_files) != z_planes_per_frame and z_planes_per_frame != 0:
+            
+            # Check if the number of matching files is consistent with the expected number of Z planes
+            if len(matching_files) != z_planes_per_frame:
                 continue  # Skip if the number of matching files is not consistent
             
-            # Read the images from the matching files
-            images = [tifffile.imread(file, is_ome=False) for file in matching_files]
-            # Stack the images along the Z axis
-            images = np.stack(images, axis=0)
-            # Perform the projection if requested
-            if 'single_plane' not in image_type:
-                if projection_type == 'max':
-                    images = np.max(images, axis=0)
-                    image_type = image_type + '_maxproject'
-                elif projection_type == 'avg':
-                    images = np.mean(images, axis=0)
-                    images = np.round(images).astype(np.uint16) 
-                    image_type = image_type + '_avgproject'
-                else:
-                    image_type = image_type + '_raw'
+            # create the final image type based on the projection type
+            final_image, final_image_type = loadAndProjectImages(matching_files, image_type, projection_type)
             
-            # Check if the channel name already exists in the dictionary
-            # and append the images to the list
+            # Check if the channel name already exists in the dictionary and append the images to the list
             if channel_name not in final_channel_image_arrays:
                 final_channel_image_arrays[channel_name] = []
-            final_channel_image_arrays[channel_name].append(images)
+            final_channel_image_arrays[channel_name].append(final_image)
             
-    return final_channel_image_arrays, image_type
-           
+    return final_channel_image_arrays, final_image_type
+
+def getMaxZPlanes(filenames: list) -> int:
+    """
+    Get the maximum number of Z planes from a list of filenames.
+    
+    Parameters:
+    filenames (list): List of filenames to extract Z numbers from.
+    
+    Returns:
+    int: The maximum number of Z planes found in the filenames.
+    """
+    all_z_numbers = [extractZNumber(f) for f in filenames if extractZNumber(f) != float('inf')]
+    z_planes_per_frame = max(all_z_numbers) if all_z_numbers else 0
+    return z_planes_per_frame
+
+def extractIdentifiers(filename: str) -> tuple:
+    """
+    Extract the identifiers from the filename.
+    
+    Parameters:
+    filename (str): The filename to extract identifiers from.
+    
+    Returns:
+    tuple: A tuple containing the frame number, Z plane number, and channel number.
+    """
+    basename = os.path.basename(filename).replace('.tif', "")
+    frame_number = basename.split('T')[1][:3] if 'T' in basename else None
+    z_plane_number = basename.split('Z')[1][:3] if 'Z' in basename else None
+    channel_number = basename.split('C')[1][:3] if 'C' in basename else None
+    return frame_number, z_plane_number, channel_number
+
+def getMatchingFiles(filenames: list, 
+                     frame_number: str, 
+                     z_plane_number: str, 
+                     channel_number: str) -> tuple:
+    """
+    Get the matching files based on the provided identifiers.
+    
+    Parameters:
+    filenames (list): List of filenames to search for matches.
+    frame_number (str): The frame number to match.
+    z_plane_number (str): The Z plane number to match.
+    channel_number (str): The channel number to match.
+    
+    Returns:
+    tuple: A tuple containing the list of matching files and the type of image generated.
+    """
+    if frame_number and channel_number and z_plane_number:
+        matching_files = [
+            f for f in filenames if f"T{frame_number}" in f and f"C{channel_number}" in f
+        ]
+        image_type = 'multiplane_multiframe' 
+    elif frame_number and channel_number and not z_plane_number:
+        matching_files = [
+            f for f in filenames if f"T{frame_number}" in f and f"C{channel_number}" in f
+        ]
+        image_type = 'singleplane_multiframe'
+    elif not frame_number and channel_number and z_plane_number:
+        matching_files = [
+            f for f in filenames if f"C{channel_number}" in f
+        ]
+        image_type = 'multiplane_singleframe'
+    elif not frame_number and channel_number and not z_plane_number:
+        matching_files = [
+            f for f in filenames if f"C{channel_number}" in f
+        ]
+        image_type = 'singleplane_singleframe'
+        
+    return matching_files, image_type
+            
+def loadAndProjectImages(matching_files: list, 
+                         image_type: str, 
+                         projection_type: str) -> tuple:
+    """
+    Load and project images based on the matching files and projection type.
+    
+    Parameters:
+    matching_files (list): List of matching file paths.
+    image_type (str): Type of image to generate.
+    projection_type (str): Type of projection to apply ('max', 'avg', or 'raw').
+    
+    Returns:
+    np.ndarray: The projected image.
+    str: The type of image generated based on the projection.
+    """
+    # Read the images from the matching files
+    images = [tifffile.imread(file, is_ome=False) for file in matching_files]
+    # Stack the images along the Z axis
+    images = np.stack(images, axis=0)
+    # Perform the projection if requested
+    if 'single_plane' not in image_type:
+        if projection_type == 'max':
+            images = np.max(images, axis=0)
+            image_type = image_type + '_maxproject'
+        elif projection_type == 'avg':
+            images = np.mean(images, axis=0)
+            images = np.round(images).astype(np.uint16) 
+            image_type = image_type + '_avgproject'
+        else:
+            image_type = image_type + '_raw'
+    
+    return images, image_type
+        
+               
 def extractTNumber(filename: str) -> int:
     """
     Extract the T number from the filename.
