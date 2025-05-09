@@ -30,7 +30,7 @@ def default_parameters():
     return {
         'folder_path': 'tests/test_data/bruker_multiplane',
         'image_folders':image_folders,
-        'projection_type': 'max',
+        'projection_type': None,
         'single_plane': False,
         'microscope_type': 'Bruker',
         'auto_metadata_extract': True,
@@ -46,8 +46,8 @@ def default_parameters():
                    }
         }
 
-def test_standard_workflow(default_parameters):
-    loaded_arrays = np.load('tests/assets/hyperstack_arrays.npz')
+def test_bruker_multiplane_workflow(default_parameters):
+    loaded_arrays = np.load('tests/assets/bruker_multiplane_hyperstack_arrays.npz')
     known_arrays = [loaded_arrays[f'array_{i}'] for i in range(len(loaded_arrays.files))]
     
     log_details, list_of_arrays = processBrukerImages(parent_folder_path=default_parameters['folder_path'],

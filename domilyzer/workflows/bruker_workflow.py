@@ -90,7 +90,7 @@ def processBrukerImages(parent_folder_path: str,
             hyperstack = projectNumpyArraysBruker(hyperstack=hyperstack, 
                                                     image_type=image_type, 
                                                     projection_type=projection_type)
-            
+                        
             if auto_metadata_extract is True:
                 # Recalculate the frame rate for single plane: divide by number of frames
                 extracted_metadata['framerate'] = extracted_metadata['framerate'] / hyperstack.shape[0] if 'single_plane' in image_type else extracted_metadata['framerate']
@@ -110,7 +110,6 @@ def processBrukerImages(parent_folder_path: str,
 
             # Save the hyperstack
             if test == False:
-                
                 saveImageJHyperstack(hyperstack=hyperstack, 
                                         axes=imageJ_axes, 
                                         metadata=extracted_metadata, 
@@ -131,11 +130,11 @@ def processBrukerImages(parent_folder_path: str,
             pass
         
     
-    # Save the list of hyperstack arrays as a numpy file
-    if test == True:
+    # Save the list of hyperstack arrays as a numpy file for testing
+    '''if test == True:
         hyperstack_save_path = os.path.join('/Users/domchom/Downloads', "hyperstack_arrays.npz")
         # Save each array with a unique key
         np.savez_compressed(hyperstack_save_path, **{f'array_{i}': arr for i, arr in enumerate(hyperstack_arrays)})
-        print(f"Hyperstack arrays saved to {hyperstack_save_path}")
+        print(f"Hyperstack arrays saved to {hyperstack_save_path}")'''
             
     return log_details, hyperstack_arrays
