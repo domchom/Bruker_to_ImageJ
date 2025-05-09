@@ -170,10 +170,16 @@ class BaseGUI(tk.Tk):
           
         # Load special Fiji LUTs into the dictionary
         # Note: This is a hardcoded path for now, but it should be changed to a relative path in the future
-        for lut_file in sorted(os.listdir(os.path.join(os.path.dirname(__file__), '../assets/LUTs/'))):
+        fiji_luts = {}
+
+        # Compute the absolute path to the LUTs directory
+        luts_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'LUTs'))
+
+        for lut_file in sorted(os.listdir(luts_dir)):
             if lut_file.endswith('.lut'):
                 lut_name = lut_file.split('.')[0]
-                fiji_luts[lut_name] = self.load_fiji_lut(os.path.join(os.path.dirname(__file__), '../assets/LUTs/', lut_file))
+                lut_path = os.path.join(luts_dir, lut_file)
+                fiji_luts[lut_name] = self.load_fiji_lut(lut_path)
 
         return fiji_luts
         

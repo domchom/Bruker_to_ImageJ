@@ -1,10 +1,10 @@
 import os
-from functions_gui.general_functions import (
+from domilyzer.functions_gui.general_functions import (
     organizeFilesByChannel,
     saveImageJHyperstack
 )
     
-from functions_gui.olympus_functions import (
+from domilyzer.functions_gui.olympus_functions import (
     generateChannelProjectionsOlympus, 
     stackChannelsGenHyperstackOlympus,
     extractTNumber

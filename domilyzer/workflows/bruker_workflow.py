@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from functions_gui.bruker_functions import (
+from domilyzer.functions_gui.bruker_functions import (
     determineImageTypeBruker,
     extractMetadataFromXMLBruker,
     convertImagesToNumpyArraysBruker,
@@ -9,7 +9,7 @@ from functions_gui.bruker_functions import (
     writeMetadataCsvBruker
     )
 
-from functions_gui.general_functions import (
+from domilyzer.functions_gui.general_functions import (
     organizeFilesByChannel,
     adjustImageJAxes,
     saveImageJHyperstack,
@@ -44,6 +44,8 @@ def processBrukerImages(parent_folder_path: str,
     Returns:
     - log_details (dict): Log details including processed and not processed files.
     """
+    hyperstack_arrays = [] # List to store shapes of hyperstacks for testing
+    
     for folder_name in image_folders:
         print('******'*10)
         try:
@@ -104,16 +106,19 @@ def processBrukerImages(parent_folder_path: str,
             # determine the axes for the hyperstack
             imageJ_axes = adjustImageJAxes(image_type=image_type)
             
+            hyperstack_arrays.append(hyperstack) # Append the shape of the hyperstack for testing
+
             # Save the hyperstack
-            saveImageJHyperstack(hyperstack=hyperstack, 
-                                    axes=imageJ_axes, 
-                                    metadata=extracted_metadata, 
-                                    image_output_name=image_output_name, 
-                                    imagej_tags=imagej_tags
-                                    )
-            
-            # Create metadata for the hyperstack, and update the log file to save after all folders are processed
             if test == False:
+                
+                saveImageJHyperstack(hyperstack=hyperstack, 
+                                        axes=imageJ_axes, 
+                                        metadata=extracted_metadata, 
+                                        image_output_name=image_output_name, 
+                                        imagej_tags=imagej_tags
+                                        )
+            
+                # Create metadata for the hyperstack, and update the log file to save after all folders are processed
                 log_details = writeMetadataCsvBruker(metadata=extracted_metadata, 
                                                     metadata_csv_path=metadata_csv_path, 
                                                     folder_name=folder_name, 
@@ -125,4 +130,12 @@ def processBrukerImages(parent_folder_path: str,
             print(f"Error processing {folder_name}!: {e}")
             pass
         
-    return log_details
+    
+    # Save the list of hyperstack arrays as a numpy file
+    if test == True:
+        hyperstack_save_path = os.path.join('/Users/domchom/Downloads', "hyperstack_arrays.npz")
+        # Save each array with a unique key
+        np.savez_compressed(hyperstack_save_path, **{f'array_{i}': arr for i, arr in enumerate(hyperstack_arrays)})
+        print(f"Hyperstack arrays saved to {hyperstack_save_path}")
+            
+    return log_details, hyperstack_arrays

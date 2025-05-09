@@ -1,5 +1,10 @@
 [tool.poetry]
-name = "Domilyzer"
+name = "domilyzer"
+version = "0.1.0"
+description = "raw microscope file conversion to Tiff files"
+authors = ["Dominic Chomchai <chomchai@wisc.edu>"]
+readme = "README.md"
+packages = [{include = "domilyzer"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8"

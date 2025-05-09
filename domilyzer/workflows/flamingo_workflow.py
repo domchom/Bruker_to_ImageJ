@@ -1,6 +1,6 @@
 import os 
 
-from functions_gui.flamingo_functions import (
+from domilyzer.functions_gui.flamingo_functions import (
     getNumChannelsFlamingo,
     getNumFramesFlamingo,
     getNumIlluminationSidesFlamingo,
@@ -8,7 +8,7 @@ from functions_gui.flamingo_functions import (
     mergeNumpyArrayIlluminationSidesFlamingo
 )
 
-from functions_gui.general_functions import (
+from domilyzer.functions_gui.general_functions import (
     saveImageJHyperstack
 )
 
