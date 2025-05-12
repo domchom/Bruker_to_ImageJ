@@ -125,7 +125,7 @@ def main():
     
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
-        log_details, hyperstack_shapes = processBrukerImages(parent_folder_path = parent_folder_path,
+        log_details, hyperstack_arrays = processBrukerImages(parent_folder_path = parent_folder_path,
                                            image_folders = image_folders,
                                            processed_images_path = processed_images_path,
                                            metadata_csv_path = metadata_csv_path,
@@ -141,13 +141,14 @@ def main():
             
     # OLYMPUS WORKFLOW
     elif microscope_type == 'Olympus':
-        processOlympusImages(parent_folder_path=parent_folder_path,
-                            processed_images_path=processed_images_path,
-                            microscope_type=microscope_type,
-                            projection_type=projection_type,
-                            imagej_tags=imagej_tags,
-                            image_folders=image_folders
-                            )
+        hyperstack_arrays = processOlympusImages(parent_folder_path=parent_folder_path,
+                                                processed_images_path=processed_images_path,
+                                                microscope_type=microscope_type,
+                                                projection_type=projection_type,
+                                                imagej_tags=imagej_tags,
+                                                image_folders=image_folders,
+                                                test = manual_test
+                                                )
                                     
     # FLAMINGO WORKFLOW
     elif microscope_type == 'Flamingo':

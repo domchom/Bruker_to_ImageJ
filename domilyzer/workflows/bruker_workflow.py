@@ -130,8 +130,8 @@ def processBrukerImages(parent_folder_path: str,
             pass
         
     
-    # Save the list of hyperstack arrays as a numpy file for testing
-    '''if test == True:
+    '''# Save the list of hyperstack arrays as a numpy file for testing
+    if test == True and projection_type == 'avg':
         hyperstack_save_path = os.path.join('/Users/domchom/Downloads', "hyperstack_arrays.npz")
         # Save each array with a unique key
         np.savez_compressed(hyperstack_save_path, **{f'array_{i}': arr for i, arr in enumerate(hyperstack_arrays)})

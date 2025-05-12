@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from domilyzer.functions_gui.general_functions import (
     organizeFilesByChannel,
     saveImageJHyperstack
@@ -15,7 +16,8 @@ def processOlympusImages(parent_folder_path: str,
                          microscope_type: str,
                          projection_type: str,
                          imagej_tags: dict,
-                         image_folders: list = None
+                         image_folders: list = None,
+                         test = False
                          ) -> None:
     """
     Process Olympus images by organizing them into channels, generating projections, and saving them as hyperstacks.
@@ -28,6 +30,8 @@ def processOlympusImages(parent_folder_path: str,
     - imagej_tags (dict): Tags to be used for saving the images in ImageJ format.
     - image_folders (list): List of image folders to process. If None, all folders in the parent folder will be processed.
     """
+    
+    hyperstack_arrays = [] # List to store shapes of hyperstacks for testing
     
     for image_folder in image_folders:
         print('******'*10)
@@ -76,17 +80,28 @@ def processOlympusImages(parent_folder_path: str,
             
         elif 'multiframe' in image_type and projection_type is not None:
             imageJAxes = 'TCYX'
+            
+        hyperstack_arrays.append(hyperstack) # Append the shape of the hyperstack for testing
         
-        # print(f"Saving hyperstack to {hyperstack_output_path}...")
-        print(f"Hyperstack shape: {hyperstack.shape}")
-        print(f"ImageJ axes: {imageJAxes}")
-        
-        # Save the hyperstack
-        saveImageJHyperstack(hyperstack, 
-                        axes = imageJAxes,
-                        metadata = None, # for now, flamingo data doesn't have metadata
-                        image_output_name = hyperstack_output_path, 
-                        imagej_tags = imagej_tags
-                        )     
+        if test == False:
+            # print(f"Saving hyperstack to {hyperstack_output_path}...")
+            print(f"Hyperstack shape: {hyperstack.shape}")
+            
+            # Save the hyperstack
+            saveImageJHyperstack(hyperstack, 
+                            axes = imageJAxes,
+                            metadata = None, # for now, flamingo data doesn't have metadata
+                            image_output_name = hyperstack_output_path, 
+                            imagej_tags = imagej_tags
+                            )     
         
         print(f'Successfully processed {base_filename}')
+        
+        # Save the list of hyperstack arrays as a numpy file for testing
+        '''if test == True and projection_type == None:
+            hyperstack_save_path = os.path.join('/Users/domchom/Downloads', "hyperstack_arrays.npz")
+            # Save each array with a unique key
+            np.savez_compressed(hyperstack_save_path, **{f'array_{i}': arr for i, arr in enumerate(hyperstack_arrays)})
+            print(f"Hyperstack arrays saved to {hyperstack_save_path}")'''
+        
+        return hyperstack_arrays
