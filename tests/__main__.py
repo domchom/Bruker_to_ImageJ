@@ -14,7 +14,7 @@ from domilyzer.workflows.olympus_workflow import processOlympusImages
 from domilyzer.workflows.flamingo_workflow import processFlamingoImages
 
 def main():
-    manual_test = True # Set to True for manual testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
+    manual_test = False # Set to True for manual testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
     if not manual_test:
         # Bruker GUI
