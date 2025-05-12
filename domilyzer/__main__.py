@@ -2,22 +2,21 @@ import os
 import timeit
 import shutil
 import numpy as np
-from functions_gui.gui import BaseGUI, FlamingoGUI, OlympusGUI
-from functions_gui.general_functions import (
+from domilyzer.functions_gui.gui import BaseGUI, FlamingoGUI, OlympusGUI
+from domilyzer.functions_gui.general_functions import (
     initializeOutputFolders,
     initializeLogFile,
     saveLogFile,
     createImageJMetadataTags,
 )
-
-from workflows.bruker_workflow import processBrukerImages
-from workflows.olympus_workflow import processOlympusImages
-from workflows.flamingo_workflow import processFlamingoImages
+from domilyzer.workflows.bruker_workflow import processBrukerImages
+from domilyzer.workflows.olympus_workflow import processOlympusImages
+from domilyzer.workflows.flamingo_workflow import processFlamingoImages
 
 def main():
-    test = False # Set to True for testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
+    manual_test = False # Set to True for manual testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
-    if not test:
+    if not manual_test:
         # Bruker GUI
         gui = BaseGUI()
         gui.mainloop()
@@ -81,16 +80,16 @@ def main():
         magenta[2] = np.arange(256, dtype='uint8')
         
         #parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
-        #parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/bruker'
-        parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
+        parent_folder_path = '/Users/domchom/Documents/GitHub/domilyzer/tests/test_data/bruker_multiplane'
+        #parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
         avg_projection = False
-        max_projection = True
+        max_projection = False
         single_plane = False
         ch1_lut = red
         ch2_lut = green
         ch3_lut = blue
         ch4_lut = magenta
-        microscope_type = 'Flamingo' # 'Flamingo' or 'Bruker'
+        microscope_type = 'Bruker' # 'Flamingo' or 'Bruker'
         auto_metadata_extract = True
         
     # Performance tracker
@@ -116,7 +115,7 @@ def main():
         image_folders = sorted([folder for folder in os.listdir(parent_folder_path) if os.path.isdir(os.path.join(parent_folder_path, folder))])
     
         # Initialize output folders, logging, and metadata CSV outout paths
-        if not test:
+        if not manual_test:
             processed_images_path, scope_folders_path = initializeOutputFolders(parent_folder_path = parent_folder_path)
             metadata_csv_path = os.path.join(processed_images_path, "!image_metadata.csv")
         else:
@@ -126,7 +125,7 @@ def main():
     
     # BRUKER WORKFLOW
     if microscope_type == 'Bruker':
-        log_details = processBrukerImages(parent_folder_path = parent_folder_path,
+        log_details, hyperstack_arrays = processBrukerImages(parent_folder_path = parent_folder_path,
                                            image_folders = image_folders,
                                            processed_images_path = processed_images_path,
                                            metadata_csv_path = metadata_csv_path,
@@ -134,7 +133,7 @@ def main():
                                            projection_type = projection_type,
                                            single_plane = single_plane,
                                            auto_metadata_extract = auto_metadata_extract,
-                                           test = test,
+                                           test = manual_test,
                                            imagej_tags = imagej_tags,
                                            log_details = log_details
                                            )
@@ -142,13 +141,14 @@ def main():
             
     # OLYMPUS WORKFLOW
     elif microscope_type == 'Olympus':
-        processOlympusImages(parent_folder_path=parent_folder_path,
-                            processed_images_path=processed_images_path,
-                            microscope_type=microscope_type,
-                            projection_type=projection_type,
-                            imagej_tags=imagej_tags,
-                            image_folders=image_folders
-                            )
+        hyperstack_arrays = processOlympusImages(parent_folder_path=parent_folder_path,
+                                                processed_images_path=processed_images_path,
+                                                microscope_type=microscope_type,
+                                                projection_type=projection_type,
+                                                imagej_tags=imagej_tags,
+                                                image_folders=image_folders,
+                                                test = manual_test
+                                                )
                                     
     # FLAMINGO WORKFLOW
     elif microscope_type == 'Flamingo':
@@ -157,7 +157,7 @@ def main():
                                 imagej_tags=imagej_tags
                                 )
           
-    if microscope_type != 'Flamingo' and test == False: # not doing olympus for testing for now  
+    if microscope_type != 'Flamingo' and manual_test == False: # not doing olympus for testing for now  
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
 

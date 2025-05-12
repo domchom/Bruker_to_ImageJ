@@ -1,7 +1,7 @@
-from functions_gui.general_functions import *
-from functions_gui.bruker_functions import *
-from functions_gui.flamingo_functions import *
-from functions_gui.olympus_functions import *
+from domilyzer.functions_gui.general_functions import *
+from domilyzer.functions_gui.bruker_functions import *
+from domilyzer.functions_gui.flamingo_functions import *
+from domilyzer.functions_gui.olympus_functions import *
 
 __all__ = ["initializeOutputFolders",
            "initializeLogFile",

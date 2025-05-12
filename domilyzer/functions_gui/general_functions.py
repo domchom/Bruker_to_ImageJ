@@ -39,7 +39,9 @@ def adjustImageJAxes(image_type: str) -> str:
         axes = 'ZCYX' 
     elif image_type == 'single_plane_multi_frame':
         axes = 'TZCYX'
-        
+    else:
+        axes = 'TZCYX'
+                
     return axes
 
 def organizeFilesByChannel(folder_tif_filenames: list, microscope_type: str) -> dict:
