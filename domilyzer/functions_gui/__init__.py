@@ -29,5 +29,5 @@ __all__ = ["initializeOutputFolders",
            "stackChannelsGenHyperstackOlympus"
            "generateChannelProjectionsOlympus",
            "extractTNumber",
-           "extractMetadataFromPTYOlympus"
+           "extractMetadataFromOIFOlympus"
 ]

@@ -79,17 +79,17 @@ def main():
         magenta[0] = np.arange(256, dtype='uint8')
         magenta[2] = np.arange(256, dtype='uint8')
         
-        #parent_folder_path = '/Users/domchom/Documents/GitHub/Bruker_to_ImageJ/tests/test_data/olympus'
-        parent_folder_path = '/Users/domchom/Documents/GitHub/domilyzer/tests/test_data/bruker_multiplane'
+        parent_folder_path = 'tests/test_data/olympus'
+        #parent_folder_path = '/Users/domchom/Documents/GitHub/domilyzer/tests/test_data/bruker_multiplane'
         #parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
         avg_projection = False
-        max_projection = False
+        max_projection = True
         single_plane = False
         ch1_lut = red
         ch2_lut = green
         ch3_lut = blue
         ch4_lut = magenta
-        microscope_type = 'Bruker' # 'Flamingo' or 'Bruker'
+        microscope_type = 'Olympus' # 'Flamingo' or 'Bruker'
         auto_metadata_extract = True
         
     # Performance tracker
@@ -160,6 +160,10 @@ def main():
     if microscope_type != 'Flamingo' and manual_test == False: # not doing olympus for testing for now  
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
+            # Move all .oif files if they exist to scope_folders
+            oif_files = [file for file in os.listdir(parent_folder_path) if file.endswith('.oif')]
+            for oif_file in oif_files:
+                shutil.move(os.path.join(parent_folder_path, oif_file), os.path.join(scope_folders_path, oif_file))
 
             end_time = timeit.default_timer()
             log_details["Time Elapsed"] = f"{end_time - start_time:.2f} seconds"
