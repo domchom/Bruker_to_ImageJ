@@ -8,7 +8,8 @@ from domilyzer.functions_gui.general_functions import (
 from domilyzer.functions_gui.olympus_functions import (
     generateChannelProjectionsOlympus, 
     stackChannelsGenHyperstackOlympus,
-    extractTNumber
+    extractTNumber,
+    extractMetadataFromOIFOlympus
 )    
     
 def processOlympusImages(parent_folder_path: str,
@@ -32,6 +33,7 @@ def processOlympusImages(parent_folder_path: str,
     """
     
     hyperstack_arrays = [] # List to store shapes of hyperstacks for testing
+    print(image_folders)
     
     for image_folder in image_folders:
         print('******'*10)
@@ -39,8 +41,23 @@ def processOlympusImages(parent_folder_path: str,
         # get the folder path
         image_folder_path = os.path.join(parent_folder_path, image_folder)
         
-        # extract metadata from the folder name, still need to be finished
-        # extractMetadataFromPTYOlympus(image_folder_path)
+        # Find the matching .oif file path in the parent folder
+        OIFfilepath = None
+        for root, dirs, files in os.walk(parent_folder_path):
+            for file in files:
+                if file.endswith(".oif") and os.path.basename(file).replace(".oif", ".oif.files") == image_folder:
+                    OIFfilepath = os.path.join(root, file)
+                    break
+            if OIFfilepath:
+                break
+            
+        # extract metadata from the folder name
+        metadata = {}
+        total_time_sec, pixel_width, pixel_unit = extractMetadataFromOIFOlympus(file_path=OIFfilepath)
+        metadata['X_microns_per_pixel'] = pixel_width
+        metadata['Y_microns_per_pixel'] = pixel_width
+        metadata['pixel_unit'] = pixel_unit
+        # calculate the frame interval later once we know the shape of the hyperstack
         
         # get all tiff files in the folder
         tif_filenames = [file for file in os.listdir(image_folder_path) if file.endswith('.tif') and file.startswith('s') and not any(r in file for r in ['-R001', '-R002', '-R003', '-R004'])]
@@ -87,10 +104,14 @@ def processOlympusImages(parent_folder_path: str,
             # print(f"Saving hyperstack to {hyperstack_output_path}...")
             print(f"Hyperstack shape: {hyperstack.shape}")
             
+            # calculate the frame interval in seconds
+            frame_interval = total_time_sec / hyperstack.shape[0] if 'singleframe' not in image_type else 0
+            metadata['framerate'] = frame_interval
+            
             # Save the hyperstack
             saveImageJHyperstack(hyperstack, 
                             axes = imageJAxes,
-                            metadata = None, # for now, flamingo data doesn't have metadata
+                            metadata = metadata,
                             image_output_name = hyperstack_output_path, 
                             imagej_tags = imagej_tags
                             )     
@@ -104,4 +125,4 @@ def processOlympusImages(parent_folder_path: str,
             np.savez_compressed(hyperstack_save_path, **{f'array_{i}': arr for i, arr in enumerate(hyperstack_arrays)})
             print(f"Hyperstack arrays saved to {hyperstack_save_path}")'''
         
-        return hyperstack_arrays
+    return hyperstack_arrays

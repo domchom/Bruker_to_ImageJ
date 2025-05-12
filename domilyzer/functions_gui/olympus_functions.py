@@ -2,7 +2,7 @@ import os
 import re
 import numpy as np
 import tifffile
-
+from oiffile import OifFile
 
 def generateChannelProjectionsOlympus(channel_filenames: dict, 
                                       projection_type: str ='max'
@@ -243,35 +243,26 @@ def stackChannelsGenHyperstackOlympus(channel_image_arrays: dict) -> np.ndarray:
     
     return merged_images
 
-def extractMetadataFromPTYOlympus(folder_path: str) -> float:
+def extractMetadataFromOIFOlympus(file_path: str) -> float:
     """
-    Extract the 'Time Per Series' value from the latest .pty file in the specified folder.
+    Extract the total time from an Olympus OIF file.
     
     Parameters:
-    folder_path (str): The path to the folder containing .pty files.
+    file_path (str): Path to the OIF file.
     
     Returns:
-    
+    float: The total time in seconds.
     """
-    pty_files = [
-        f for f in os.listdir(folder_path)
-        if f.endswith('.pty') and f.startswith('s') and not any(r in f for r in ['-R001', '-R002', '-R003', '-R004', 'Thumb'])
-    ]
-    if not pty_files:
-        raise FileNotFoundError("No matching .pty files found in the folder.")
+    with OifFile(file_path) as oif:
+        # Main file metadata is stored in a dict-like structure
+        main_metadata = oif.mainfile
 
-    # Sort the files by T number and Z number to ensure we get the last one
-    pty_files = sorted(pty_files)
-    pty_files = sorted(pty_files, key=extractZNumber)
-    pty_files = sorted(pty_files, key=extractTNumber)
+        # Print all keys to inspect structure if needed
+        # print(main_metadata.keys())
 
-    final_pty = pty_files[-1]
-
-    with open(os.path.join(folder_path, final_pty), 'r') as file:
-        for line in file:
-            if 'Time Per Series' in line:
-                total_time = float(line.split('=')[1].strip().replace('"', ''))
-                print(total_time)
-                return total_time
-
-    raise ValueError("'Time Per Series' not found in the file.")
+        # Time interval is usually stored in milliseconds
+        total_time_ms = float(main_metadata['Axis 4 Parameters Common']['EndPosition'])
+        pixel_width = float(main_metadata['Reference Image Parameter']['HeightConvertValue'])
+        pixel_unit = main_metadata['Reference Image Parameter']['HeightUnit']
+    
+    return total_time_ms / 1000.0, pixel_width, pixel_unit  # Convert to seconds
