@@ -33,7 +33,6 @@ def processOlympusImages(parent_folder_path: str,
     """
     
     hyperstack_arrays = [] # List to store shapes of hyperstacks for testing
-    print(image_folders)
     
     for image_folder in image_folders:
         print('******'*10)
@@ -75,6 +74,8 @@ def processOlympusImages(parent_folder_path: str,
         # organize and project the images for each channel
         channel_image_arrays, image_type = generateChannelProjectionsOlympus(channel_filenames=channel_filenames, 
                                                                     projection_type=projection_type)
+        
+        print(f"Image type: {image_type}")
                     
         # Stack the images for each channel, then combine them into a hyperstack
         hyperstack = stackChannelsGenHyperstackOlympus(channel_image_arrays=channel_image_arrays)
