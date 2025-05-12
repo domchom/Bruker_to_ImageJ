@@ -160,6 +160,10 @@ def main():
     if microscope_type != 'Flamingo' and manual_test == False: # not doing olympus for testing for now  
         for folder_name in image_folders:
             shutil.move(os.path.join(parent_folder_path, folder_name), os.path.join(scope_folders_path, folder_name))
+            # Move all .oif files if they exist to scope_folders
+            oif_files = [file for file in os.listdir(parent_folder_path) if file.endswith('.oif')]
+            for oif_file in oif_files:
+                shutil.move(os.path.join(parent_folder_path, oif_file), os.path.join(scope_folders_path, oif_file))
 
             end_time = timeit.default_timer()
             log_details["Time Elapsed"] = f"{end_time - start_time:.2f} seconds"
