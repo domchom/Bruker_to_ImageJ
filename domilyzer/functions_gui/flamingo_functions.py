@@ -1,6 +1,7 @@
 import tqdm
 import tifffile
 import numpy as np
+from PIL import Image
 
 def getNumChannelsFlamingo(file_list: list) -> tuple:
     """
@@ -212,3 +213,36 @@ def mergeNumpyArrayIlluminationSidesFlamingo(images: list,
         final_hyperstack.append(hyperstack)
 
     return np.stack(final_hyperstack, axis=0)
+
+def createFlamingoPreview(image_array: np.array,
+                          num_frames: int,
+                          num_channels: int,
+                          ) -> None:
+    """
+    Create a preview of the images by applying a z-projection.
+    
+    Parameters
+    image : np.array
+        The image to be projected.
+    num_frames : int
+        Number of frames in the images.
+    num_channels : int
+        Number of channels in the images.
+    channels : list
+        List of channel numbers.
+    projection : str
+        Type of projection to apply ('max', 'avg', or 'sum').  
+    
+    Returns
+    np.array
+        The projected image.
+    """
+    # Create a preview of the images by applying a z-projection
+    channel_images = [image_array[:, channel, :, :] for channel in range(num_channels)]
+    
+    for channel in range(num_channels):
+        imgs = [Image.fromarray(img) for img in channel_images[channel]]
+        # imgs = [img.convert("L").convert("P", palette=Image.ADAPTIVE, colors=256) for img in imgs]
+
+        # duration is the number of milliseconds between frames; this is 40 frames per second
+        imgs[0].save(f"/Users/domchom/Desktop/output{channel}.gif", save_all=True, append_images=imgs[1:], duration=50, loop=1)

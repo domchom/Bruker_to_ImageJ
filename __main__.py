@@ -14,7 +14,7 @@ from domilyzer.workflows.olympus_workflow import processOlympusImages
 from domilyzer.workflows.flamingo_workflow import processFlamingoImages
 
 def main():
-    manual_test = False # Set to True for manual testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
+    manual_test = True # Set to True for manual testing purposes, will skip GUI and use test data. Also will not move folders to processed images folder.
     
     if not manual_test:
         # Bruker GUI
@@ -79,9 +79,9 @@ def main():
         magenta[0] = np.arange(256, dtype='uint8')
         magenta[2] = np.arange(256, dtype='uint8')
         
-        parent_folder_path = 'tests/test_data/olympus'
-        #parent_folder_path = '/Users/domchom/Documents/GitHub/domilyzer/tests/test_data/bruker_multiplane'
-        #parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
+        #parent_folder_path = 'tests/test_data/olympus'
+        #parent_folder_path = 'tests/test_data/bruker_multiplane'
+        parent_folder_path = '/Users/domchom/Desktop/lab/test_data_flamingo/20250418_133945_280DCE_c1647SPY_c2_488phall_417SPY_flourg_cell6'
         avg_projection = False
         max_projection = True
         single_plane = False
@@ -89,7 +89,7 @@ def main():
         ch2_lut = green
         ch3_lut = blue
         ch4_lut = magenta
-        microscope_type = 'Olympus' # 'Flamingo' or 'Bruker'
+        microscope_type = 'Flamingo' # 'Flamingo' or 'Bruker'
         auto_metadata_extract = True
         
     # Performance tracker

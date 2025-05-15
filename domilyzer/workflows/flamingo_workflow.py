@@ -5,7 +5,8 @@ from domilyzer.functions_gui.flamingo_functions import (
     getNumFramesFlamingo,
     getNumIlluminationSidesFlamingo,
     convertImagesToNumpyArraysAndProjectFlamingo,
-    mergeNumpyArrayIlluminationSidesFlamingo
+    mergeNumpyArrayIlluminationSidesFlamingo,
+    createFlamingoPreview
 )
 
 from domilyzer.functions_gui.general_functions import (
@@ -74,11 +75,16 @@ def processFlamingoImages(parent_folder_path: str,
     print(f"Saving hyperstack to {hyperstack_output_path}...")
     
     # Save the hyperstack
-    saveImageJHyperstack(final_hyperstack, 
+    '''saveImageJHyperstack(final_hyperstack, 
                     imageJ_axes,
                     metadata = None, # for now, flamingo data doesn't have metadata
                     image_output_name = hyperstack_output_path, 
                     imagej_tags = imagej_tags
-                    ) 
+                    ) '''
+         
+    createFlamingoPreview(final_hyperstack,
+                          num_frames,
+                          num_channels)
+                          
 
     print(f'Successfully saved hyperstack to {hyperstack_output_path}')

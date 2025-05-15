@@ -25,6 +25,7 @@ __all__ = ["initializeOutputFolders",
            "convertImagesToNumpyArraysAndProjectFlamingo",
            "zProject",
            "mergeNumpyArrayIlluminationSidesFlamingo",
+           "createFlamingoPreview",
            
            "stackChannelsGenHyperstackOlympus"
            "generateChannelProjectionsOlympus",
